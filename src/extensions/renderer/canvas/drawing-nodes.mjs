@@ -1,25 +1,34 @@
 /* global Path2D */
 
-import * as is from '../../../is.mjs';
-import {expandPolygon, joinLines} from '../../../math.mjs';
-import * as util from '../../../util/index.mjs';
+import * as is from "../../../is.mjs";
+import { expandPolygon, joinLines } from "../../../math.mjs";
+import * as util from "../../../util/index.mjs";
 import * as round from "../../../round.mjs";
 import * as math from "../../../math.mjs";
 
 const CRp = {};
 
-CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, shouldDrawOverlay = true, shouldDrawOpacity = true ){
+CRp.drawNode = function (
+  context,
+  node,
+  shiftToOriginWithBb,
+  drawLabel = true,
+  shouldDrawOverlay = true,
+  shouldDrawOpacity = true,
+) {
   const r = this;
   let nodeWidth, nodeHeight;
   const _p = node._private;
   const rs = _p.rscratch;
   const pos = node.position();
 
-  if( !is.number( pos.x ) || !is.number( pos.y ) ){
+  if (!is.number(pos.x) || !is.number(pos.y)) {
     return; // can't draw node with undefined position
   }
 
-  if( shouldDrawOpacity && !node.visible() ){ return; }
+  if (shouldDrawOpacity && !node.visible()) {
+    return;
+  }
 
   const eleOpacity = shouldDrawOpacity ? node.effectiveOpacity() : 1;
 
@@ -36,109 +45,125 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   // setup shift
 
   let bb;
-  if( shiftToOriginWithBb ){
+  if (shiftToOriginWithBb) {
     bb = shiftToOriginWithBb;
 
-    context.translate( -bb.x1, -bb.y1 );
+    context.translate(-bb.x1, -bb.y1);
   }
 
   //
   // load bg image
 
-  const bgImgProp = node.pstyle( 'background-image' );
+  const bgImgProp = node.pstyle("background-image");
   const urls = bgImgProp.value;
-  const urlDefined = new Array( urls.length );
-  const image = new Array( urls.length );
+  const urlDefined = new Array(urls.length);
+  const image = new Array(urls.length);
   const numImages = 0;
-  for (let i = 0; i < urls.length; i++ ){
+  for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
-    const defd = urlDefined[i] = url != null && url !== 'none';
+    const defd = (urlDefined[i] = url != null && url !== "none");
 
-    if( defd ){
-      const bgImgCrossOrigin = node.cy().style().getIndexedStyle(node, 'background-image-crossorigin', 'value', i);
+    if (defd) {
+      const bgImgCrossOrigin = node
+        .cy()
+        .style()
+        .getIndexedStyle(node, "background-image-crossorigin", "value", i);
 
       numImages++;
 
       // get image, and if not loaded then ask to redraw when later loaded
-      image[i] = r.getCachedImage( url, bgImgCrossOrigin, function(){
+      image[i] = r.getCachedImage(url, bgImgCrossOrigin, function () {
         _p.backgroundTimestamp = Date.now();
 
-        node.emitAndNotify('background');
-      } );
+        node.emitAndNotify("background");
+      });
     }
   }
 
   //
   // setup styles
 
-  const darkness = node.pstyle('background-blacken').value;
-  const borderWidth = node.pstyle('border-width').pfValue;
-  const bgOpacity = node.pstyle('background-opacity').value * eleOpacity;
-  const borderColor = node.pstyle('border-color').value;
-  const borderStyle = node.pstyle('border-style').value;
-  const borderJoin = node.pstyle('border-join').value;
-  const borderCap = node.pstyle('border-cap').value;
-  const borderPosition = node.pstyle('border-position').value;
-  const borderPattern = node.pstyle('border-dash-pattern').pfValue;
-  const borderOffset = node.pstyle('border-dash-offset').pfValue;
-  const borderOpacity = node.pstyle('border-opacity').value * eleOpacity;
-  const outlineWidth = node.pstyle('outline-width').pfValue;
-  const outlineColor = node.pstyle('outline-color').value;
-  const outlineStyle = node.pstyle('outline-style').value;
-  const outlineOpacity = node.pstyle('outline-opacity').value * eleOpacity;
-  const outlineOffset = node.pstyle('outline-offset').value;
-  const cornerRadius = node.pstyle('corner-radius').value;
-  if (cornerRadius !== 'auto') cornerRadius = node.pstyle('corner-radius').pfValue;
+  const darkness = node.pstyle("background-blacken").value;
+  const borderWidth = node.pstyle("border-width").pfValue;
+  const bgOpacity = node.pstyle("background-opacity").value * eleOpacity;
+  const borderColor = node.pstyle("border-color").value;
+  const borderStyle = node.pstyle("border-style").value;
+  const borderJoin = node.pstyle("border-join").value;
+  const borderCap = node.pstyle("border-cap").value;
+  const borderPosition = node.pstyle("border-position").value;
+  const borderPattern = node.pstyle("border-dash-pattern").pfValue;
+  const borderOffset = node.pstyle("border-dash-offset").pfValue;
+  const borderOpacity = node.pstyle("border-opacity").value * eleOpacity;
+  const outlineWidth = node.pstyle("outline-width").pfValue;
+  const outlineColor = node.pstyle("outline-color").value;
+  const outlineStyle = node.pstyle("outline-style").value;
+  const outlineOpacity = node.pstyle("outline-opacity").value * eleOpacity;
+  const outlineOffset = node.pstyle("outline-offset").value;
+  const cornerRadius = node.pstyle("corner-radius").value;
+  if (cornerRadius !== "auto")
+    cornerRadius = node.pstyle("corner-radius").pfValue;
 
-  const setupShapeColor = ( bgOpy = bgOpacity ) => {
-    r.eleFillStyle( context, node, bgOpy );
+  const setupShapeColor = (bgOpy = bgOpacity) => {
+    r.eleFillStyle(context, node, bgOpy);
   };
 
-  const setupBorderColor = ( bdrOpy = borderOpacity ) => {
-    r.colorStrokeStyle( context, borderColor[0], borderColor[1], borderColor[2], bdrOpy );
+  const setupBorderColor = (bdrOpy = borderOpacity) => {
+    r.colorStrokeStyle(
+      context,
+      borderColor[0],
+      borderColor[1],
+      borderColor[2],
+      bdrOpy,
+    );
   };
 
-  const setupOutlineColor = ( otlnOpy = outlineOpacity ) => {
-    r.colorStrokeStyle( context, outlineColor[0], outlineColor[1], outlineColor[2], otlnOpy );
+  const setupOutlineColor = (otlnOpy = outlineOpacity) => {
+    r.colorStrokeStyle(
+      context,
+      outlineColor[0],
+      outlineColor[1],
+      outlineColor[2],
+      otlnOpy,
+    );
   };
 
   //
   // setup shape
 
   const getPath = (width, height, shape, points) => {
-    const pathCache = r.nodePathCache = r.nodePathCache || [];
+    const pathCache = (r.nodePathCache = r.nodePathCache || []);
 
     const key = util.hashStrings(
-      shape === 'polygon' ? shape + ',' + points.join(',') : shape,
-      '' + height,
-      '' + width,
-      '' + cornerRadius
+      shape === "polygon" ? shape + "," + points.join(",") : shape,
+      "" + height,
+      "" + width,
+      "" + cornerRadius,
     );
 
-    const cachedPath = pathCache[ key ];
+    const cachedPath = pathCache[key];
     let path;
     const cacheHit = false;
 
-    if( cachedPath != null ){
+    if (cachedPath != null) {
       path = cachedPath;
       cacheHit = true;
       rs.pathCache = path;
     } else {
       path = new Path2D();
-      pathCache[ key ] = rs.pathCache = path;
+      pathCache[key] = rs.pathCache = path;
     }
 
     return {
       path,
-      cacheHit
+      cacheHit,
     };
   };
 
-  const styleShape = node.pstyle('shape').strValue;
-  const shapePts = node.pstyle('shape-polygon-points').pfValue;
+  const styleShape = node.pstyle("shape").strValue;
+  const shapePts = node.pstyle("shape-polygon-points").pfValue;
 
-  if( usePaths ){
-    context.translate( pos.x, pos.y );
+  if (usePaths) {
+    context.translate(pos.x, pos.y);
 
     const shapePath = getPath(nodeWidth, nodeHeight, styleShape, shapePts);
     path = shapePath.path;
@@ -146,118 +171,134 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   }
 
   const drawShape = () => {
-    if( !pathCacheHit ){
-
+    if (!pathCacheHit) {
       const npos = pos;
 
-      if( usePaths ){
+      if (usePaths) {
         npos = {
           x: 0,
-          y: 0
+          y: 0,
         };
       }
 
-      r.nodeShapes[ r.getNodeShape( node ) ].draw(
-        ( path || context ),
+      r.nodeShapes[r.getNodeShape(node)].draw(
+        path || context,
         npos.x,
         npos.y,
         nodeWidth,
-        nodeHeight, cornerRadius, rs );
+        nodeHeight,
+        cornerRadius,
+        rs,
+      );
     }
 
-    if( usePaths ){
-      context.fill( path );
+    if (usePaths) {
+      context.fill(path);
     } else {
       context.fill();
     }
   };
 
-  const drawImages = ( nodeOpacity = eleOpacity, inside = true ) => {
+  const drawImages = (nodeOpacity = eleOpacity, inside = true) => {
     const prevBging = _p.backgrounding;
     const totalCompleted = 0;
 
-    for (let i = 0; i < image.length; i++ ){
-      const bgContainment = node.cy().style().getIndexedStyle(node, 'background-image-containment', 'value', i);
-      if( inside && bgContainment === 'over' || !inside && bgContainment === 'inside' ){
+    for (let i = 0; i < image.length; i++) {
+      const bgContainment = node
+        .cy()
+        .style()
+        .getIndexedStyle(node, "background-image-containment", "value", i);
+      if (
+        (inside && bgContainment === "over") ||
+        (!inside && bgContainment === "inside")
+      ) {
         totalCompleted++;
         continue;
       }
 
-      if( urlDefined[i] && image[i].complete && !image[i].error ){
+      if (urlDefined[i] && image[i].complete && !image[i].error) {
         totalCompleted++;
-        r.drawInscribedImage( context, image[i], node, i, nodeOpacity );
+        r.drawInscribedImage(context, image[i], node, i, nodeOpacity);
       }
     }
 
     _p.backgrounding = !(totalCompleted === numImages);
-    if( prevBging !== _p.backgrounding ){ // update style b/c :backgrounding state changed
-      node.updateStyle( false );
+    if (prevBging !== _p.backgrounding) {
+      // update style b/c :backgrounding state changed
+      node.updateStyle(false);
     }
   };
 
-  const drawPie = ( redrawShape = false, pieOpacity = eleOpacity ) => {
-    if( r.hasPie( node ) ){
-      r.drawPie( context, node, pieOpacity );
+  const drawPie = (redrawShape = false, pieOpacity = eleOpacity) => {
+    if (r.hasPie(node)) {
+      r.drawPie(context, node, pieOpacity);
 
       // redraw/restore path if steps after pie need it
-      if( redrawShape ){
-
-        if( !usePaths ){
-          r.nodeShapes[ r.getNodeShape( node ) ].draw(
-              context,
-              pos.x,
-              pos.y,
-              nodeWidth,
-              nodeHeight, cornerRadius, rs );
+      if (redrawShape) {
+        if (!usePaths) {
+          r.nodeShapes[r.getNodeShape(node)].draw(
+            context,
+            pos.x,
+            pos.y,
+            nodeWidth,
+            nodeHeight,
+            cornerRadius,
+            rs,
+          );
         }
       }
     }
   };
 
   const drawStripe = (redrawShape = false, stripeOpacity = eleOpacity) => {
-    if( r.hasStripe( node ) ){
+    if (r.hasStripe(node)) {
       context.save();
 
       if (usePaths) {
-        context.clip( rs.pathCache );
+        context.clip(rs.pathCache);
       } else {
-        r.nodeShapes[ r.getNodeShape( node ) ].draw(
+        r.nodeShapes[r.getNodeShape(node)].draw(
           context,
           pos.x,
           pos.y,
           nodeWidth,
-          nodeHeight, cornerRadius, rs );
-          context.clip();
+          nodeHeight,
+          cornerRadius,
+          rs,
+        );
+        context.clip();
       }
 
-      r.drawStripe( context, node, stripeOpacity );
+      r.drawStripe(context, node, stripeOpacity);
 
       context.restore();
 
       // redraw/restore path if steps after stripes need it
-      if( redrawShape ){
-
-        if( !usePaths ){
-          r.nodeShapes[ r.getNodeShape( node ) ].draw(
-              context,
-              pos.x,
-              pos.y,
-              nodeWidth,
-              nodeHeight, cornerRadius, rs );
+      if (redrawShape) {
+        if (!usePaths) {
+          r.nodeShapes[r.getNodeShape(node)].draw(
+            context,
+            pos.x,
+            pos.y,
+            nodeWidth,
+            nodeHeight,
+            cornerRadius,
+            rs,
+          );
         }
       }
     }
   };
 
-  const darken = ( darkenOpacity = eleOpacity ) => {
-    const opacity = ( darkness > 0 ? darkness : -darkness ) * darkenOpacity;
+  const darken = (darkenOpacity = eleOpacity) => {
+    const opacity = (darkness > 0 ? darkness : -darkness) * darkenOpacity;
     const c = darkness > 0 ? 0 : 255;
 
-    if( darkness !== 0 ){
-      r.colorFillStyle( context, c, c, c, opacity );
+    if (darkness !== 0) {
+      r.colorFillStyle(context, c, c, c, opacity);
 
-      if( usePaths ){
-        context.fill( path );
+      if (usePaths) {
+        context.fill(path);
       } else {
         context.fill();
       }
@@ -265,45 +306,45 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   };
 
   const drawBorder = () => {
-    if( borderWidth > 0 ){
-
+    if (borderWidth > 0) {
       context.lineWidth = borderWidth;
       context.lineCap = borderCap;
       context.lineJoin = borderJoin;
 
-      if( context.setLineDash ){ // for very outofdate browsers
-        switch( borderStyle ){
-          case 'dotted':
-            context.setLineDash( [ 1, 1 ] );
+      if (context.setLineDash) {
+        // for very outofdate browsers
+        switch (borderStyle) {
+          case "dotted":
+            context.setLineDash([1, 1]);
             break;
 
-          case 'dashed':
-            context.setLineDash( borderPattern );
+          case "dashed":
+            context.setLineDash(borderPattern);
             context.lineDashOffset = borderOffset;
             break;
 
-          case 'solid':
-          case 'double':
-            context.setLineDash( [ ] );
+          case "solid":
+          case "double":
+            context.setLineDash([]);
             break;
         }
       }
 
-      if ( borderPosition !== 'center') {
+      if (borderPosition !== "center") {
         context.save();
         context.lineWidth *= 2;
-        if (borderPosition === 'inside') {
+        if (borderPosition === "inside") {
           usePaths ? context.clip(path) : context.clip();
         } else {
           const region = new Path2D();
           region.rect(
-          -nodeWidth / 2 - borderWidth,
-          -nodeHeight / 2 - borderWidth,
-          nodeWidth + 2 * borderWidth,
-          nodeHeight + 2 * borderWidth
+            -nodeWidth / 2 - borderWidth,
+            -nodeHeight / 2 - borderWidth,
+            nodeWidth + 2 * borderWidth,
+            nodeHeight + 2 * borderWidth,
           );
           region.addPath(path);
-          context.clip(region, 'evenodd');
+          context.clip(region, "evenodd");
         }
         usePaths ? context.stroke(path) : context.stroke();
         context.restore();
@@ -311,14 +352,14 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         usePaths ? context.stroke(path) : context.stroke();
       }
 
-      if( borderStyle === 'double' ){
+      if (borderStyle === "double") {
         context.lineWidth = borderWidth / 3;
 
         const gco = context.globalCompositeOperation;
-        context.globalCompositeOperation = 'destination-out';
+        context.globalCompositeOperation = "destination-out";
 
-        if( usePaths ){
-          context.stroke( path );
+        if (usePaths) {
+          context.stroke(path);
         } else {
           context.stroke();
         }
@@ -327,55 +368,59 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
       }
 
       // reset in case we changed the border style
-      if( context.setLineDash ){ // for very outofdate browsers
-        context.setLineDash( [ ] );
+      if (context.setLineDash) {
+        // for very outofdate browsers
+        context.setLineDash([]);
       }
     }
   };
 
   const drawOutline = () => {
-    if( outlineWidth > 0 ){
+    if (outlineWidth > 0) {
       context.lineWidth = outlineWidth;
-      context.lineCap = 'butt';
+      context.lineCap = "butt";
 
-      if( context.setLineDash ){ // for very outofdate browsers
-        switch( outlineStyle ){
-          case 'dotted':
-            context.setLineDash( [ 1, 1 ] );
+      if (context.setLineDash) {
+        // for very outofdate browsers
+        switch (outlineStyle) {
+          case "dotted":
+            context.setLineDash([1, 1]);
             break;
 
-          case 'dashed':
-            context.setLineDash( [ 4, 2 ] );
+          case "dashed":
+            context.setLineDash([4, 2]);
             break;
 
-          case 'solid':
-          case 'double':
-            context.setLineDash( [ ] );
+          case "solid":
+          case "double":
+            context.setLineDash([]);
             break;
         }
       }
 
       const npos = pos;
 
-      if( usePaths ){
+      if (usePaths) {
         npos = {
           x: 0,
-          y: 0
+          y: 0,
         };
       }
 
-      const shape = r.getNodeShape( node );
+      const shape = r.getNodeShape(node);
 
       const bWidth = borderWidth;
-      if( borderPosition === 'inside' ) bWidth = 0;
-      if( borderPosition === 'outside' ) bWidth *= 2;
+      if (borderPosition === "inside") bWidth = 0;
+      if (borderPosition === "outside") bWidth *= 2;
 
-      const scaleX = (nodeWidth + bWidth + (outlineWidth + outlineOffset)) / nodeWidth;
-      const scaleY = (nodeHeight + bWidth + (outlineWidth + outlineOffset)) / nodeHeight;
+      const scaleX =
+        (nodeWidth + bWidth + (outlineWidth + outlineOffset)) / nodeWidth;
+      const scaleY =
+        (nodeHeight + bWidth + (outlineWidth + outlineOffset)) / nodeHeight;
       const sWidth = nodeWidth * scaleX;
       const sHeight = nodeHeight * scaleY;
 
-      const points = r.nodeShapes[ shape ].points;
+      const points = r.nodeShapes[shape].points;
       let path;
 
       if (usePaths) {
@@ -383,108 +428,184 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         path = outlinePath.path;
       }
 
-      // draw the outline path, either by using expanded points or by scaling 
+      // draw the outline path, either by using expanded points or by scaling
       // the dimensions, depending on shape
       if (shape === "ellipse") {
         r.drawEllipsePath(path || context, npos.x, npos.y, sWidth, sHeight);
-      } else if ([
-        'round-diamond', 'round-heptagon', 'round-hexagon', 'round-octagon',
-        'round-pentagon', 'round-polygon', 'round-triangle', 'round-tag'
-      ].includes(shape)) {
+      } else if (
+        [
+          "round-diamond",
+          "round-heptagon",
+          "round-hexagon",
+          "round-octagon",
+          "round-pentagon",
+          "round-polygon",
+          "round-triangle",
+          "round-tag",
+        ].includes(shape)
+      ) {
         const sMult = 0;
         const offsetX = 0;
         const offsetY = 0;
 
-        if (shape === 'round-diamond') {
+        if (shape === "round-diamond") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.4;
-        } else if (shape === 'round-heptagon') {
+        } else if (shape === "round-heptagon") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.075;
-          offsetY = -(bWidth/2 + outlineOffset + outlineWidth) / 35;
-        } else if (shape === 'round-hexagon') {
+          offsetY = -(bWidth / 2 + outlineOffset + outlineWidth) / 35;
+        } else if (shape === "round-hexagon") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.12;
-        } else if (shape === 'round-pentagon') {
+        } else if (shape === "round-pentagon") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.13;
-          offsetY = -(bWidth/2 + outlineOffset + outlineWidth) / 15;
-        } else if (shape === 'round-tag') {
+          offsetY = -(bWidth / 2 + outlineOffset + outlineWidth) / 15;
+        } else if (shape === "round-tag") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.12;
-          offsetX = (bWidth/2 + outlineWidth + outlineOffset) * .07;
-        } else if (shape === 'round-triangle') {
-          sMult = (bWidth + outlineOffset + outlineWidth) * (Math.PI/2);
-          offsetY = -(bWidth + outlineOffset/2 + outlineWidth) / Math.PI;
+          offsetX = (bWidth / 2 + outlineWidth + outlineOffset) * 0.07;
+        } else if (shape === "round-triangle") {
+          sMult = (bWidth + outlineOffset + outlineWidth) * (Math.PI / 2);
+          offsetY = -(bWidth + outlineOffset / 2 + outlineWidth) / Math.PI;
         }
 
         if (sMult !== 0) {
-          scaleX = (nodeWidth + sMult)/nodeWidth;
+          scaleX = (nodeWidth + sMult) / nodeWidth;
           sWidth = nodeWidth * scaleX;
-          if ( ! ['round-hexagon', 'round-tag'].includes(shape) ) {
-            scaleY = (nodeHeight + sMult)/nodeHeight;
+          if (!["round-hexagon", "round-tag"].includes(shape)) {
+            scaleY = (nodeHeight + sMult) / nodeHeight;
             sHeight = nodeHeight * scaleY;
           }
         }
 
-        cornerRadius = cornerRadius === 'auto' ? math.getRoundPolygonRadius( sWidth, sHeight ) : cornerRadius;
+        cornerRadius =
+          cornerRadius === "auto"
+            ? math.getRoundPolygonRadius(sWidth, sHeight)
+            : cornerRadius;
 
         const halfW = sWidth / 2;
         const halfH = sHeight / 2;
-        const radius = cornerRadius + ( bWidth +  outlineWidth + outlineOffset ) / 2;
-        const p = new Array( points.length / 2 );
-        const corners = new Array( points.length / 2 );
+        const radius =
+          cornerRadius + (bWidth + outlineWidth + outlineOffset) / 2;
+        const p = new Array(points.length / 2);
+        const corners = new Array(points.length / 2);
 
-        for ( const i = 0; i < points.length / 2; i++ ){
+        for (const i = 0; i < points.length / 2; i++) {
           p[i] = {
-            x: npos.x + offsetX + halfW * points[ i * 2 ],
-            y: npos.y + offsetY + halfH * points[ i * 2 + 1 ]
+            x: npos.x + offsetX + halfW * points[i * 2],
+            y: npos.y + offsetY + halfH * points[i * 2 + 1],
           };
         }
 
-        let i, p1, p2, p3, len = p.length;
+        let i,
+          p1,
+          p2,
+          p3,
+          len = p.length;
 
-        p1 = p[ len - 1 ];
+        p1 = p[len - 1];
         // for each point
-        for( i = 0; i < len; i++ ){
-          p2 = p[ (i) % len ];
-          p3 = p[ (i + 1) % len ];
-          corners[ i ] = round.getRoundCorner( p1, p2, p3, radius );
+        for (i = 0; i < len; i++) {
+          p2 = p[i % len];
+          p3 = p[(i + 1) % len];
+          corners[i] = round.getRoundCorner(p1, p2, p3, radius);
           p1 = p2;
           p2 = p3;
         }
 
-        r.drawRoundPolygonPath(path || context, npos.x + offsetX, npos.y + offsetY, nodeWidth * scaleX, nodeHeight * scaleY, points, corners );
-      } else if (['roundrectangle', 'round-rectangle'].includes(shape)) {
-        cornerRadius = cornerRadius === 'auto' ? math.getRoundRectangleRadius( sWidth, sHeight ) : cornerRadius;
-        r.drawRoundRectanglePath(path || context, npos.x, npos.y, sWidth, sHeight, cornerRadius + ( bWidth +  outlineWidth + outlineOffset ) / 2 );
-      } else if (['cutrectangle', 'cut-rectangle'].includes(shape)) {
-        cornerRadius = cornerRadius === 'auto' ? math.getCutRectangleCornerLength( sWidth, sHeight ) : cornerRadius;
-        r.drawCutRectanglePath(path || context, npos.x, npos.y, sWidth, sHeight, null ,cornerRadius + ( bWidth +  outlineWidth  + outlineOffset ) / 4   );
-      } else if (['bottomroundrectangle', 'bottom-round-rectangle'].includes(shape)) {
-        cornerRadius = cornerRadius === 'auto' ? math.getRoundRectangleRadius( sWidth, sHeight ) : cornerRadius;
-        r.drawBottomRoundRectanglePath(path || context, npos.x, npos.y, sWidth, sHeight, cornerRadius + ( bWidth +  outlineWidth + outlineOffset ) / 2 );
+        r.drawRoundPolygonPath(
+          path || context,
+          npos.x + offsetX,
+          npos.y + offsetY,
+          nodeWidth * scaleX,
+          nodeHeight * scaleY,
+          points,
+          corners,
+        );
+      } else if (["roundrectangle", "round-rectangle"].includes(shape)) {
+        cornerRadius =
+          cornerRadius === "auto"
+            ? math.getRoundRectangleRadius(sWidth, sHeight)
+            : cornerRadius;
+        r.drawRoundRectanglePath(
+          path || context,
+          npos.x,
+          npos.y,
+          sWidth,
+          sHeight,
+          cornerRadius + (bWidth + outlineWidth + outlineOffset) / 2,
+        );
+      } else if (["cutrectangle", "cut-rectangle"].includes(shape)) {
+        cornerRadius =
+          cornerRadius === "auto"
+            ? math.getCutRectangleCornerLength(sWidth, sHeight)
+            : cornerRadius;
+        r.drawCutRectanglePath(
+          path || context,
+          npos.x,
+          npos.y,
+          sWidth,
+          sHeight,
+          null,
+          cornerRadius + (bWidth + outlineWidth + outlineOffset) / 4,
+        );
+      } else if (
+        ["bottomroundrectangle", "bottom-round-rectangle"].includes(shape)
+      ) {
+        cornerRadius =
+          cornerRadius === "auto"
+            ? math.getRoundRectangleRadius(sWidth, sHeight)
+            : cornerRadius;
+        r.drawBottomRoundRectanglePath(
+          path || context,
+          npos.x,
+          npos.y,
+          sWidth,
+          sHeight,
+          cornerRadius + (bWidth + outlineWidth + outlineOffset) / 2,
+        );
       } else if (shape === "barrel") {
         r.drawBarrelPath(path || context, npos.x, npos.y, sWidth, sHeight);
-      } else if (shape.startsWith("polygon") || ['rhomboid', 'right-rhomboid', 'round-tag', 'tag', 'vee'].includes(shape)) {
+      } else if (
+        shape.startsWith("polygon") ||
+        ["rhomboid", "right-rhomboid", "round-tag", "tag", "vee"].includes(
+          shape,
+        )
+      ) {
         const pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
         points = joinLines(expandPolygon(points, pad));
-        r.drawPolygonPath(path || context, npos.x, npos.y, nodeWidth, nodeHeight, points);
+        r.drawPolygonPath(
+          path || context,
+          npos.x,
+          npos.y,
+          nodeWidth,
+          nodeHeight,
+          points,
+        );
       } else {
         const pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
         points = joinLines(expandPolygon(points, -pad));
-        r.drawPolygonPath(path || context, npos.x, npos.y, nodeWidth, nodeHeight, points);
+        r.drawPolygonPath(
+          path || context,
+          npos.x,
+          npos.y,
+          nodeWidth,
+          nodeHeight,
+          points,
+        );
       }
 
-      if( usePaths ){
-        context.stroke( path );
+      if (usePaths) {
+        context.stroke(path);
       } else {
         context.stroke();
       }
 
-      if( outlineStyle === 'double' ){
+      if (outlineStyle === "double") {
         context.lineWidth = bWidth / 3;
 
         const gco = context.globalCompositeOperation;
-        context.globalCompositeOperation = 'destination-out';
+        context.globalCompositeOperation = "destination-out";
 
-        if( usePaths ){
-          context.stroke( path );
+        if (usePaths) {
+          context.stroke(path);
         } else {
           context.stroke();
         }
@@ -493,59 +614,60 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
       }
 
       // reset in case we changed the border style
-      if( context.setLineDash ){ // for very outofdate browsers
-        context.setLineDash( [ ] );
+      if (context.setLineDash) {
+        // for very outofdate browsers
+        context.setLineDash([]);
       }
     }
   };
 
   const drawOverlay = () => {
-    if( shouldDrawOverlay ){
-      r.drawNodeOverlay( context, node, pos, nodeWidth, nodeHeight );
+    if (shouldDrawOverlay) {
+      r.drawNodeOverlay(context, node, pos, nodeWidth, nodeHeight);
     }
   };
 
   const drawUnderlay = () => {
-    if( shouldDrawOverlay ){
-      r.drawNodeUnderlay( context, node, pos, nodeWidth, nodeHeight );
+    if (shouldDrawOverlay) {
+      r.drawNodeUnderlay(context, node, pos, nodeWidth, nodeHeight);
     }
   };
 
   const drawText = () => {
-    r.drawElementText( context, node, null, drawLabel );
+    r.drawElementText(context, node, null, drawLabel);
   };
 
-  const ghost = node.pstyle('ghost').value === 'yes';
+  const ghost = node.pstyle("ghost").value === "yes";
 
-  if( ghost ){
-    const gx = node.pstyle('ghost-offset-x').pfValue;
-    const gy = node.pstyle('ghost-offset-y').pfValue;
-    const ghostOpacity = node.pstyle('ghost-opacity').value;
+  if (ghost) {
+    const gx = node.pstyle("ghost-offset-x").pfValue;
+    const gy = node.pstyle("ghost-offset-y").pfValue;
+    const ghostOpacity = node.pstyle("ghost-opacity").value;
     const effGhostOpacity = ghostOpacity * eleOpacity;
 
-    context.translate( gx, gy );
+    context.translate(gx, gy);
 
     setupOutlineColor();
     drawOutline();
-    setupShapeColor( ghostOpacity * bgOpacity );
+    setupShapeColor(ghostOpacity * bgOpacity);
     drawShape();
-    drawImages( effGhostOpacity, true );
-    setupBorderColor( ghostOpacity * borderOpacity );
+    drawImages(effGhostOpacity, true);
+    setupBorderColor(ghostOpacity * borderOpacity);
     drawBorder();
-    drawPie( darkness !== 0 || borderWidth !== 0 );
-    drawStripe( darkness !== 0 || borderWidth !== 0 );
-    drawImages( effGhostOpacity, false );
-    darken( effGhostOpacity );
+    drawPie(darkness !== 0 || borderWidth !== 0);
+    drawStripe(darkness !== 0 || borderWidth !== 0);
+    drawImages(effGhostOpacity, false);
+    darken(effGhostOpacity);
 
-    context.translate( -gx, -gy );
+    context.translate(-gx, -gy);
   }
 
-  if( usePaths ){
-    context.translate( -pos.x, -pos.y );
+  if (usePaths) {
+    context.translate(-pos.x, -pos.y);
   }
   drawUnderlay();
-  if( usePaths ){
-    context.translate( pos.x, pos.y );
+  if (usePaths) {
+    context.translate(pos.x, pos.y);
   }
 
   setupOutlineColor();
@@ -555,14 +677,14 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   drawImages(eleOpacity, true);
   setupBorderColor();
   drawBorder();
-  drawPie( darkness !== 0 || borderWidth !== 0 );
-  drawStripe( darkness !== 0 || borderWidth !== 0 );
+  drawPie(darkness !== 0 || borderWidth !== 0);
+  drawStripe(darkness !== 0 || borderWidth !== 0);
   drawImages(eleOpacity, false);
 
   darken();
 
-  if( usePaths ){
-    context.translate( -pos.x, -pos.y );
+  if (usePaths) {
+    context.translate(-pos.x, -pos.y);
   }
 
   drawText();
@@ -572,39 +694,40 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   //
   // clean up shift
 
-  if( shiftToOriginWithBb ){
-    context.translate( bb.x1, bb.y1 );
+  if (shiftToOriginWithBb) {
+    context.translate(bb.x1, bb.y1);
   }
-
 };
 
-const drawNodeOverlayUnderlay = function( overlayOrUnderlay ) {
-  if (!['overlay', 'underlay'].includes(overlayOrUnderlay)) {
-    throw new Error('Invalid state');
+const drawNodeOverlayUnderlay = function (overlayOrUnderlay) {
+  if (!["overlay", "underlay"].includes(overlayOrUnderlay)) {
+    throw new Error("Invalid state");
   }
 
-  return function( context, node, pos, nodeWidth, nodeHeight ){
+  return function (context, node, pos, nodeWidth, nodeHeight) {
     const r = this;
 
-    if( !node.visible() ){ return; }
+    if (!node.visible()) {
+      return;
+    }
 
-    const padding = node.pstyle( `${overlayOrUnderlay}-padding` ).pfValue;
-    const opacity = node.pstyle( `${overlayOrUnderlay}-opacity` ).value;
-    const color = node.pstyle( `${overlayOrUnderlay}-color` ).value;
-    const shape = node.pstyle( `${overlayOrUnderlay}-shape` ).value;
-    const radius = node.pstyle( `${overlayOrUnderlay}-corner-radius` ).value;
+    const padding = node.pstyle(`${overlayOrUnderlay}-padding`).pfValue;
+    const opacity = node.pstyle(`${overlayOrUnderlay}-opacity`).value;
+    const color = node.pstyle(`${overlayOrUnderlay}-color`).value;
+    const shape = node.pstyle(`${overlayOrUnderlay}-shape`).value;
+    const radius = node.pstyle(`${overlayOrUnderlay}-corner-radius`).value;
 
-    if( opacity > 0 ){
+    if (opacity > 0) {
       pos = pos || node.position();
 
-      if( nodeWidth == null || nodeHeight == null ){
+      if (nodeWidth == null || nodeHeight == null) {
         const padding = node.padding();
 
         nodeWidth = node.width() + 2 * padding;
         nodeHeight = node.height() + 2 * padding;
       }
 
-      r.colorFillStyle( context, color[0], color[1], color[2], opacity );
+      r.colorFillStyle(context, color[0], color[1], color[2], opacity);
 
       r.nodeShapes[shape].draw(
         context,
@@ -612,7 +735,7 @@ const drawNodeOverlayUnderlay = function( overlayOrUnderlay ) {
         pos.y,
         nodeWidth + padding * 2,
         nodeHeight + padding * 2,
-        radius
+        radius,
       );
 
       context.fill();
@@ -620,52 +743,52 @@ const drawNodeOverlayUnderlay = function( overlayOrUnderlay ) {
   };
 };
 
-CRp.drawNodeOverlay = drawNodeOverlayUnderlay('overlay');
+CRp.drawNodeOverlay = drawNodeOverlayUnderlay("overlay");
 
-CRp.drawNodeUnderlay = drawNodeOverlayUnderlay('underlay');
+CRp.drawNodeUnderlay = drawNodeOverlayUnderlay("underlay");
 
 // does the node have at least one pie piece?
-CRp.hasPie = function( node ){
+CRp.hasPie = function (node) {
   node = node[0]; // ensure ele ref
 
   return node._private.hasPie;
 };
 
-CRp.hasStripe = function( node ){
+CRp.hasStripe = function (node) {
   node = node[0]; // ensure ele ref
 
   return node._private.hasStripe;
 };
 
-CRp.drawPie = function( context, node, nodeOpacity, pos ){
+CRp.drawPie = function (context, node, nodeOpacity, pos) {
   node = node[0]; // ensure ele ref
   pos = pos || node.position();
 
   const cyStyle = node.cy().style();
-  const pieSize = node.pstyle( 'pie-size' );
-  const hole = node.pstyle('pie-hole');
-  const overallStartAngle = node.pstyle('pie-start-angle').pfValue;
+  const pieSize = node.pstyle("pie-size");
+  const hole = node.pstyle("pie-hole");
+  const overallStartAngle = node.pstyle("pie-start-angle").pfValue;
   const x = pos.x;
   const y = pos.y;
   const nodeW = node.width();
   const nodeH = node.height();
-  const radius = Math.min( nodeW, nodeH ) / 2; // must fit in node
+  const radius = Math.min(nodeW, nodeH) / 2; // must fit in node
   let holeRadius;
   const lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
   const usePaths = this.usePaths();
 
-  if( usePaths ){
+  if (usePaths) {
     x = 0;
     y = 0;
   }
 
-  if( pieSize.units === '%' ){
+  if (pieSize.units === "%") {
     radius = radius * pieSize.pfValue;
-  } else if( pieSize.pfValue !== undefined ){
+  } else if (pieSize.pfValue !== undefined) {
     radius = pieSize.pfValue / 2; // diameter in pixels => radius
   }
 
-  if (hole.units === '%') {
+  if (hole.units === "%") {
     holeRadius = radius * hole.pfValue;
   } else if (hole.pfValue !== undefined) {
     holeRadius = hole.pfValue / 2; // diameter in pixels => radius
@@ -675,18 +798,20 @@ CRp.drawPie = function( context, node, nodeOpacity, pos ){
     return; // the pie would be invisible anyway
   }
 
-  for (let i = 1; i <= cyStyle.pieBackgroundN; i++ ){ // 1..N
-    const size = node.pstyle( 'pie-' + i + '-background-size' ).value;
-    const color = node.pstyle( 'pie-' + i + '-background-color' ).value;
-    const opacity = node.pstyle( 'pie-' + i + '-background-opacity' ).value * nodeOpacity;
+  for (let i = 1; i <= cyStyle.pieBackgroundN; i++) {
+    // 1..N
+    const size = node.pstyle("pie-" + i + "-background-size").value;
+    const color = node.pstyle("pie-" + i + "-background-color").value;
+    const opacity =
+      node.pstyle("pie-" + i + "-background-opacity").value * nodeOpacity;
     const percent = size / 100; // map integer range [0, 100] to [0, 1]
 
     // percent can't push beyond 1
-    if( percent + lastPercent > 1 ){
+    if (percent + lastPercent > 1) {
       percent = 1 - lastPercent;
     }
 
-    let angleStart = (1.5 * Math.PI) + (2 * Math.PI * lastPercent); // start at 12 o'clock and go clockwise
+    let angleStart = 1.5 * Math.PI + 2 * Math.PI * lastPercent; // start at 12 o'clock and go clockwise
     angleStart += overallStartAngle; // shift by the overall pie start angle
     const angleDelta = 2 * Math.PI * percent;
     const angleEnd = angleStart + angleDelta;
@@ -695,32 +820,33 @@ CRp.drawPie = function( context, node, nodeOpacity, pos ){
     // - zero size
     // - we're already beyond the full circle
     // - adding the current slice would go beyond the full circle
-    if( size === 0 || lastPercent >= 1 || lastPercent + percent > 1 ){
+    if (size === 0 || lastPercent >= 1 || lastPercent + percent > 1) {
       continue;
     }
 
-    if (holeRadius === 0) { // make a pie slice
+    if (holeRadius === 0) {
+      // make a pie slice
       context.beginPath();
-      context.moveTo( x, y );
-      context.arc( x, y, radius, angleStart, angleEnd );
+      context.moveTo(x, y);
+      context.arc(x, y, radius, angleStart, angleEnd);
       context.closePath();
-    } else { // make a pie slice that's like the above but with a hole in the middle
+    } else {
+      // make a pie slice that's like the above but with a hole in the middle
       context.beginPath();
       context.arc(x, y, radius, angleStart, angleEnd);
       context.arc(x, y, holeRadius, angleEnd, angleStart, true); // true for anticlockwise
       context.closePath();
     }
 
-    this.colorFillStyle( context, color[0], color[1], color[2], opacity );
+    this.colorFillStyle(context, color[0], color[1], color[2], opacity);
 
     context.fill();
 
     lastPercent += percent;
   }
-
 };
 
-CRp.drawStripe = function( context, node, nodeOpacity, pos ){
+CRp.drawStripe = function (context, node, nodeOpacity, pos) {
   node = node[0]; // ensure ele ref
   pos = pos || node.position();
 
@@ -734,13 +860,13 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
 
   context.save();
 
-  const direction = node.pstyle('stripe-direction').value;
-  const stripeSize = node.pstyle('stripe-size');
+  const direction = node.pstyle("stripe-direction").value;
+  const stripeSize = node.pstyle("stripe-size");
 
   switch (direction) {
-    case 'vertical':
+    case "vertical":
       break; // default
-    case 'righward':
+    case "righward":
       context.rotate(-Math.PI / 2);
       break;
   }
@@ -748,15 +874,15 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
   const stripeW = nodeW;
   const stripeH = nodeH;
 
-  if( stripeSize.units === '%' ){
+  if (stripeSize.units === "%") {
     stripeW = stripeW * stripeSize.pfValue;
     stripeH = stripeH * stripeSize.pfValue;
-  } else if( stripeSize.pfValue !== undefined ){
+  } else if (stripeSize.pfValue !== undefined) {
     stripeW = stripeSize.pfValue;
     stripeH = stripeSize.pfValue;
   }
 
-  if( usePaths ){
+  if (usePaths) {
     x = 0;
     y = 0;
   }
@@ -765,14 +891,16 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
   y -= stripeW / 2;
   x -= stripeH / 2;
 
-  for (let i = 1; i <= cyStyle.stripeBackgroundN; i++ ){ // 1..N
-    const size = node.pstyle( 'stripe-' + i + '-background-size' ).value;
-    const color = node.pstyle( 'stripe-' + i + '-background-color' ).value;
-    const opacity = node.pstyle( 'stripe-' + i + '-background-opacity' ).value * nodeOpacity;
+  for (let i = 1; i <= cyStyle.stripeBackgroundN; i++) {
+    // 1..N
+    const size = node.pstyle("stripe-" + i + "-background-size").value;
+    const color = node.pstyle("stripe-" + i + "-background-color").value;
+    const opacity =
+      node.pstyle("stripe-" + i + "-background-opacity").value * nodeOpacity;
     const percent = size / 100; // map integer range [0, 100] to [0, 1]
 
     // percent can't push beyond 1
-    if( percent + lastPercent > 1 ){
+    if (percent + lastPercent > 1) {
       percent = 1 - lastPercent;
     }
 
@@ -780,16 +908,16 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
     // - zero size
     // - we're already beyond the full chart
     // - adding the current slice would go beyond the full chart
-    if( size === 0 || lastPercent >= 1 || lastPercent + percent > 1 ){
+    if (size === 0 || lastPercent >= 1 || lastPercent + percent > 1) {
       continue;
     }
 
     // draw rect for the current stripe
     context.beginPath();
-    context.rect( x, y + stripeH * lastPercent, stripeW, stripeH * percent );
+    context.rect(x, y + stripeH * lastPercent, stripeW, stripeH * percent);
     context.closePath();
 
-    this.colorFillStyle( context, color[0], color[1], color[2], opacity );
+    this.colorFillStyle(context, color[0], color[1], color[2], opacity);
 
     context.fill();
 
@@ -797,8 +925,6 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
   }
 
   context.restore();
-
 };
-
 
 export default CRp;

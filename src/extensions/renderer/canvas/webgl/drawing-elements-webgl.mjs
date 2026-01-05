@@ -1,10 +1,9 @@
-import * as util from './webgl-util.mjs';
-import { mat3 } from 'gl-matrix';
-import { AtlasManager, AtlasBatchManager } from './atlas.mjs';
-import * as math from '../../../../math.mjs';
-import * as sdf from './shader-sdf.mjs';
-import {endsWith} from "../../../../util/index.mjs";
-
+import * as util from "./webgl-util.mjs";
+import { mat3 } from "gl-matrix";
+import { AtlasManager, AtlasBatchManager } from "./atlas.mjs";
+import * as math from "../../../../math.mjs";
+import * as sdf from "./shader-sdf.mjs";
+import { endsWith } from "../../../../util/index.mjs";
 
 /**
  * Two render modes. Each mode has its own shader program. They are almost identical, the main difference is the output.
@@ -12,8 +11,8 @@ import {endsWith} from "../../../../util/index.mjs";
  * PICKING: output z-order index to an offscreen framebuffer, used to detect what's under the mouse cursor
  */
 export const RENDER_TARGET = {
-  SCREEN:  { name: 'screen',  screen:  true },
-  PICKING: { name: 'picking', picking: true },
+  SCREEN: { name: "screen", screen: true },
+  PICKING: { name: "picking", picking: true },
 };
 
 /**
@@ -22,8 +21,8 @@ export const RENDER_TARGET = {
 export const TEX_PICKING_MODE = {
   NORMAL: 0, // render the texture just like in RENDER_TARGET.SCREEN mode
   IGNORE: 1, // don't render the texture at all
-  USE_BB: 2  // render the bounding box as an opaque rectangle
-}
+  USE_BB: 2, // render the bounding box as an opaque rectangle
+};
 
 // Vertex types.
 // Used directly in the shaders so must be numeric.
@@ -39,9 +38,7 @@ const ROUND_RECTANGLE = 5;
 const BOTTOM_ROUND_RECTANGLE = 6;
 const ELLIPSE = 7;
 
-
 export class ElementDrawingWebGL {
-
   /**
    * @param {WebGLRenderingContext} gl
    */
@@ -70,7 +67,6 @@ export class ElementDrawingWebGL {
     this.vao = this._createVAO();
   }
 
-
   /**
    * @param { string } collectionName
    * @param {{ texRows: number }} opts
@@ -78,7 +74,6 @@ export class ElementDrawingWebGL {
   addAtlasCollection(collectionName, opts) {
     this.atlasManager.addAtlasCollection(collectionName, opts);
   }
-
 
   /**
    * @typedef { Object } TextureRenderTypeOpts
@@ -101,7 +96,6 @@ export class ElementDrawingWebGL {
     this.atlasManager.addRenderType(typeName, opts);
   }
 
-
   /**
    * @typedef { Object } SimpleShapeRenderTypeOpts
    * @property { function } getBoundingBox - returns the bounding box for an element
@@ -117,7 +111,7 @@ export class ElementDrawingWebGL {
    * @property { string } padding
    * @property { string } radius
    * @property { boolean } border
-  */
+   */
   /**
    * @param { string } typeName
    * @param { SimpleShapeRenderTypeOpts } opts
@@ -126,17 +120,16 @@ export class ElementDrawingWebGL {
     this.simpleShapeOptions.set(typeName, opts);
   }
 
-
   /**
    * Inform the atlasManager when element style keys may have changed.
    * The atlasManager can then mark unused textures for "garbage collection".
    */
   invalidate(eles, { type } = {}) {
     const { atlasManager } = this;
-    if(type) {
+    if (type) {
       return atlasManager.invalidate(eles, {
-        filterType: t => t === type,
-        forceRedraw: true
+        filterType: (t) => t === type,
+        forceRedraw: true,
       });
     } else {
       return atlasManager.invalidate(eles);
@@ -149,7 +142,6 @@ export class ElementDrawingWebGL {
   gc() {
     this.atlasManager.gc();
   }
-
 
   _createShaderProgram(renderTarget) {
     const { gl } = this;
@@ -327,7 +319,7 @@ export class ElementDrawingWebGL {
       precision highp float;
 
       // declare texture unit for each texture atlas in the batch
-      ${idxs.map(i => `uniform sampler2D uTexture${i};`).join('\n\t')}
+      ${idxs.map((i) => `uniform sampler2D uTexture${i};`).join("\n\t")}
 
       uniform vec4 uBGColor;
       uniform float uZoom;
@@ -368,7 +360,7 @@ export class ElementDrawingWebGL {
       void main(void) {
         if(vVertType == ${TEXTURE}) {
           // look up the texel from the texture unit
-          ${idxs.map(i => `if(vAtlasId == ${i}) outColor = texture(uTexture${i}, vTexCoord);`).join('\n\telse ')}
+          ${idxs.map((i) => `if(vAtlasId == ${i}) outColor = texture(uTexture${i}, vTexCoord);`).join("\n\telse ")}
         } 
         else if(vVertType == ${EDGE_ARROW}) {
           // mimics how canvas renderer uses context.globalCompositeOperation = 'destination-out';
@@ -431,39 +423,44 @@ export class ElementDrawingWebGL {
           outColor = vColor;
         }
 
-        ${ renderTarget.picking
-          ? `if(outColor.a == 0.0) discard;
+        ${
+          renderTarget.picking
+            ? `if(outColor.a == 0.0) discard;
              else outColor = vIndex;`
-          : ''
+            : ""
         }
       }
     `;
 
-    const program = util.createProgram(gl, vertexShaderSource, fragmentShaderSource);
+    const program = util.createProgram(
+      gl,
+      vertexShaderSource,
+      fragmentShaderSource,
+    );
 
     // instance geometry
-    program.aPosition = gl.getAttribLocation(program, 'aPosition');
+    program.aPosition = gl.getAttribLocation(program, "aPosition");
 
     // attributes
-    program.aIndex     = gl.getAttribLocation(program, 'aIndex');
-    program.aVertType  = gl.getAttribLocation(program, 'aVertType');
-    program.aTransform = gl.getAttribLocation(program, 'aTransform');
+    program.aIndex = gl.getAttribLocation(program, "aIndex");
+    program.aVertType = gl.getAttribLocation(program, "aVertType");
+    program.aTransform = gl.getAttribLocation(program, "aTransform");
 
-    program.aAtlasId   = gl.getAttribLocation(program, 'aAtlasId');
-    program.aTex       = gl.getAttribLocation(program, 'aTex');
+    program.aAtlasId = gl.getAttribLocation(program, "aAtlasId");
+    program.aTex = gl.getAttribLocation(program, "aTex");
 
-    program.aPointAPointB   = gl.getAttribLocation(program, 'aPointAPointB');
-    program.aPointCPointD   = gl.getAttribLocation(program, 'aPointCPointD');
-    program.aLineWidth      = gl.getAttribLocation(program, 'aLineWidth');
-    program.aColor          = gl.getAttribLocation(program, 'aColor');
-    program.aCornerRadius   = gl.getAttribLocation(program, 'aCornerRadius');
-    program.aBorderColor    = gl.getAttribLocation(program, 'aBorderColor');
+    program.aPointAPointB = gl.getAttribLocation(program, "aPointAPointB");
+    program.aPointCPointD = gl.getAttribLocation(program, "aPointCPointD");
+    program.aLineWidth = gl.getAttribLocation(program, "aLineWidth");
+    program.aColor = gl.getAttribLocation(program, "aColor");
+    program.aCornerRadius = gl.getAttribLocation(program, "aCornerRadius");
+    program.aBorderColor = gl.getAttribLocation(program, "aBorderColor");
 
     // uniforms
-    program.uPanZoomMatrix = gl.getUniformLocation(program, 'uPanZoomMatrix');
-    program.uAtlasSize     = gl.getUniformLocation(program, 'uAtlasSize');
-    program.uBGColor       = gl.getUniformLocation(program, 'uBGColor');
-    program.uZoom          = gl.getUniformLocation(program, 'uZoom');
+    program.uPanZoomMatrix = gl.getUniformLocation(program, "uPanZoomMatrix");
+    program.uAtlasSize = gl.getUniformLocation(program, "uAtlasSize");
+    program.uBGColor = gl.getUniformLocation(program, "uBGColor");
+    program.uZoom = gl.getUniformLocation(program, "uZoom");
 
     program.uTextures = [];
     for (let i = 0; i < this.batchManager.getMaxAtlasesPerBatch(); i++) {
@@ -473,12 +470,8 @@ export class ElementDrawingWebGL {
     return program;
   }
 
-
   _createVAO() {
-    const unitSquare = [
-      0, 0,  1, 0,  1, 1,
-      0, 0,  1, 1,  0, 1,
-    ];
+    const unitSquare = [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1];
 
     this.vertexCount = unitSquare.length / 2;
     const n = this.maxInstances;
@@ -487,33 +480,83 @@ export class ElementDrawingWebGL {
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
 
-    util.createBufferStaticDraw(gl, 'vec2', program.aPosition, unitSquare);
+    util.createBufferStaticDraw(gl, "vec2", program.aPosition, unitSquare);
 
     // Create buffers for all the attributes
-    this.transformBuffer = util.create3x3MatrixBufferDynamicDraw(gl, n, program.aTransform);
+    this.transformBuffer = util.create3x3MatrixBufferDynamicDraw(
+      gl,
+      n,
+      program.aTransform,
+    );
 
-    this.indexBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aIndex);
-    this.vertTypeBuffer = util.createBufferDynamicDraw(gl, n, 'int', program.aVertType);
-    this.atlasIdBuffer = util.createBufferDynamicDraw(gl, n, 'int', program.aAtlasId);
-    this.texBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aTex);
-    this.pointAPointBBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aPointAPointB);
-    this.pointCPointDBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aPointCPointD);
-    this.lineWidthBuffer = util.createBufferDynamicDraw(gl, n, 'vec2', program.aLineWidth);
-    this.colorBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aColor);
-    this.cornerRadiusBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aCornerRadius);
-    this.borderColorBuffer = util.createBufferDynamicDraw(gl, n, 'vec4', program.aBorderColor);
+    this.indexBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aIndex,
+    );
+    this.vertTypeBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "int",
+      program.aVertType,
+    );
+    this.atlasIdBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "int",
+      program.aAtlasId,
+    );
+    this.texBuffer = util.createBufferDynamicDraw(gl, n, "vec4", program.aTex);
+    this.pointAPointBBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aPointAPointB,
+    );
+    this.pointCPointDBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aPointCPointD,
+    );
+    this.lineWidthBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec2",
+      program.aLineWidth,
+    );
+    this.colorBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aColor,
+    );
+    this.cornerRadiusBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aCornerRadius,
+    );
+    this.borderColorBuffer = util.createBufferDynamicDraw(
+      gl,
+      n,
+      "vec4",
+      program.aBorderColor,
+    );
 
     gl.bindVertexArray(null);
     return vao;
   }
 
   get buffers() {
-    if(!this._buffers) {
-      this._buffers = Object.keys(this).filter(k => endsWith(k, 'Buffer')).map(k => this[k]);
+    if (!this._buffers) {
+      this._buffers = Object.keys(this)
+        .filter((k) => endsWith(k, "Buffer"))
+        .map((k) => this[k]);
     }
     return this._buffers;
   }
-
 
   startFrame(panZoomMatrix, renderTarget = RENDER_TARGET.SCREEN) {
     this.panZoomMatrix = panZoomMatrix;
@@ -535,10 +578,9 @@ export class ElementDrawingWebGL {
     this.endBatch();
   }
 
-
   _isVisible(ele, opts) {
-    if(ele.visible()) {
-      if(opts && opts.isVisible) {
+    if (ele.visible()) {
+      if (opts && opts.isVisible) {
         return opts.isVisible(ele);
       }
       return true;
@@ -552,22 +594,22 @@ export class ElementDrawingWebGL {
   drawTexture(ele, eleIndex, type) {
     const { atlasManager, batchManager } = this;
     const opts = atlasManager.getRenderTypeOpts(type);
-    if(!this._isVisible(ele, opts)) {
+    if (!this._isVisible(ele, opts)) {
       return;
     }
 
     // Edges with invalid points could be passed here (labels), causing errors
     // Ref: Random "Script Error" thrown when generating nodes and edges in newest webgl version #3365
     // https://github.com/cytoscape/cytoscape.js/issues/3365
-    if(ele.isEdge() && !this._isValidEdge(ele)) {
+    if (ele.isEdge() && !this._isValidEdge(ele)) {
       return;
     }
 
-    if(this.renderTarget.picking && opts.getTexPickingMode) {
+    if (this.renderTarget.picking && opts.getTexPickingMode) {
       const mode = opts.getTexPickingMode(ele);
-      if(mode === TEX_PICKING_MODE.IGNORE) {
+      if (mode === TEX_PICKING_MODE.IGNORE) {
         return;
-      } else if(mode == TEX_PICKING_MODE.USE_BB) {
+      } else if (mode == TEX_PICKING_MODE.USE_BB) {
         this.drawPickingRectangle(ele, eleIndex, type);
         return;
       }
@@ -576,16 +618,19 @@ export class ElementDrawingWebGL {
     // Get the atlas and the texture coordinates, will draw the texture if it hasn't been drawn yet
     // May be more than one texture if for example the label has multiple lines
     const atlasInfoArray = atlasManager.getAtlasInfo(ele, type);
-    for(const atlasInfo of atlasInfoArray) {
+    for (const atlasInfo of atlasInfoArray) {
       const { atlas, tex1, tex2 } = atlasInfo; // tex2 is used if the label wraps and there are two textures
 
-      if(!batchManager.canAddToCurrentBatch(atlas)) {
+      if (!batchManager.canAddToCurrentBatch(atlas)) {
         this.endBatch();
       }
       const atlasIndex = batchManager.getAtlasIndexForBatch(atlas);
 
-      for(const [tex, first] of [[tex1, true], [tex2, false]]) {
-        if(tex.w != 0) {
+      for (const [tex, first] of [
+        [tex1, true],
+        [tex2, false],
+      ]) {
+        if (tex.w != 0) {
           const instance = this.instanceCount;
           this.vertTypeBuffer.getView(instance)[0] = TEXTURE;
 
@@ -607,10 +652,9 @@ export class ElementDrawingWebGL {
           this.setTransformMatrix(ele, matrixView, opts, atlasInfo, first);
 
           this.instanceCount++;
-          if(!first)
-            this.wrappedCount++;
+          if (!first) this.wrappedCount++;
 
-          if(this.instanceCount >= this.maxInstances) {
+          if (this.instanceCount >= this.maxInstances) {
             this.endBatch();
           }
         }
@@ -622,23 +666,24 @@ export class ElementDrawingWebGL {
    * matrix is expected to be a 9 element array
    * this function follows same pattern as CRp.drawCachedElementPortion(...)
    */
-  setTransformMatrix(ele, matrix, opts, atlasInfo, first=true) {
+  setTransformMatrix(ele, matrix, opts, atlasInfo, first = true) {
     const padding = 0;
-    if(opts.shapeProps && opts.shapeProps.padding) {
+    if (opts.shapeProps && opts.shapeProps.padding) {
       padding = ele.pstyle(opts.shapeProps.padding).pfValue;
     }
 
-    if(atlasInfo) { // we've already computed the bb and tex bounds for a texture
+    if (atlasInfo) {
+      // we've already computed the bb and tex bounds for a texture
       const { bb, tex1, tex2 } = atlasInfo;
       // wrapped textures need separate matrix for each part
       const ratio = tex1.w / (tex1.w + tex2.w);
-      if(!first) { // first = true means its the first part of the wrapped texture
+      if (!first) {
+        // first = true means its the first part of the wrapped texture
         ratio = 1 - ratio;
       }
       const adjBB = this._getAdjustedBB(bb, padding, first, ratio);
       this._applyTransformMatrix(matrix, adjBB, opts, ele);
-    }
-    else {
+    } else {
       // we don't have a texture, or we want to avoid creating a texture for simple shapes
       const bb = opts.getBoundingBox(ele);
       const adjBB = this._getAdjustedBB(bb, padding, true, 1);
@@ -651,8 +696,8 @@ export class ElementDrawingWebGL {
     mat3.identity(matrix);
 
     const theta = opts.getRotation ? opts.getRotation(ele) : 0;
-    if(theta !== 0) {
-      const { x:sx, y:sy } = opts.getRotationPoint(ele);
+    if (theta !== 0) {
+      const { x: sx, y: sy } = opts.getRotationPoint(ele);
       mat3.translate(matrix, matrix, [sx, sy]);
       mat3.rotate(matrix, matrix, theta);
 
@@ -678,7 +723,7 @@ export class ElementDrawingWebGL {
   _getAdjustedBB(bb, padding, first, ratio) {
     let { x1, y1, w, h, yOffset } = bb;
 
-    if(padding) {
+    if (padding) {
       x1 -= padding;
       y1 -= padding;
       w += 2 * padding;
@@ -688,9 +733,9 @@ export class ElementDrawingWebGL {
     const xOffset = 0;
     const adjW = w * ratio;
 
-    if(first && ratio < 1) {
+    if (first && ratio < 1) {
       w = adjW;
-    } else if(!first && ratio < 1) {
+    } else if (!first && ratio < 1) {
       xOffset = w - adjW;
       x1 += xOffset;
       w = adjW;
@@ -713,14 +758,14 @@ export class ElementDrawingWebGL {
     util.indexToVec4(eleIndex, indexView);
 
     const colorView = this.colorBuffer.getView(instance);
-    util.toWebGLColor([0,0,0], 1, colorView); // opaque, so entire label BB is clickable
+    util.toWebGLColor([0, 0, 0], 1, colorView); // opaque, so entire label BB is clickable
 
     const matrixView = this.transformBuffer.getMatrixView(instance);
     this.setTransformMatrix(ele, matrixView, opts);
 
     this.simpleCount++;
     this.instanceCount++;
-    if(this.instanceCount >= this.maxInstances) {
+    if (this.instanceCount >= this.maxInstances) {
       this.endBatch();
     }
   }
@@ -730,14 +775,14 @@ export class ElementDrawingWebGL {
    */
   drawNode(node, eleIndex, type) {
     const opts = this.simpleShapeOptions.get(type);
-    if(!this._isVisible(node, opts)) {
+    if (!this._isVisible(node, opts)) {
       return;
     }
     const props = opts.shapeProps;
 
     // Check if we have to use a texture
     const vertType = this._getVertTypeForShape(node, props.shape);
-    if(vertType === undefined || (opts.isSimple && !opts.isSimple(node))) {
+    if (vertType === undefined || (opts.isSimple && !opts.isSimple(node))) {
       this.drawTexture(node, eleIndex, type);
       return;
     }
@@ -746,7 +791,8 @@ export class ElementDrawingWebGL {
     const instance = this.instanceCount;
     this.vertTypeBuffer.getView(instance)[0] = vertType;
 
-    if(vertType === ROUND_RECTANGLE || vertType === BOTTOM_ROUND_RECTANGLE) { // get corner radius
+    if (vertType === ROUND_RECTANGLE || vertType === BOTTOM_ROUND_RECTANGLE) {
+      // get corner radius
       const bb = opts.getBoundingBox(node);
       const radius = this._getCornerRadius(node, props.radius, bb);
 
@@ -755,7 +801,7 @@ export class ElementDrawingWebGL {
       radiusView[1] = radius; // bottom-right
       radiusView[2] = radius; // top-left
       radiusView[3] = radius; // bottom-left
-      if(vertType === BOTTOM_ROUND_RECTANGLE) {
+      if (vertType === BOTTOM_ROUND_RECTANGLE) {
         radiusView[0] = 0;
         radiusView[2] = 0;
       }
@@ -773,26 +819,27 @@ export class ElementDrawingWebGL {
     lineWidthView[0] = 0;
     lineWidthView[1] = 0;
 
-    if(props.border) {
-      const borderWidth = node.pstyle('border-width').value;
-      if(borderWidth > 0) {
-        const borderColor = node.pstyle('border-color').value;
-        const borderOpacity = node.pstyle('border-opacity').value;
+    if (props.border) {
+      const borderWidth = node.pstyle("border-width").value;
+      if (borderWidth > 0) {
+        const borderColor = node.pstyle("border-color").value;
+        const borderOpacity = node.pstyle("border-opacity").value;
 
         const borderColorView = this.borderColorBuffer.getView(instance);
         util.toWebGLColor(borderColor, borderOpacity, borderColorView);
 
         // SDF distance is negative inside the shape and positive outside
-        const borderPos = node.pstyle('border-position').value;
-        if(borderPos === 'inside') {
+        const borderPos = node.pstyle("border-position").value;
+        if (borderPos === "inside") {
           lineWidthView[0] = 0;
           lineWidthView[1] = -borderWidth;
-        } else if(borderPos === 'outside') {
+        } else if (borderPos === "outside") {
           lineWidthView[0] = borderWidth;
           lineWidthView[1] = 0;
-        } else { // 'center'
+        } else {
+          // 'center'
           const halfWidth = borderWidth / 2;
-          lineWidthView[0] =  halfWidth;
+          lineWidthView[0] = halfWidth;
           lineWidthView[1] = -halfWidth;
         }
       }
@@ -803,53 +850,52 @@ export class ElementDrawingWebGL {
 
     this.simpleCount++;
     this.instanceCount++;
-    if(this.instanceCount >= this.maxInstances) {
+    if (this.instanceCount >= this.maxInstances) {
       this.endBatch();
     }
   }
 
-
   _getVertTypeForShape(node, shapeProp) {
-    const shape = node.pstyle(shapeProp).value
-    switch(shape) {
-      case 'rectangle':
+    const shape = node.pstyle(shapeProp).value;
+    switch (shape) {
+      case "rectangle":
         return RECTANGLE;
-      case 'ellipse':
+      case "ellipse":
         return ELLIPSE;
-      case 'roundrectangle':
-      case 'round-rectangle':
+      case "roundrectangle":
+      case "round-rectangle":
         return ROUND_RECTANGLE;
-      case 'bottom-round-rectangle':
+      case "bottom-round-rectangle":
         return BOTTOM_ROUND_RECTANGLE;
       default:
         return undefined;
     }
   }
 
-  _getCornerRadius(node, radiusProp, { w, h }) { // see CRp.drawRoundRectanglePath
-    if(node.pstyle(radiusProp).value === 'auto') {
+  _getCornerRadius(node, radiusProp, { w, h }) {
+    // see CRp.drawRoundRectanglePath
+    if (node.pstyle(radiusProp).value === "auto") {
       return math.getRoundRectangleRadius(w, h);
     } else {
       const radius = node.pstyle(radiusProp).pfValue;
-      const halfWidth  = w / 2;
+      const halfWidth = w / 2;
       const halfHeight = h / 2;
       return Math.min(radius, halfHeight, halfWidth);
     }
   }
 
-
   /**
    * Only supports drawing triangles at the moment.
    */
   drawEdgeArrow(edge, eleIndex, prefix) {
-    if(!edge.visible()) {
+    if (!edge.visible()) {
       return;
     }
     // Edge points and arrow angles etc are calculated by the base renderer and cached in the rscratch object.
     const rs = edge._private.rscratch;
 
     let x, y, angle;
-    if(prefix === 'source') {
+    if (prefix === "source") {
       x = rs.arrowStartX;
       y = rs.arrowStartY;
       angle = rs.srcArrowAngle;
@@ -860,22 +906,29 @@ export class ElementDrawingWebGL {
     }
 
     // taken from CRp.drawArrowhead
-    if(isNaN(x) || x == null || isNaN(y) || y == null || isNaN(angle) || angle == null) {
+    if (
+      isNaN(x) ||
+      x == null ||
+      isNaN(y) ||
+      y == null ||
+      isNaN(angle) ||
+      angle == null
+    ) {
       return;
     }
 
     // check shape after the x/y check because pstyle() is a bit slow
-    const arrowShape = edge.pstyle(prefix + '-arrow-shape').value;
-    if(arrowShape === 'none') {
+    const arrowShape = edge.pstyle(prefix + "-arrow-shape").value;
+    if (arrowShape === "none") {
       return;
     }
 
-    const color = edge.pstyle(prefix + '-arrow-color').value;
-    const baseOpacity = edge.pstyle('opacity').value;
-    const lineOpacity = edge.pstyle('line-opacity').value;
+    const color = edge.pstyle(prefix + "-arrow-color").value;
+    const baseOpacity = edge.pstyle("opacity").value;
+    const lineOpacity = edge.pstyle("line-opacity").value;
     const opacity = baseOpacity * lineOpacity;
-    const lineWidth = edge.pstyle('width').pfValue;
-    const scale = edge.pstyle('arrow-scale').value;
+    const lineWidth = edge.pstyle("width").pfValue;
+    const scale = edge.pstyle("arrow-scale").value;
     const size = this.r.getArrowWidth(lineWidth, scale);
 
     const instance = this.instanceCount;
@@ -895,36 +948,36 @@ export class ElementDrawingWebGL {
     util.toWebGLColor(color, opacity, colorView);
 
     this.instanceCount++;
-    if(this.instanceCount >= this.maxInstances) {
+    if (this.instanceCount >= this.maxInstances) {
       this.endBatch();
     }
   }
-
 
   /**
    * Draw straight-line or bezier curve edges.
    */
   drawEdgeLine(edge, eleIndex) {
-    if(!edge.visible()) {
+    if (!edge.visible()) {
       return;
     }
     const points = this._getEdgePoints(edge);
-    if(!points) {
+    if (!points) {
       return;
     }
 
     // line style
-    const baseOpacity = edge.pstyle('opacity').value;
-    const lineOpacity = edge.pstyle('line-opacity').value;
-    const width = edge.pstyle('width').pfValue;
-    const color = edge.pstyle('line-color').value;
+    const baseOpacity = edge.pstyle("opacity").value;
+    const lineOpacity = edge.pstyle("line-opacity").value;
+    const width = edge.pstyle("width").pfValue;
+    const color = edge.pstyle("line-color").value;
     const opacity = baseOpacity * lineOpacity;
 
-    if(points.length/2 + this.instanceCount > this.maxInstances) {
+    if (points.length / 2 + this.instanceCount > this.maxInstances) {
       this.endBatch();
     }
 
-    if(points.length == 4) { // straight line
+    if (points.length == 4) {
+      // straight line
       const instance = this.instanceCount;
 
       this.vertTypeBuffer.getView(instance)[0] = EDGE_STRAIGHT;
@@ -943,12 +996,12 @@ export class ElementDrawingWebGL {
       sourceTargetView[3] = points[3]; // target y
 
       this.instanceCount++;
-      if(this.instanceCount >= this.maxInstances) {
+      if (this.instanceCount >= this.maxInstances) {
         this.endBatch();
       }
-
-    } else { // curved line
-      for (let i = 0; i < points.length-2; i += 2) {
+    } else {
+      // curved line
+      for (let i = 0; i < points.length - 2; i += 2) {
         const instance = this.instanceCount;
 
         this.vertTypeBuffer.getView(instance)[0] = EDGE_CURVE_SEGMENT;
@@ -960,20 +1013,24 @@ export class ElementDrawingWebGL {
         const lineWidthBuffer = this.lineWidthBuffer.getView(instance);
         lineWidthBuffer[0] = width;
 
-        const pAx = points[i-2], pAy = points[i-1];
-        const pBx = points[i  ], pBy = points[i+1];
-        const pCx = points[i+2], pCy = points[i+3];
-        const pDx = points[i+4], pDy = points[i+5];
+        const pAx = points[i - 2],
+          pAy = points[i - 1];
+        const pBx = points[i],
+          pBy = points[i + 1];
+        const pCx = points[i + 2],
+          pCy = points[i + 3];
+        const pDx = points[i + 4],
+          pDy = points[i + 5];
 
         // make phantom points for the first and last segments
         // TODO adding 0.001 to avoid division by zero in the shader (I think), need a better solution
-        if(i == 0) {
-          pAx = 2*pBx - pCx + 0.001;
-          pAy = 2*pBy - pCy + 0.001;
+        if (i == 0) {
+          pAx = 2 * pBx - pCx + 0.001;
+          pAy = 2 * pBy - pCy + 0.001;
         }
-        if(i == points.length-4) {
-          pDx = 2*pCx - pBx + 0.001;
-          pDy = 2*pCy - pBy + 0.001;
+        if (i == points.length - 4) {
+          pDx = 2 * pCx - pBx + 0.001;
+          pDy = 2 * pCy - pBy + 0.001;
         }
 
         const pointABView = this.pointAPointBBuffer.getView(instance);
@@ -989,7 +1046,7 @@ export class ElementDrawingWebGL {
         pointCDView[3] = pDy;
 
         this.instanceCount++;
-        if(this.instanceCount >= this.maxInstances) {
+        if (this.instanceCount >= this.maxInstances) {
           this.endBatch();
         }
       }
@@ -998,8 +1055,9 @@ export class ElementDrawingWebGL {
 
   _isValidEdge(edge) {
     const rs = edge._private.rscratch;
-    
-    if( rs.badLine || rs.allpts == null || isNaN(rs.allpts[0]) ){ // isNaN in case edge is impossible and browser bugs (e.g. safari)
+
+    if (rs.badLine || rs.allpts == null || isNaN(rs.allpts[0])) {
+      // isNaN in case edge is impossible and browser bugs (e.g. safari)
       return false;
     }
 
@@ -1010,11 +1068,12 @@ export class ElementDrawingWebGL {
     const rs = edge._private.rscratch;
 
     // if bezier ctrl pts can not be calculated, then die
-    if(!this._isValidEdge(edge)){ // isNaN in case edge is impossible and browser bugs (e.g. safari)
+    if (!this._isValidEdge(edge)) {
+      // isNaN in case edge is impossible and browser bugs (e.g. safari)
       return;
     }
     const controlPoints = rs.allpts;
-    if(controlPoints.length == 4) {
+    if (controlPoints.length == 4) {
       return controlPoints;
     }
     const numSegments = this._getNumSegments(edge);
@@ -1036,48 +1095,46 @@ export class ElementDrawingWebGL {
   }
 
   _getCurveSegmentPoints(controlPoints, segments) {
-    if(controlPoints.length == 4) {
+    if (controlPoints.length == 4) {
       return controlPoints; // straight line
     }
     const curvePoints = Array((segments + 1) * 2);
     for (let i = 0; i <= segments; i++) {
       // the first and last points are the same as the first and last control points
-      if(i == 0) {
+      if (i == 0) {
         curvePoints[0] = controlPoints[0];
         curvePoints[1] = controlPoints[1];
-      } else if(i == segments) {
-        curvePoints[i*2  ] = controlPoints[controlPoints.length-2];
-        curvePoints[i*2+1] = controlPoints[controlPoints.length-1];
+      } else if (i == segments) {
+        curvePoints[i * 2] = controlPoints[controlPoints.length - 2];
+        curvePoints[i * 2 + 1] = controlPoints[controlPoints.length - 1];
       } else {
         const t = i / segments; // segments have equal length, its not strictly necessary to do it this way
         // pass in curvePoints to set the values in the array directly
-        this._setCurvePoint(controlPoints, t, curvePoints, i*2);
+        this._setCurvePoint(controlPoints, t, curvePoints, i * 2);
       }
     }
     return curvePoints;
   }
 
   _setCurvePoint(points, t, curvePoints, cpi) {
-    if(points.length <= 2) {
-      curvePoints[cpi  ] = points[0];
-      curvePoints[cpi+1] = points[1];
+    if (points.length <= 2) {
+      curvePoints[cpi] = points[0];
+      curvePoints[cpi + 1] = points[1];
     } else {
-      const newpoints = Array(points.length-2);
-      for (let i = 0; i < newpoints.length; i+=2) {
-        const x = (1-t) * points[i  ] + t * points[i+2];
-        const y = (1-t) * points[i+1] + t * points[i+3];
-        newpoints[i  ] = x;
-        newpoints[i+1] = y;
+      const newpoints = Array(points.length - 2);
+      for (let i = 0; i < newpoints.length; i += 2) {
+        const x = (1 - t) * points[i] + t * points[i + 2];
+        const y = (1 - t) * points[i + 1] + t * points[i + 3];
+        newpoints[i] = x;
+        newpoints[i + 1] = y;
       }
       return this._setCurvePoint(newpoints, t, curvePoints, cpi);
     }
   }
 
-
   endBatch() {
     const { gl, vao, vertexCount, instanceCount: count } = this;
-    if(count === 0)
-      return;
+    if (count === 0) return;
 
     const program = this.renderTarget.picking
       ? this.pickingProgram
@@ -1087,7 +1144,7 @@ export class ElementDrawingWebGL {
     gl.bindVertexArray(vao);
 
     // buffer the attribute data
-    for(const buffer of this.buffers) {
+    for (const buffer of this.buffers) {
       buffer.bufferSubData(count);
     }
 
@@ -1117,10 +1174,10 @@ export class ElementDrawingWebGL {
     gl.bindVertexArray(null);
     gl.bindTexture(gl.TEXTURE_2D, null); // TODO is this right when having multiple texture units?
 
-    if(this.debug) {
+    if (this.debug) {
       this.batchDebugInfo.push({
         count, // instance count
-        atlasCount: atlases.length
+        atlasCount: atlases.length,
       });
     }
 
@@ -1128,13 +1185,18 @@ export class ElementDrawingWebGL {
     this.startBatch();
   }
 
-
   getDebugInfo() {
     const atlasInfo = this.atlasManager.getDebugInfo();
-    const totalAtlases = atlasInfo.reduce((count, info) => count + info.atlasCount, 0);
+    const totalAtlases = atlasInfo.reduce(
+      (count, info) => count + info.atlasCount,
+      0,
+    );
 
     const batchInfo = this.batchDebugInfo;
-    const totalInstances = batchInfo.reduce((count, info) => count + info.count, 0);
+    const totalInstances = batchInfo.reduce(
+      (count, info) => count + info.count,
+      0,
+    );
 
     return {
       atlasInfo,
@@ -1143,8 +1205,7 @@ export class ElementDrawingWebGL {
       simpleCount: this.simpleCount,
       batchCount: batchInfo.length,
       batchInfo,
-      totalInstances
+      totalInstances,
     };
   }
-
 }

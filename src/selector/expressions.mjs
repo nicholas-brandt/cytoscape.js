@@ -1,19 +1,22 @@
-import tokens from './tokens.mjs';
-import * as util from '../util/index.mjs';
-import newQuery from './new-query.mjs';
-import Type from './type.mjs';
-import { stateSelectorRegex } from './state.mjs';
+import tokens from "./tokens.mjs";
+import * as util from "../util/index.mjs";
+import newQuery from "./new-query.mjs";
+import Type from "./type.mjs";
+import { stateSelectorRegex } from "./state.mjs";
 
 // when a token like a variable has escaped meta characters, we need to clean the backslashes out
 // so that values get compared properly in Selector.filter()
-const cleanMetaChars = function( str ){
-  return str.replace( new RegExp( '\\\\(' + tokens.metaChar + ')', 'g' ), function( match, $1 ){
-    return $1;
-  } );
+const cleanMetaChars = function (str) {
+  return str.replace(
+    new RegExp("\\\\(" + tokens.metaChar + ")", "g"),
+    function (match, $1) {
+      return $1;
+    },
+  );
 };
 
-const replaceLastQuery = ( selector, examiningQuery, replacementQuery ) => {
-  selector[ selector.length - 1 ] = replacementQuery;
+const replaceLastQuery = (selector, examiningQuery, replacementQuery) => {
+  selector[selector.length - 1] = replacementQuery;
 };
 
 // NOTE: add new expression syntax here to have it recognised by the parser;
@@ -22,125 +25,140 @@ const replaceLastQuery = ( selector, examiningQuery, replacementQuery ) => {
 // - you need to check the query objects in match() for it actually filter properly, but that's pretty straight forward
 const exprs = [
   {
-    name: 'group', // just used for identifying when debugging
+    name: "group", // just used for identifying when debugging
     query: true,
-    regex: '(' + tokens.group + ')',
-    populate: function( selector, query, [ group ] ){
+    regex: "(" + tokens.group + ")",
+    populate: function (selector, query, [group]) {
       query.checks.push({
         type: Type.GROUP,
-        value: group === '*' ? group : group + 's'
+        value: group === "*" ? group : group + "s",
       });
-    }
+    },
   },
 
   {
-    name: 'state',
+    name: "state",
     query: true,
     regex: stateSelectorRegex,
-    populate: function( selector, query, [ state ] ){
+    populate: function (selector, query, [state]) {
       query.checks.push({
         type: Type.STATE,
-        value: state
+        value: state,
       });
-    }
+    },
   },
 
   {
-    name: 'id',
+    name: "id",
     query: true,
-    regex: '\\#(' + tokens.id + ')',
-    populate: function( selector, query,[ id ] ){
+    regex: "\\#(" + tokens.id + ")",
+    populate: function (selector, query, [id]) {
       query.checks.push({
         type: Type.ID,
-        value: cleanMetaChars( id )
+        value: cleanMetaChars(id),
       });
-    }
+    },
   },
 
   {
-    name: 'className',
+    name: "className",
     query: true,
-    regex: '\\.(' + tokens.className + ')',
-    populate: function( selector, query, [ className ] ){
+    regex: "\\.(" + tokens.className + ")",
+    populate: function (selector, query, [className]) {
       query.checks.push({
         type: Type.CLASS,
-        value: cleanMetaChars( className )
+        value: cleanMetaChars(className),
       });
-    }
+    },
   },
 
   {
-    name: 'dataExists',
+    name: "dataExists",
     query: true,
-    regex: '\\[\\s*(' + tokens.variable + ')\\s*\\]',
-    populate: function( selector, query, [ variable ] ){
-      query.checks.push( {
+    regex: "\\[\\s*(" + tokens.variable + ")\\s*\\]",
+    populate: function (selector, query, [variable]) {
+      query.checks.push({
         type: Type.DATA_EXIST,
-        field: cleanMetaChars( variable )
-      } );
-    }
+        field: cleanMetaChars(variable),
+      });
+    },
   },
 
   {
-    name: 'dataCompare',
+    name: "dataCompare",
     query: true,
-    regex: '\\[\\s*(' + tokens.variable + ')\\s*(' + tokens.comparatorOp + ')\\s*(' + tokens.value + ')\\s*\\]',
-    populate: function( selector, query, [ variable, comparatorOp, value ] ){
-      const valueIsString = new RegExp( '^' + tokens.string + '$' ).exec( value ) != null;
+    regex:
+      "\\[\\s*(" +
+      tokens.variable +
+      ")\\s*(" +
+      tokens.comparatorOp +
+      ")\\s*(" +
+      tokens.value +
+      ")\\s*\\]",
+    populate: function (selector, query, [variable, comparatorOp, value]) {
+      const valueIsString =
+        new RegExp("^" + tokens.string + "$").exec(value) != null;
 
-      if( valueIsString ){
-        value = value.substring( 1, value.length - 1 );
+      if (valueIsString) {
+        value = value.substring(1, value.length - 1);
       } else {
-        value = parseFloat( value );
+        value = parseFloat(value);
       }
 
-      query.checks.push( {
+      query.checks.push({
         type: Type.DATA_COMPARE,
-        field: cleanMetaChars( variable ),
+        field: cleanMetaChars(variable),
         operator: comparatorOp,
-        value: value
-      } );
-    }
+        value: value,
+      });
+    },
   },
 
   {
-    name: 'dataBool',
+    name: "dataBool",
     query: true,
-    regex: '\\[\\s*(' + tokens.boolOp + ')\\s*(' + tokens.variable + ')\\s*\\]',
-    populate: function( selector, query, [ boolOp, variable ] ){
-      query.checks.push( {
+    regex: "\\[\\s*(" + tokens.boolOp + ")\\s*(" + tokens.variable + ")\\s*\\]",
+    populate: function (selector, query, [boolOp, variable]) {
+      query.checks.push({
         type: Type.DATA_BOOL,
-        field: cleanMetaChars( variable ),
-        operator: boolOp
-      } );
-    }
+        field: cleanMetaChars(variable),
+        operator: boolOp,
+      });
+    },
   },
 
   {
-    name: 'metaCompare',
+    name: "metaCompare",
     query: true,
-    regex: '\\[\\[\\s*(' + tokens.meta + ')\\s*(' + tokens.comparatorOp + ')\\s*(' + tokens.number + ')\\s*\\]\\]',
-    populate: function( selector, query, [ meta, comparatorOp, number ] ){
-      query.checks.push( {
+    regex:
+      "\\[\\[\\s*(" +
+      tokens.meta +
+      ")\\s*(" +
+      tokens.comparatorOp +
+      ")\\s*(" +
+      tokens.number +
+      ")\\s*\\]\\]",
+    populate: function (selector, query, [meta, comparatorOp, number]) {
+      query.checks.push({
         type: Type.META_COMPARE,
-        field: cleanMetaChars( meta ),
+        field: cleanMetaChars(meta),
         operator: comparatorOp,
-        value: parseFloat( number )
-      } );
-    }
+        value: parseFloat(number),
+      });
+    },
   },
 
   {
-    name: 'nextQuery',
+    name: "nextQuery",
     separator: true,
     regex: tokens.separator,
-    populate: function( selector, query ){
+    populate: function (selector, query) {
       const currentSubject = selector.currentSubject;
       const edgeCount = selector.edgeCount;
       const compoundCount = selector.compoundCount;
-      const lastQ = selector[ selector.length - 1 ];
+      const lastQ = selector[selector.length - 1];
 
-      if( currentSubject != null ){
+      if (currentSubject != null) {
         lastQ.subject = currentSubject;
         selector.currentSubject = null;
       }
@@ -152,18 +170,19 @@ const exprs = [
       selector.compoundCount = 0;
 
       // go on to next query
-      const nextQuery = selector[ selector.length++ ] = newQuery();
+      const nextQuery = (selector[selector.length++] = newQuery());
 
       return nextQuery; // this is the new query to be filled by the following exprs
-    }
+    },
   },
 
   {
-    name: 'directedEdge',
+    name: "directedEdge",
     separator: true,
     regex: tokens.directedEdge,
-    populate: function( selector, query ){
-      if( selector.currentSubject == null ){ // undirected edge
+    populate: function (selector, query) {
+      if (selector.currentSubject == null) {
+        // undirected edge
         const edgeQuery = newQuery();
         const source = query;
         const target = newQuery();
@@ -171,13 +190,14 @@ const exprs = [
         edgeQuery.checks.push({ type: Type.DIRECTED_EDGE, source, target });
 
         // the query in the selector should be the edge rather than the source
-        replaceLastQuery( selector, query, edgeQuery );
+        replaceLastQuery(selector, query, edgeQuery);
 
         selector.edgeCount++;
 
         // we're now populating the target query with expressions that follow
         return target;
-      } else { // source/target
+      } else {
+        // source/target
         const srcTgtQ = newQuery();
         const source = query;
         const target = newQuery();
@@ -185,35 +205,40 @@ const exprs = [
         srcTgtQ.checks.push({ type: Type.NODE_SOURCE, source, target });
 
         // the query in the selector should be the neighbourhood rather than the node
-        replaceLastQuery( selector, query, srcTgtQ );
+        replaceLastQuery(selector, query, srcTgtQ);
 
         selector.edgeCount++;
 
         return target; // now populating the target with the following expressions
       }
-    }
+    },
   },
 
   {
-    name: 'undirectedEdge',
+    name: "undirectedEdge",
     separator: true,
     regex: tokens.undirectedEdge,
-    populate: function( selector, query ){
-      if( selector.currentSubject == null ){ // undirected edge
+    populate: function (selector, query) {
+      if (selector.currentSubject == null) {
+        // undirected edge
         const edgeQuery = newQuery();
         const source = query;
         const target = newQuery();
 
-        edgeQuery.checks.push({ type: Type.UNDIRECTED_EDGE, nodes: [ source, target ] });
+        edgeQuery.checks.push({
+          type: Type.UNDIRECTED_EDGE,
+          nodes: [source, target],
+        });
 
         // the query in the selector should be the edge rather than the source
-        replaceLastQuery( selector, query, edgeQuery );
+        replaceLastQuery(selector, query, edgeQuery);
 
         selector.edgeCount++;
 
         // we're now populating the target query with expressions that follow
         return target;
-      } else { // neighbourhood
+      } else {
+        // neighbourhood
         const nhoodQ = newQuery();
         const node = query;
         const neighbor = newQuery();
@@ -221,19 +246,20 @@ const exprs = [
         nhoodQ.checks.push({ type: Type.NODE_NEIGHBOR, node, neighbor });
 
         // the query in the selector should be the neighbourhood rather than the node
-        replaceLastQuery( selector, query, nhoodQ );
+        replaceLastQuery(selector, query, nhoodQ);
 
         return neighbor; // now populating the neighbor with following expressions
       }
-    }
+    },
   },
 
   {
-    name: 'child',
+    name: "child",
     separator: true,
     regex: tokens.child,
-    populate: function( selector, query ){
-      if( selector.currentSubject == null ){ // default: child query
+    populate: function (selector, query) {
+      if (selector.currentSubject == null) {
+        // default: child query
         const parentChildQuery = newQuery();
         const child = newQuery();
         const parent = selector[selector.length - 1];
@@ -241,36 +267,42 @@ const exprs = [
         parentChildQuery.checks.push({ type: Type.CHILD, parent, child });
 
         // the query in the selector should be the '>' itself
-        replaceLastQuery( selector, query, parentChildQuery );
+        replaceLastQuery(selector, query, parentChildQuery);
 
         selector.compoundCount++;
 
         // we're now populating the child query with expressions that follow
         return child;
-      } else if( selector.currentSubject === query ){ // compound split query
+      } else if (selector.currentSubject === query) {
+        // compound split query
         const compound = newQuery();
-        const left = selector[ selector.length - 1 ];
+        const left = selector[selector.length - 1];
         const right = newQuery();
         const subject = newQuery();
         const child = newQuery();
         const parent = newQuery();
 
         // set up the root compound q
-        compound.checks.push({ type: Type.COMPOUND_SPLIT, left, right, subject });
+        compound.checks.push({
+          type: Type.COMPOUND_SPLIT,
+          left,
+          right,
+          subject,
+        });
 
         // populate the subject and replace the q at the old spot (within left) with TRUE
         subject.checks = query.checks; // take the checks from the left
-        query.checks = [ { type: Type.TRUE } ]; // checks under left refs the subject implicitly
+        query.checks = [{ type: Type.TRUE }]; // checks under left refs the subject implicitly
 
         // set up the right q
         parent.checks.push({ type: Type.TRUE }); // parent implicitly refs the subject
         right.checks.push({
           type: Type.PARENT, // type is swapped on right side queries
           parent,
-          child // empty for now
+          child, // empty for now
         });
 
-        replaceLastQuery( selector, left, compound );
+        replaceLastQuery(selector, left, compound);
 
         // update the ref since we moved things around for `query`
         selector.currentSubject = subject;
@@ -278,11 +310,12 @@ const exprs = [
         selector.compoundCount++;
 
         return child; // now populating the right side's child
-      } else { // parent query
+      } else {
+        // parent query
         // info for parent query
         const parent = newQuery();
         const child = newQuery();
-        const pcQChecks = [ { type: Type.PARENT, parent, child } ];
+        const pcQChecks = [{ type: Type.PARENT, parent, child }];
 
         // the parent-child query takes the place of the query previously being populated
         parent.checks = query.checks; // the previous query contains the checks for the parent
@@ -292,15 +325,16 @@ const exprs = [
 
         return child; // we're now populating the child
       }
-    }
+    },
   },
 
   {
-    name: 'descendant',
+    name: "descendant",
     separator: true,
     regex: tokens.descendant,
-    populate: function( selector, query ){
-      if( selector.currentSubject == null ){ // default: descendant query
+    populate: function (selector, query) {
+      if (selector.currentSubject == null) {
+        // default: descendant query
         const ancChQuery = newQuery();
         const descendant = newQuery();
         const ancestor = selector[selector.length - 1];
@@ -308,36 +342,42 @@ const exprs = [
         ancChQuery.checks.push({ type: Type.DESCENDANT, ancestor, descendant });
 
         // the query in the selector should be the '>' itself
-        replaceLastQuery( selector, query, ancChQuery );
+        replaceLastQuery(selector, query, ancChQuery);
 
         selector.compoundCount++;
 
         // we're now populating the descendant query with expressions that follow
         return descendant;
-      } else if( selector.currentSubject === query ){ // compound split query
+      } else if (selector.currentSubject === query) {
+        // compound split query
         const compound = newQuery();
-        const left = selector[ selector.length - 1 ];
+        const left = selector[selector.length - 1];
         const right = newQuery();
         const subject = newQuery();
         const descendant = newQuery();
         const ancestor = newQuery();
 
         // set up the root compound q
-        compound.checks.push({ type: Type.COMPOUND_SPLIT, left, right, subject });
+        compound.checks.push({
+          type: Type.COMPOUND_SPLIT,
+          left,
+          right,
+          subject,
+        });
 
         // populate the subject and replace the q at the old spot (within left) with TRUE
         subject.checks = query.checks; // take the checks from the left
-        query.checks = [ { type: Type.TRUE } ]; // checks under left refs the subject implicitly
+        query.checks = [{ type: Type.TRUE }]; // checks under left refs the subject implicitly
 
         // set up the right q
         ancestor.checks.push({ type: Type.TRUE }); // ancestor implicitly refs the subject
         right.checks.push({
           type: Type.ANCESTOR, // type is swapped on right side queries
           ancestor,
-          descendant // empty for now
+          descendant, // empty for now
         });
 
-        replaceLastQuery( selector, left, compound );
+        replaceLastQuery(selector, left, compound);
 
         // update the ref since we moved things around for `query`
         selector.currentSubject = subject;
@@ -345,11 +385,12 @@ const exprs = [
         selector.compoundCount++;
 
         return descendant; // now populating the right side's descendant
-      } else { // ancestor query
+      } else {
+        // ancestor query
         // info for parent query
         const ancestor = newQuery();
         const descendant = newQuery();
-        const adQChecks = [ { type: Type.ANCESTOR, ancestor, descendant } ];
+        const adQChecks = [{ type: Type.ANCESTOR, ancestor, descendant }];
 
         // the parent-child query takes the place of the query previously being populated
         ancestor.checks = query.checks; // the previous query contains the checks for the parent
@@ -359,16 +400,21 @@ const exprs = [
 
         return descendant; // we're now populating the child
       }
-    }
+    },
   },
 
   {
-    name: 'subject',
+    name: "subject",
     modifier: true,
     regex: tokens.subject,
-    populate: function( selector, query ){
-      if( selector.currentSubject != null && selector.currentSubject !== query ){
-        util.warn( 'Redefinition of subject in selector `' + selector.toString() + '`' );
+    populate: function (selector, query) {
+      if (
+        selector.currentSubject != null &&
+        selector.currentSubject !== query
+      ) {
+        util.warn(
+          "Redefinition of subject in selector `" + selector.toString() + "`",
+        );
         return false;
       }
 
@@ -378,13 +424,12 @@ const exprs = [
       const topChk = topQ.checks[0];
       const topType = topChk == null ? null : topChk.type;
 
-      if( topType === Type.DIRECTED_EDGE ){
+      if (topType === Type.DIRECTED_EDGE) {
         // directed edge with subject on the target
 
         // change to target node check
         topChk.type = Type.NODE_TARGET;
-
-      } else if( topType === Type.UNDIRECTED_EDGE ){
+      } else if (topType === Type.UNDIRECTED_EDGE) {
         // undirected edge with subject on the second node
 
         // change to neighbor check
@@ -395,10 +440,10 @@ const exprs = [
         // clean up unused fields for new type
         topChk.nodes = null;
       }
-    }
-  }
+    },
+  },
 ];
 
-exprs.forEach( e => e.regexObj = new RegExp( '^' + e.regex ) );
+exprs.forEach((e) => (e.regexObj = new RegExp("^" + e.regex)));
 
 export default exprs;

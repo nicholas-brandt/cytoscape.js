@@ -1,10 +1,10 @@
-import * as util from'./util/index.mjs';
-import define from './define/index.mjs';
-import Collection from './collection/index.mjs';
-import Core from './core/index.mjs';
-import incExts from './extensions/index.mjs';
-import * as is from './is.mjs';
-import Emitter from './emitter.mjs';
+import * as util from "./util/index.mjs";
+import define from "./define/index.mjs";
+import Collection from "./collection/index.mjs";
+import Core from "./core/index.mjs";
+import incExts from "./extensions/index.mjs";
+import * as is from "./is.mjs";
+import Emitter from "./emitter.mjs";
 
 // registered extensions to cytoscape, indexed by name
 const extensions = {};
@@ -12,38 +12,43 @@ const extensions = {};
 // registered modules for extensions, indexed by name
 const modules = {};
 
-function setExtension( type, name, registrant ){
-
+function setExtension(type, name, registrant) {
   const ext = registrant;
 
-  const overrideErr = function( field ){
-    util.warn( 'Can not register `' + name + '` for `' + type + '` since `' + field + '` already exists in the prototype and can not be overridden' );
+  const overrideErr = function (field) {
+    util.warn(
+      "Can not register `" +
+        name +
+        "` for `" +
+        type +
+        "` since `" +
+        field +
+        "` already exists in the prototype and can not be overridden",
+    );
   };
 
-  if( type === 'core' ){
-    if( Core.prototype[ name ] ){
-      return overrideErr( name );
+  if (type === "core") {
+    if (Core.prototype[name]) {
+      return overrideErr(name);
     } else {
-      Core.prototype[ name ] = registrant;
+      Core.prototype[name] = registrant;
     }
-
-  } else if( type === 'collection' ){
-    if( Collection.prototype[ name ] ){
-      return overrideErr( name );
+  } else if (type === "collection") {
+    if (Collection.prototype[name]) {
+      return overrideErr(name);
     } else {
-      Collection.prototype[ name ] = registrant;
+      Collection.prototype[name] = registrant;
     }
-
-  } else if( type === 'layout' ){
+  } else if (type === "layout") {
     // fill in missing layout functions in the prototype
 
-    const Layout = function( options ){
+    const Layout = function (options) {
       this.options = options;
 
-      registrant.call( this, options );
+      registrant.call(this, options);
 
       // make sure layout has _private for use w/ std apis like .on()
-      if( !is.plainObject( this._private ) ){
+      if (!is.plainObject(this._private)) {
         this._private = {};
       }
 
@@ -53,194 +58,238 @@ function setExtension( type, name, registrant ){
       this.createEmitter();
     };
 
-    const layoutProto = Layout.prototype = Object.create( registrant.prototype );
+    const layoutProto = (Layout.prototype = Object.create(
+      registrant.prototype,
+    ));
 
     const optLayoutFns = [];
 
-    for (let i = 0; i < optLayoutFns.length; i++ ){
-      const fnName = optLayoutFns[ i ];
+    for (let i = 0; i < optLayoutFns.length; i++) {
+      const fnName = optLayoutFns[i];
 
-      layoutProto[ fnName ] = layoutProto[ fnName ] || function(){ return this; };
+      layoutProto[fnName] =
+        layoutProto[fnName] ||
+        function () {
+          return this;
+        };
     }
 
     // either .start() or .run() is defined, so autogen the other
-    if( layoutProto.start && !layoutProto.run ){
-      layoutProto.run = function(){ this.start(); return this; };
-    } else if( !layoutProto.start && layoutProto.run ){
-      layoutProto.start = function(){ this.run(); return this; };
+    if (layoutProto.start && !layoutProto.run) {
+      layoutProto.run = function () {
+        this.start();
+        return this;
+      };
+    } else if (!layoutProto.start && layoutProto.run) {
+      layoutProto.start = function () {
+        this.run();
+        return this;
+      };
     }
 
     const regStop = registrant.prototype.stop;
-    layoutProto.stop = function(){
+    layoutProto.stop = function () {
       const opts = this.options;
 
-      if( opts && opts.animate ){
+      if (opts && opts.animate) {
         const anis = this.animations;
 
-        if( anis ){
-          for (let i = 0; i < anis.length; i++ ){
-            anis[ i ].stop();
+        if (anis) {
+          for (let i = 0; i < anis.length; i++) {
+            anis[i].stop();
           }
         }
       }
 
-      if( regStop ){
-        regStop.call( this );
+      if (regStop) {
+        regStop.call(this);
       } else {
-        this.emit( 'layoutstop' );
+        this.emit("layoutstop");
       }
 
       return this;
     };
 
-    if( !layoutProto.destroy ){
-      layoutProto.destroy = function(){
+    if (!layoutProto.destroy) {
+      layoutProto.destroy = function () {
         return this;
       };
     }
 
-    layoutProto.cy = function(){
+    layoutProto.cy = function () {
       return this._private.cy;
     };
 
-    const getCy = layout => layout._private.cy;
+    const getCy = (layout) => layout._private.cy;
 
     const emitterOpts = {
-      addEventFields: function( layout, evt ){
+      addEventFields: function (layout, evt) {
         evt.layout = layout;
         evt.cy = getCy(layout);
         evt.target = layout;
       },
-      bubble: function(){ return true; },
-      parent: function( layout ){ return getCy(layout); }
+      bubble: function () {
+        return true;
+      },
+      parent: function (layout) {
+        return getCy(layout);
+      },
     };
 
-    util.assign( layoutProto, {
-      createEmitter: function(){
-        this._private.emitter = new Emitter( emitterOpts, this );
+    util.assign(layoutProto, {
+      createEmitter: function () {
+        this._private.emitter = new Emitter(emitterOpts, this);
 
         return this;
       },
-      emitter: function(){ return this._private.emitter; },
-      on: function( evt, cb ){ this.emitter().on( evt, cb ); return this; },
-      one: function( evt, cb ){ this.emitter().one( evt, cb ); return this; },
-      once: function( evt, cb ){ this.emitter().one( evt, cb ); return this; },
-      removeListener: function( evt, cb ){ this.emitter().removeListener( evt, cb ); return this; },
-      removeAllListeners: function(){ this.emitter().removeAllListeners(); return this; },
-      emit: function( evt, params ){ this.emitter().emit( evt, params ); return this; }
-    } );
+      emitter: function () {
+        return this._private.emitter;
+      },
+      on: function (evt, cb) {
+        this.emitter().on(evt, cb);
+        return this;
+      },
+      one: function (evt, cb) {
+        this.emitter().one(evt, cb);
+        return this;
+      },
+      once: function (evt, cb) {
+        this.emitter().one(evt, cb);
+        return this;
+      },
+      removeListener: function (evt, cb) {
+        this.emitter().removeListener(evt, cb);
+        return this;
+      },
+      removeAllListeners: function () {
+        this.emitter().removeAllListeners();
+        return this;
+      },
+      emit: function (evt, params) {
+        this.emitter().emit(evt, params);
+        return this;
+      },
+    });
 
-    define.eventAliasesOn( layoutProto );
+    define.eventAliasesOn(layoutProto);
 
     ext = Layout; // replace with our wrapped layout
-
-  } else if( type === 'renderer' && name !== 'null' && name !== 'base' ){
+  } else if (type === "renderer" && name !== "null" && name !== "base") {
     // user registered renderers inherit from base
 
-    const BaseRenderer = getExtension( 'renderer', 'base' );
+    const BaseRenderer = getExtension("renderer", "base");
     const bProto = BaseRenderer.prototype;
     const RegistrantRenderer = registrant;
     const rProto = registrant.prototype;
 
-    const Renderer = function(){
-      BaseRenderer.apply( this, arguments );
-      RegistrantRenderer.apply( this, arguments );
+    const Renderer = function () {
+      BaseRenderer.apply(this, arguments);
+      RegistrantRenderer.apply(this, arguments);
     };
 
     const proto = Renderer.prototype;
 
-    for( let pName in bProto ){
-      const pVal = bProto[ pName ];
-      const existsInR = rProto[ pName ] != null;
+    for (let pName in bProto) {
+      const pVal = bProto[pName];
+      const existsInR = rProto[pName] != null;
 
-      if( existsInR ){
-        return overrideErr( pName );
+      if (existsInR) {
+        return overrideErr(pName);
       }
 
-      proto[ pName ] = pVal; // take impl from base
+      proto[pName] = pVal; // take impl from base
     }
 
-    for( let pName in rProto ){
-      proto[ pName ] = rProto[ pName ]; // take impl from registrant
+    for (let pName in rProto) {
+      proto[pName] = rProto[pName]; // take impl from registrant
     }
 
-    bProto.clientFunctions.forEach( function( name ){
-      proto[ name ] = proto[ name ] || function(){
-        util.error( 'Renderer does not implement `renderer.' + name + '()` on its prototype' );
-      };
-    } );
+    bProto.clientFunctions.forEach(function (name) {
+      proto[name] =
+        proto[name] ||
+        function () {
+          util.error(
+            "Renderer does not implement `renderer." +
+              name +
+              "()` on its prototype",
+          );
+        };
+    });
 
     ext = Renderer;
-
-  } else if (type === '__proto__' || type === 'constructor' || type === 'prototype'){
+  } else if (
+    type === "__proto__" ||
+    type === "constructor" ||
+    type === "prototype"
+  ) {
     // to avoid potential prototype pollution
-    return util.error( type + ' is an illegal type to be registered, possibly lead to prototype pollutions' );
+    return util.error(
+      type +
+        " is an illegal type to be registered, possibly lead to prototype pollutions",
+    );
   }
 
-  return util.setMap( {
+  return util.setMap({
     map: extensions,
-    keys: [ type, name ],
-    value: ext
-  } );
+    keys: [type, name],
+    value: ext,
+  });
 }
 
-function getExtension( type, name ){
-  return util.getMap( {
+function getExtension(type, name) {
+  return util.getMap({
     map: extensions,
-    keys: [ type, name ]
-  } );
+    keys: [type, name],
+  });
 }
 
-function setModule( type, name, moduleType, moduleName, registrant ){
-  return util.setMap( {
+function setModule(type, name, moduleType, moduleName, registrant) {
+  return util.setMap({
     map: modules,
-    keys: [ type, name, moduleType, moduleName ],
-    value: registrant
-  } );
+    keys: [type, name, moduleType, moduleName],
+    value: registrant,
+  });
 }
 
-function getModule( type, name, moduleType, moduleName ){
-  return util.getMap( {
+function getModule(type, name, moduleType, moduleName) {
+  return util.getMap({
     map: modules,
-    keys: [ type, name, moduleType, moduleName ]
-  } );
+    keys: [type, name, moduleType, moduleName],
+  });
 }
 
-const extension = function(){
+const extension = function () {
   // e.g. extension('renderer', 'svg')
-  if( arguments.length === 2 ){
-    return getExtension.apply( null, arguments );
+  if (arguments.length === 2) {
+    return getExtension.apply(null, arguments);
   }
 
   // e.g. extension('renderer', 'svg', { ... })
-  else if( arguments.length === 3 ){
-    return setExtension.apply( null, arguments );
+  else if (arguments.length === 3) {
+    return setExtension.apply(null, arguments);
   }
 
   // e.g. extension('renderer', 'svg', 'nodeShape', 'ellipse')
-  else if( arguments.length === 4 ){
-    return getModule.apply( null, arguments );
+  else if (arguments.length === 4) {
+    return getModule.apply(null, arguments);
   }
 
   // e.g. extension('renderer', 'svg', 'nodeShape', 'ellipse', { ... })
-  else if( arguments.length === 5 ){
-    return setModule.apply( null, arguments );
+  else if (arguments.length === 5) {
+    return setModule.apply(null, arguments);
+  } else {
+    util.error("Invalid extension access syntax");
   }
-
-  else {
-    util.error( 'Invalid extension access syntax' );
-  }
-
 };
 
 // allows a core instance to access extensions internally
 Core.prototype.extension = extension;
 
 // included extensions
-incExts.forEach( function( group ){
-  group.extensions.forEach( function( ext ){
-    setExtension( group.type, ext.name, ext.impl );
-  } );
-} );
+incExts.forEach(function (group) {
+  group.extensions.forEach(function (ext) {
+    setExtension(group.type, ext.name, ext.impl);
+  });
+});
 
 export default extension;

@@ -10,44 +10,44 @@
  *  z-index: An integer value that affects the relative draw order of elements.  In general, an element with a higher
  *      `z-index` will be drawn on top of an element with a lower `z-index`.
  */
-import * as util from '../util/index.mjs';
+import * as util from "../util/index.mjs";
 
-const zIndexSort = function( a, b ){
+const zIndexSort = function (a, b) {
   const cy = a.cy();
   const hasCompoundNodes = cy.hasCompoundNodes();
 
-  function getDepth(ele){
-    const style = ele.pstyle( 'z-compound-depth' );
-    if ( style.value === 'auto' ){
+  function getDepth(ele) {
+    const style = ele.pstyle("z-compound-depth");
+    if (style.value === "auto") {
       return hasCompoundNodes ? ele.zDepth() : 0;
-    } else if ( style.value === 'bottom' ){
+    } else if (style.value === "bottom") {
       return -1;
-    } else if ( style.value === 'top' ){
+    } else if (style.value === "top") {
       return util.MAX_INT;
     }
     // 'orphan'
     return 0;
   }
   const depthDiff = getDepth(a) - getDepth(b);
-  if ( depthDiff !== 0 ){
+  if (depthDiff !== 0) {
     return depthDiff;
   }
 
-  function getEleDepth(ele){
-    const style = ele.pstyle( 'z-index-compare' );
-    if ( style.value === 'auto' ){
+  function getEleDepth(ele) {
+    const style = ele.pstyle("z-index-compare");
+    if (style.value === "auto") {
       return ele.isNode() ? 1 : 0;
     }
     // 'manual'
     return 0;
   }
   const eleDiff = getEleDepth(a) - getEleDepth(b);
-  if ( eleDiff !== 0 ){
+  if (eleDiff !== 0) {
     return eleDiff;
   }
 
-  const zDiff = a.pstyle( 'z-index' ).value - b.pstyle( 'z-index' ).value;
-  if ( zDiff !== 0 ){
+  const zDiff = a.pstyle("z-index").value - b.pstyle("z-index").value;
+  if (zDiff !== 0) {
     return zDiff;
   }
   // compare indices in the core (order added to graph w/ last on top)

@@ -1,28 +1,36 @@
-import * as util from '../util/index.mjs';
-import * as is from '../is.mjs';
-import Set from '../set.mjs';
+import * as util from "../util/index.mjs";
+import * as is from "../is.mjs";
+import Set from "../set.mjs";
 
 // represents a node or an edge
-const Element = function( cy, params, restore = true ){
-  if( cy === undefined || params === undefined || !is.core( cy ) ){
-    util.error( 'An element must have a core reference and parameters set' );
+const Element = function (cy, params, restore = true) {
+  if (cy === undefined || params === undefined || !is.core(cy)) {
+    util.error("An element must have a core reference and parameters set");
     return;
   }
 
   const group = params.group;
 
   // try to automatically infer the group if unspecified
-  if( group == null ){
-    if( params.data && params.data.source != null && params.data.target != null ){
-      group = 'edges';
+  if (group == null) {
+    if (
+      params.data &&
+      params.data.source != null &&
+      params.data.target != null
+    ) {
+      group = "edges";
     } else {
-      group = 'nodes';
+      group = "nodes";
     }
   }
 
   // validate group
-  if( group !== 'nodes' && group !== 'edges' ){
-    util.error( 'An element must be of type `nodes` or `edges`; you specified `' + group + '`' );
+  if (group !== "nodes" && group !== "edges") {
+    util.error(
+      "An element must be of type `nodes` or `edges`; you specified `" +
+        group +
+        "`",
+    );
     return;
   }
 
@@ -31,7 +39,7 @@ const Element = function( cy, params, restore = true ){
   this[0] = this;
 
   // NOTE: when something is added here, add also to ele.json()
-  const _p = this._private = {
+  const _p = (this._private = {
     cy: cy,
     single: true, // indicates this is an element
     data: params.data || {}, // data object
@@ -48,16 +56,26 @@ const Element = function( cy, params, restore = true ){
     styleKeys: {}, // per-group keys of style property values
     removed: true, // whether it's inside the vis; true if removed (set true here since we call restore)
     selected: params.selected ? true : false, // whether it's selected
-    selectable: params.selectable === undefined ? true : ( params.selectable ? true : false ), // whether it's selectable
+    selectable:
+      params.selectable === undefined ? true : params.selectable ? true : false, // whether it's selectable
     locked: params.locked ? true : false, // whether the element is locked (cannot be moved)
     grabbed: false, // whether the element is grabbed by the mouse; renderer sets this privately
-    grabbable: params.grabbable === undefined ? true : ( params.grabbable ? true : false ), // whether the element can be grabbed
-    pannable: params.pannable === undefined ? (group === 'edges' ? true : false) : ( params.pannable ? true : false ), // whether the element has passthrough panning enabled
+    grabbable:
+      params.grabbable === undefined ? true : params.grabbable ? true : false, // whether the element can be grabbed
+    pannable:
+      params.pannable === undefined
+        ? group === "edges"
+          ? true
+          : false
+        : params.pannable
+          ? true
+          : false, // whether the element has passthrough panning enabled
     active: false, // whether the element is active from user interaction
     classes: new Set(), // map ( className => true )
-    animation: { // object for currently-running animations
+    animation: {
+      // object for currently-running animations
       current: [],
-      queue: []
+      queue: [],
     },
     rscratch: {}, // object in which the renderer can store information
     scratch: params.scratch || {}, // scratch objects
@@ -70,61 +88,70 @@ const Element = function( cy, params, restore = true ){
     bbCacheShift: { x: 0, y: 0 }, // shift applied to cached bb to be applied on next get
     bodyBounds: null, // bounds cache of element body, w/o overlay
     overlayBounds: null, // bounds cache of element body, including overlay
-    labelBounds: { // bounds cache of labels
+    labelBounds: {
+      // bounds cache of labels
       all: null,
       source: null,
       target: null,
-      main: null
+      main: null,
     },
-    arrowBounds: { // bounds cache of edge arrows
+    arrowBounds: {
+      // bounds cache of edge arrows
       source: null,
       target: null,
-      'mid-source': null,
-      'mid-target': null
-    }
-  };
+      "mid-source": null,
+      "mid-target": null,
+    },
+  });
 
-  if( _p.position.x == null ){ _p.position.x = 0; }
-  if( _p.position.y == null ){ _p.position.y = 0; }
+  if (_p.position.x == null) {
+    _p.position.x = 0;
+  }
+  if (_p.position.y == null) {
+    _p.position.y = 0;
+  }
 
   // renderedPosition overrides if specified
-  if( params.renderedPosition ){
+  if (params.renderedPosition) {
     const rpos = params.renderedPosition;
     const pan = cy.pan();
     const zoom = cy.zoom();
 
     _p.position = {
       x: (rpos.x - pan.x) / zoom,
-      y: (rpos.y - pan.y) / zoom
+      y: (rpos.y - pan.y) / zoom,
     };
   }
 
   const classes = [];
-  if( is.array( params.classes ) ){
+  if (is.array(params.classes)) {
     classes = params.classes;
-  } else if( is.string( params.classes ) ){
-    classes = params.classes.split( /\s+/ );
+  } else if (is.string(params.classes)) {
+    classes = params.classes.split(/\s+/);
   }
-  for (let i = 0, l = classes.length; i < l; i++ ){
-    const cls = classes[ i ];
-    if( !cls || cls === '' ){ continue; }
+  for (let i = 0, l = classes.length; i < l; i++) {
+    const cls = classes[i];
+    if (!cls || cls === "") {
+      continue;
+    }
 
     _p.classes.add(cls);
   }
 
   this.createEmitter();
 
-  if( restore === undefined || restore ){
+  if (restore === undefined || restore) {
     this.restore();
   }
 
   const bypass = params.style || params.css;
-  if( bypass ){
-    util.warn('Setting a `style` bypass at element creation should be done only when absolutely necessary.  Try to use the stylesheet instead.');
+  if (bypass) {
+    util.warn(
+      "Setting a `style` bypass at element creation should be done only when absolutely necessary.  Try to use the stylesheet instead.",
+    );
 
     this.style(bypass);
   }
-
 };
 
 export default Element;

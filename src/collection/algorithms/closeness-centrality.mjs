@@ -1,16 +1,15 @@
-import * as is from '../../is.mjs';
-import * as util from '../../util/index.mjs';
+import * as is from "../../is.mjs";
+import * as util from "../../util/index.mjs";
 
 const defaults = util.defaults({
   harmonic: true,
   weight: () => 1,
   directed: false,
-  root: null
+  root: null,
 });
 
-const elesfn = ({
-
-  closenessCentralityNormalized: function( options ){
+const elesfn = {
+  closenessCentralityNormalized: function (options) {
     let { harmonic, weight, directed } = defaults(options);
 
     const cy = this.cy();
@@ -20,15 +19,15 @@ const elesfn = ({
     const fw = this.floydWarshall({ weight, directed });
 
     // Compute closeness for every node and find the maximum closeness
-    for (let i = 0; i < nodes.length; i++ ){
+    for (let i = 0; i < nodes.length; i++) {
       const currCloseness = 0;
       const node_i = nodes[i];
 
-      for (let j = 0; j < nodes.length; j++ ){
-        if( i !== j ){
-          const d = fw.distance( node_i, nodes[j] );
+      for (let j = 0; j < nodes.length; j++) {
+        if (i !== j) {
+          const d = fw.distance(node_i, nodes[j]);
 
-          if( harmonic ){
+          if (harmonic) {
             currCloseness += 1 / d;
           } else {
             currCloseness += d;
@@ -36,36 +35,38 @@ const elesfn = ({
         }
       }
 
-      if( !harmonic ){
+      if (!harmonic) {
         currCloseness = 1 / currCloseness;
       }
 
-      if( maxCloseness < currCloseness ){
+      if (maxCloseness < currCloseness) {
         maxCloseness = currCloseness;
       }
 
-      closenesses[ node_i.id() ] = currCloseness;
+      closenesses[node_i.id()] = currCloseness;
     }
 
     return {
-      closeness: function( node ){
-        if( maxCloseness == 0 ){ return 0; }
+      closeness: function (node) {
+        if (maxCloseness == 0) {
+          return 0;
+        }
 
-        if( is.string( node ) ){
+        if (is.string(node)) {
           // from is a selector string
-          node = (cy.filter( node )[0]).id();
+          node = cy.filter(node)[0].id();
         } else {
           // from is a node
           node = node.id();
         }
 
-        return closenesses[ node ] / maxCloseness;
-      }
+        return closenesses[node] / maxCloseness;
+      },
     };
   },
 
   // Implemented from pseudocode from wikipedia
-  closenessCentrality: function( options ){
+  closenessCentrality: function (options) {
     let { root, weight, directed, harmonic } = defaults(options);
 
     root = this.filter(root)[0];
@@ -75,13 +76,13 @@ const elesfn = ({
     const totalDistance = 0;
     const nodes = this.nodes();
 
-    for (let i = 0; i < nodes.length; i++ ){
+    for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i];
 
-      if( !n.same(root) ){
+      if (!n.same(root)) {
         const d = dijkstra.distanceTo(n);
 
-        if( harmonic ){
+        if (harmonic) {
           totalDistance += 1 / d;
         } else {
           totalDistance += d;
@@ -90,12 +91,12 @@ const elesfn = ({
     }
 
     return harmonic ? totalDistance : 1 / totalDistance;
-  } // closenessCentrality
-
-}); // elesfn
+  }, // closenessCentrality
+}; // elesfn
 
 // nice, short mathematical alias
 elesfn.cc = elesfn.closenessCentrality;
-elesfn.ccn = elesfn.closenessCentralityNormalised = elesfn.closenessCentralityNormalized;
+elesfn.ccn = elesfn.closenessCentralityNormalised =
+  elesfn.closenessCentralityNormalized;
 
 export default elesfn;

@@ -1,57 +1,62 @@
-import * as math from '../../../../math.mjs';
-import * as is from '../../../../is.mjs';
-import * as util from '../../../../util/index.mjs';
-import Map from '../../../../map.mjs';
-import {getRoundCorner} from "../../../../round.mjs";
-import {endsWith} from "../../../../util/index.mjs";
+import * as math from "../../../../math.mjs";
+import * as is from "../../../../is.mjs";
+import * as util from "../../../../util/index.mjs";
+import Map from "../../../../map.mjs";
+import { getRoundCorner } from "../../../../round.mjs";
+import { endsWith } from "../../../../util/index.mjs";
 
 const AVOID_IMPOSSIBLE_BEZIER_CONSTANT = 0.01;
-const AVOID_IMPOSSIBLE_BEZIER_CONSTANT_L = Math.sqrt(2 * AVOID_IMPOSSIBLE_BEZIER_CONSTANT);
+const AVOID_IMPOSSIBLE_BEZIER_CONSTANT_L = Math.sqrt(
+  2 * AVOID_IMPOSSIBLE_BEZIER_CONSTANT,
+);
 
 const BRp = {};
 
-BRp.findMidptPtsEtc = function(edge, pairInfo) {
+BRp.findMidptPtsEtc = function (edge, pairInfo) {
   let { posPts, intersectionPts, vectorNormInverse } = pairInfo;
 
   let midptPts;
 
   // n.b. assumes all edges in bezier bundle have same endpoints specified
-  const srcManEndpt = edge.pstyle('source-endpoint');
-  const tgtManEndpt = edge.pstyle('target-endpoint');
-  const haveManualEndPts = srcManEndpt.units != null && tgtManEndpt.units != null;
+  const srcManEndpt = edge.pstyle("source-endpoint");
+  const tgtManEndpt = edge.pstyle("target-endpoint");
+  const haveManualEndPts =
+    srcManEndpt.units != null && tgtManEndpt.units != null;
 
   const recalcVectorNormInverse = (x1, y1, x2, y2) => {
-    const dy = ( y2 - y1 );
-    const dx = ( x2 - x1 );
-    const l = Math.sqrt( dx * dx + dy * dy );
+    const dy = y2 - y1;
+    const dx = x2 - x1;
+    const l = Math.sqrt(dx * dx + dy * dy);
 
     return {
       x: -dy / l,
-      y: dx / l
+      y: dx / l,
     };
   };
 
-  const edgeDistances = edge.pstyle('edge-distances').value;
+  const edgeDistances = edge.pstyle("edge-distances").value;
 
-  switch(edgeDistances) {
-    case 'node-position':
+  switch (edgeDistances) {
+    case "node-position":
       midptPts = posPts;
       break;
 
-    case 'intersection':
+    case "intersection":
       midptPts = intersectionPts;
       break;
 
-    case 'endpoints': {
+    case "endpoints": {
       if (haveManualEndPts) {
-        const [x1, y1] = this.manualEndptToPx( edge.source()[0], srcManEndpt );
-        const [x2, y2] = this.manualEndptToPx( edge.target()[0], tgtManEndpt );
+        const [x1, y1] = this.manualEndptToPx(edge.source()[0], srcManEndpt);
+        const [x2, y2] = this.manualEndptToPx(edge.target()[0], tgtManEndpt);
         const endPts = { x1, y1, x2, y2 };
 
         vectorNormInverse = recalcVectorNormInverse(x1, y1, x2, y2);
         midptPts = endPts;
       } else {
-        util.warn(`Edge ${edge.id()} has edge-distances:endpoints specified without manual endpoints specified via source-endpoint and target-endpoint.  Falling back on edge-distances:intersection (default).`);
+        util.warn(
+          `Edge ${edge.id()} has edge-distances:endpoints specified without manual endpoints specified via source-endpoint and target-endpoint.  Falling back on edge-distances:intersection (default).`,
+        );
         midptPts = intersectionPts; // back to default
       }
       break;
@@ -61,27 +66,26 @@ BRp.findMidptPtsEtc = function(edge, pairInfo) {
   return { midptPts, vectorNormInverse };
 };
 
-BRp.findHaystackPoints = function( edges ){
-  for (let i = 0; i < edges.length; i++ ){
+BRp.findHaystackPoints = function (edges) {
+  for (let i = 0; i < edges.length; i++) {
     const edge = edges[i];
     const _p = edge._private;
     const rs = _p.rscratch;
 
-    if( !rs.haystack ){
+    if (!rs.haystack) {
       let angle = Math.random() * 2 * Math.PI;
 
       rs.source = {
-        x: Math.cos( angle ),
-        y: Math.sin( angle )
+        x: Math.cos(angle),
+        y: Math.sin(angle),
       };
 
       angle = Math.random() * 2 * Math.PI;
 
       rs.target = {
-        x: Math.cos( angle ),
-        y: Math.sin( angle )
+        x: Math.cos(angle),
+        y: Math.sin(angle),
       };
-
     }
 
     const src = _p.source;
@@ -92,51 +96,54 @@ BRp.findHaystackPoints = function( edges ){
     const tgtW = tgt.width();
     const srcH = src.height();
     const tgtH = tgt.height();
-    const radius = edge.pstyle('haystack-radius').value;
+    const radius = edge.pstyle("haystack-radius").value;
     const halfRadius = radius / 2; // b/c have to half width/height
 
     rs.haystackPts = rs.allpts = [
       rs.source.x * srcW * halfRadius + srcPos.x,
       rs.source.y * srcH * halfRadius + srcPos.y,
       rs.target.x * tgtW * halfRadius + tgtPos.x,
-      rs.target.y * tgtH * halfRadius + tgtPos.y
+      rs.target.y * tgtH * halfRadius + tgtPos.y,
     ];
 
     rs.midX = (rs.allpts[0] + rs.allpts[2]) / 2;
     rs.midY = (rs.allpts[1] + rs.allpts[3]) / 2;
 
     // always override as haystack in case set to different type previously
-    rs.edgeType = 'haystack';
+    rs.edgeType = "haystack";
     rs.haystack = true;
 
-    this.storeEdgeProjections( edge );
-    this.calculateArrowAngles( edge );
-    this.recalculateEdgeLabelProjections( edge );
-    this.calculateLabelAngles( edge );
+    this.storeEdgeProjections(edge);
+    this.calculateArrowAngles(edge);
+    this.recalculateEdgeLabelProjections(edge);
+    this.calculateLabelAngles(edge);
   }
 };
 
-BRp.findSegmentsPoints = function( edge, pairInfo ){
+BRp.findSegmentsPoints = function (edge, pairInfo) {
   // Segments (multiple straight lines)
 
   const rs = edge._private.rscratch;
-  const segmentWs = edge.pstyle( 'segment-weights' );
-  const segmentDs = edge.pstyle( 'segment-distances' );
-  const segmentRs = edge.pstyle( 'segment-radii' );
-  const segmentTs = edge.pstyle( 'radius-type' );
-  const segmentsN = Math.min( segmentWs.pfValue.length, segmentDs.pfValue.length );
+  const segmentWs = edge.pstyle("segment-weights");
+  const segmentDs = edge.pstyle("segment-distances");
+  const segmentRs = edge.pstyle("segment-radii");
+  const segmentTs = edge.pstyle("radius-type");
+  const segmentsN = Math.min(
+    segmentWs.pfValue.length,
+    segmentDs.pfValue.length,
+  );
 
-  const lastRadius = segmentRs.pfValue[ segmentRs.pfValue.length - 1 ];
-  const lastRadiusType = segmentTs.pfValue[ segmentTs.pfValue.length - 1 ];
+  const lastRadius = segmentRs.pfValue[segmentRs.pfValue.length - 1];
+  const lastRadiusType = segmentTs.pfValue[segmentTs.pfValue.length - 1];
 
-  rs.edgeType = 'segments';
+  rs.edgeType = "segments";
   rs.segpts = [];
   rs.radii = [];
   rs.isArcRadius = [];
 
-  for (let s = 0; s < segmentsN; s++ ){
-    const w = segmentWs.pfValue[ s ];
-    const d = segmentDs.pfValue[ s ];
+  for (let s = 0; s < segmentsN; s++) {
+    const w = segmentWs.pfValue[s];
+    const d = segmentDs.pfValue[s];
 
     const w1 = 1 - w;
     const w2 = w;
@@ -145,73 +152,78 @@ BRp.findSegmentsPoints = function( edge, pairInfo ){
 
     const adjustedMidpt = {
       x: midptPts.x1 * w1 + midptPts.x2 * w2,
-      y: midptPts.y1 * w1 + midptPts.y2 * w2
+      y: midptPts.y1 * w1 + midptPts.y2 * w2,
     };
 
     rs.segpts.push(
       adjustedMidpt.x + vectorNormInverse.x * d,
-      adjustedMidpt.y + vectorNormInverse.y * d
+      adjustedMidpt.y + vectorNormInverse.y * d,
     );
 
-    rs.radii.push( segmentRs.pfValue[ s ] !== undefined ?  segmentRs.pfValue[ s ] : lastRadius );
-    rs.isArcRadius.push( (segmentTs.pfValue[ s ] !== undefined ? segmentTs.pfValue[ s ] : lastRadiusType) === 'arc-radius' );
+    rs.radii.push(
+      segmentRs.pfValue[s] !== undefined ? segmentRs.pfValue[s] : lastRadius,
+    );
+    rs.isArcRadius.push(
+      (segmentTs.pfValue[s] !== undefined
+        ? segmentTs.pfValue[s]
+        : lastRadiusType) === "arc-radius",
+    );
   }
-
 };
 
-BRp.findLoopPoints = function( edge, pairInfo, i, edgeIsUnbundled ){
+BRp.findLoopPoints = function (edge, pairInfo, i, edgeIsUnbundled) {
   // Self-edge
 
   const rs = edge._private.rscratch;
   const { dirCounts, srcPos } = pairInfo;
-  const ctrlptDists = edge.pstyle( 'control-point-distances' );
+  const ctrlptDists = edge.pstyle("control-point-distances");
   const ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[0] : undefined;
-  const loopDir = edge.pstyle('loop-direction').pfValue;
-  const loopSwp = edge.pstyle('loop-sweep').pfValue;
-  const stepSize = edge.pstyle( 'control-point-step-size' ).pfValue;
+  const loopDir = edge.pstyle("loop-direction").pfValue;
+  const loopSwp = edge.pstyle("loop-sweep").pfValue;
+  const stepSize = edge.pstyle("control-point-step-size").pfValue;
 
-  rs.edgeType = 'self';
+  rs.edgeType = "self";
 
   let j = i;
   const loopDist = stepSize;
 
-  if( edgeIsUnbundled ){
+  if (edgeIsUnbundled) {
     j = 0;
     loopDist = ctrlptDist;
   }
 
   const loopAngle = loopDir - Math.PI / 2;
-  const outAngle =  loopAngle - loopSwp / 2;
-  const inAngle =  loopAngle + loopSwp / 2;
+  const outAngle = loopAngle - loopSwp / 2;
+  const inAngle = loopAngle + loopSwp / 2;
 
   // increase by step size for overlapping loops, keyed on direction and sweep values
-  const dc = String(loopDir + '_' + loopSwp);
-  j = dirCounts[dc] === undefined ? dirCounts[dc] = 0 : ++dirCounts[dc];
+  const dc = String(loopDir + "_" + loopSwp);
+  j = dirCounts[dc] === undefined ? (dirCounts[dc] = 0) : ++dirCounts[dc];
 
   rs.ctrlpts = [
     srcPos.x + Math.cos(outAngle) * 1.4 * loopDist * (j / 3 + 1),
     srcPos.y + Math.sin(outAngle) * 1.4 * loopDist * (j / 3 + 1),
     srcPos.x + Math.cos(inAngle) * 1.4 * loopDist * (j / 3 + 1),
-    srcPos.y + Math.sin(inAngle) * 1.4 * loopDist * (j / 3 + 1)
+    srcPos.y + Math.sin(inAngle) * 1.4 * loopDist * (j / 3 + 1),
   ];
 };
 
-BRp.findCompoundLoopPoints = function( edge, pairInfo, i, edgeIsUnbundled ){
+BRp.findCompoundLoopPoints = function (edge, pairInfo, i, edgeIsUnbundled) {
   // Compound edge
 
   const rs = edge._private.rscratch;
 
-  rs.edgeType = 'compound';
+  rs.edgeType = "compound";
 
   const { srcPos, tgtPos, srcW, srcH, tgtW, tgtH } = pairInfo;
-  const stepSize = edge.pstyle('control-point-step-size').pfValue;
-  const ctrlptDists = edge.pstyle('control-point-distances');
+  const stepSize = edge.pstyle("control-point-step-size").pfValue;
+  const ctrlptDists = edge.pstyle("control-point-distances");
   const ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[0] : undefined;
 
   const j = i;
   const loopDist = stepSize;
 
-  if( edgeIsUnbundled ){
+  if (edgeIsUnbundled) {
     j = 0;
     loopDist = ctrlptDist;
   }
@@ -220,46 +232,68 @@ BRp.findCompoundLoopPoints = function( edge, pairInfo, i, edgeIsUnbundled ){
 
   const loopaPos = {
     x: srcPos.x - srcW / 2,
-    y: srcPos.y - srcH / 2
+    y: srcPos.y - srcH / 2,
   };
 
   const loopbPos = {
     x: tgtPos.x - tgtW / 2,
-    y: tgtPos.y - tgtH / 2
+    y: tgtPos.y - tgtH / 2,
   };
 
   const loopPos = {
-    x: Math.min( loopaPos.x, loopbPos.x ),
-    y: Math.min( loopaPos.y, loopbPos.y )
+    x: Math.min(loopaPos.x, loopbPos.x),
+    y: Math.min(loopaPos.y, loopbPos.y),
   };
 
   // avoids cases with impossible beziers
   const minCompoundStretch = 0.5;
-  const compoundStretchA = Math.max( minCompoundStretch, Math.log( srcW * AVOID_IMPOSSIBLE_BEZIER_CONSTANT ) );
-  const compoundStretchB = Math.max( minCompoundStretch, Math.log( tgtW * AVOID_IMPOSSIBLE_BEZIER_CONSTANT ) );
+  const compoundStretchA = Math.max(
+    minCompoundStretch,
+    Math.log(srcW * AVOID_IMPOSSIBLE_BEZIER_CONSTANT),
+  );
+  const compoundStretchB = Math.max(
+    minCompoundStretch,
+    Math.log(tgtW * AVOID_IMPOSSIBLE_BEZIER_CONSTANT),
+  );
 
   rs.ctrlpts = [
     loopPos.x,
-    loopPos.y - (1 + Math.pow( loopW, 1.12 ) / 100) * loopDist * (j / 3 + 1) * compoundStretchA,
+    loopPos.y -
+      (1 + Math.pow(loopW, 1.12) / 100) *
+        loopDist *
+        (j / 3 + 1) *
+        compoundStretchA,
 
-    loopPos.x - (1 + Math.pow( loopW, 1.12 ) / 100) * loopDist * (j / 3 + 1) * compoundStretchB,
-    loopPos.y
+    loopPos.x -
+      (1 + Math.pow(loopW, 1.12) / 100) *
+        loopDist *
+        (j / 3 + 1) *
+        compoundStretchB,
+    loopPos.y,
   ];
-
 };
 
-BRp.findStraightEdgePoints = function( edge ){
+BRp.findStraightEdgePoints = function (edge) {
   // Straight edge within bundle
 
-  edge._private.rscratch.edgeType = 'straight';
+  edge._private.rscratch.edgeType = "straight";
 };
 
-BRp.findBezierPoints = function( edge, pairInfo, i, edgeIsUnbundled, edgeIsSwapped ){
+BRp.findBezierPoints = function (
+  edge,
+  pairInfo,
+  i,
+  edgeIsUnbundled,
+  edgeIsSwapped,
+) {
   const rs = edge._private.rscratch;
-  const stepSize = edge.pstyle('control-point-step-size').pfValue;
-  const ctrlptDists = edge.pstyle('control-point-distances');
-  const ctrlptWs = edge.pstyle('control-point-weights');
-  const bezierN = ctrlptDists && ctrlptWs ? Math.min( ctrlptDists.value.length, ctrlptWs.value.length ) : 1;
+  const stepSize = edge.pstyle("control-point-step-size").pfValue;
+  const ctrlptDists = edge.pstyle("control-point-distances");
+  const ctrlptWs = edge.pstyle("control-point-weights");
+  const bezierN =
+    ctrlptDists && ctrlptWs
+      ? Math.min(ctrlptDists.value.length, ctrlptWs.value.length)
+      : 1;
 
   const ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[0] : undefined;
   const ctrlptWeight = ctrlptWs.value[0];
@@ -268,26 +302,31 @@ BRp.findBezierPoints = function( edge, pairInfo, i, edgeIsUnbundled, edgeIsSwapp
 
   const multi = edgeIsUnbundled;
 
-  rs.edgeType = multi ? 'multibezier' : 'bezier';
+  rs.edgeType = multi ? "multibezier" : "bezier";
   rs.ctrlpts = [];
 
-  for (let b = 0; b < bezierN; b++ ){
-    const normctrlptDist = (0.5 - pairInfo.eles.length / 2 + i) * stepSize * (edgeIsSwapped ? -1 : 1);
+  for (let b = 0; b < bezierN; b++) {
+    const normctrlptDist =
+      (0.5 - pairInfo.eles.length / 2 + i) *
+      stepSize *
+      (edgeIsSwapped ? -1 : 1);
     let manctrlptDist;
-    const sign = math.signum( normctrlptDist );
+    const sign = math.signum(normctrlptDist);
 
-    if( multi ){
-      ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[ b ] : stepSize; // fall back on step size
-      ctrlptWeight = ctrlptWs.value[ b ];
+    if (multi) {
+      ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[b] : stepSize; // fall back on step size
+      ctrlptWeight = ctrlptWs.value[b];
     }
 
-    if( edgeIsUnbundled ){ // multi or single unbundled
+    if (edgeIsUnbundled) {
+      // multi or single unbundled
       manctrlptDist = ctrlptDist;
     } else {
       manctrlptDist = ctrlptDist !== undefined ? sign * ctrlptDist : undefined;
     }
 
-    const distanceFromMidpoint = manctrlptDist !== undefined ? manctrlptDist : normctrlptDist;
+    const distanceFromMidpoint =
+      manctrlptDist !== undefined ? manctrlptDist : normctrlptDist;
 
     const w1 = 1 - ctrlptWeight;
     const w2 = ctrlptWeight;
@@ -296,49 +335,49 @@ BRp.findBezierPoints = function( edge, pairInfo, i, edgeIsUnbundled, edgeIsSwapp
 
     const adjustedMidpt = {
       x: midptPts.x1 * w1 + midptPts.x2 * w2,
-      y: midptPts.y1 * w1 + midptPts.y2 * w2
+      y: midptPts.y1 * w1 + midptPts.y2 * w2,
     };
 
     rs.ctrlpts.push(
       adjustedMidpt.x + vectorNormInverse.x * distanceFromMidpoint,
-      adjustedMidpt.y + vectorNormInverse.y * distanceFromMidpoint
+      adjustedMidpt.y + vectorNormInverse.y * distanceFromMidpoint,
     );
   }
 };
 
-BRp.findTaxiPoints = function( edge, pairInfo ){
+BRp.findTaxiPoints = function (edge, pairInfo) {
   // Taxicab geometry with two turns maximum
 
   const rs = edge._private.rscratch;
 
-  rs.edgeType = 'segments';
+  rs.edgeType = "segments";
 
-  const VERTICAL = 'vertical';
-  const HORIZONTAL = 'horizontal';
-  const LEFTWARD = 'leftward';
-  const RIGHTWARD = 'rightward';
-  const DOWNWARD = 'downward';
-  const UPWARD = 'upward';
-  const AUTO = 'auto';
+  const VERTICAL = "vertical";
+  const HORIZONTAL = "horizontal";
+  const LEFTWARD = "leftward";
+  const RIGHTWARD = "rightward";
+  const DOWNWARD = "downward";
+  const UPWARD = "upward";
+  const AUTO = "auto";
 
   const { posPts, srcW, srcH, tgtW, tgtH } = pairInfo;
-  const edgeDistances = edge.pstyle('edge-distances').value;
-  const dIncludesNodeBody = edgeDistances !== 'node-position';
-  const taxiDir = edge.pstyle('taxi-direction').value;
+  const edgeDistances = edge.pstyle("edge-distances").value;
+  const dIncludesNodeBody = edgeDistances !== "node-position";
+  const taxiDir = edge.pstyle("taxi-direction").value;
   const rawTaxiDir = taxiDir; // unprocessed value
-  const taxiTurn = edge.pstyle('taxi-turn');
-  const turnIsPercent = taxiTurn.units === '%';
+  const taxiTurn = edge.pstyle("taxi-turn");
+  const turnIsPercent = taxiTurn.units === "%";
   const taxiTurnPfVal = taxiTurn.pfValue;
   const turnIsNegative = taxiTurnPfVal < 0; // i.e. from target side
-  const minD = edge.pstyle('taxi-turn-min-distance').pfValue;
-  const dw = (dIncludesNodeBody ? (srcW + tgtW)/2 : 0);
-  const dh = (dIncludesNodeBody ? (srcH + tgtH)/2 : 0);
+  const minD = edge.pstyle("taxi-turn-min-distance").pfValue;
+  const dw = dIncludesNodeBody ? (srcW + tgtW) / 2 : 0;
+  const dh = dIncludesNodeBody ? (srcH + tgtH) / 2 : 0;
   const pdx = posPts.x2 - posPts.x1;
   const pdy = posPts.y2 - posPts.y1;
 
   // take away the effective w/h from the magnitude of the delta value
   const subDWH = (dxy, dwh) => {
-    if( dxy > 0 ){
+    if (dxy > 0) {
       return Math.max(dxy - dwh, 0);
     } else {
       return Math.min(dxy + dwh, 0);
@@ -350,12 +389,12 @@ BRp.findTaxiPoints = function( edge, pairInfo ){
 
   const isExplicitDir = false;
 
-  if( rawTaxiDir === AUTO ){
+  if (rawTaxiDir === AUTO) {
     taxiDir = Math.abs(dx) > Math.abs(dy) ? HORIZONTAL : VERTICAL;
-  } else if( rawTaxiDir === UPWARD || rawTaxiDir === DOWNWARD ){
+  } else if (rawTaxiDir === UPWARD || rawTaxiDir === DOWNWARD) {
     taxiDir = VERTICAL;
     isExplicitDir = true;
-  } else if( rawTaxiDir === LEFTWARD || rawTaxiDir === RIGHTWARD ){
+  } else if (rawTaxiDir === LEFTWARD || rawTaxiDir === RIGHTWARD) {
     taxiDir = HORIZONTAL;
     isExplicitDir = true;
   }
@@ -366,15 +405,13 @@ BRp.findTaxiPoints = function( edge, pairInfo ){
   const sgnL = math.signum(pl);
 
   const forcedDir = false;
-  if(
-    !(isExplicitDir && (turnIsPercent || turnIsNegative)) // forcing in this case would cause weird growing in the opposite direction
-    && (
-      (rawTaxiDir === DOWNWARD && pl < 0)
-      || (rawTaxiDir === UPWARD && pl > 0)
-      || (rawTaxiDir === LEFTWARD && pl > 0)
-      || (rawTaxiDir === RIGHTWARD && pl < 0)
-    )
-  ){
+  if (
+    !(isExplicitDir && (turnIsPercent || turnIsNegative)) && // forcing in this case would cause weird growing in the opposite direction
+    ((rawTaxiDir === DOWNWARD && pl < 0) ||
+      (rawTaxiDir === UPWARD && pl > 0) ||
+      (rawTaxiDir === LEFTWARD && pl > 0) ||
+      (rawTaxiDir === RIGHTWARD && pl < 0))
+  ) {
     sgnL *= -1;
     l = sgnL * Math.abs(l);
 
@@ -383,145 +420,157 @@ BRp.findTaxiPoints = function( edge, pairInfo ){
 
   let d;
 
-  if( turnIsPercent ){
-    const p = taxiTurnPfVal < 0 ? (1 + taxiTurnPfVal) : (taxiTurnPfVal);
+  if (turnIsPercent) {
+    const p = taxiTurnPfVal < 0 ? 1 + taxiTurnPfVal : taxiTurnPfVal;
 
     d = p * l;
   } else {
-    const k = taxiTurnPfVal < 0 ? (l) : (0);
+    const k = taxiTurnPfVal < 0 ? l : 0;
 
     d = k + taxiTurnPfVal * sgnL;
   }
 
-  const getIsTooClose = d => Math.abs(d) < minD || Math.abs(d) >= Math.abs(l);
+  const getIsTooClose = (d) => Math.abs(d) < minD || Math.abs(d) >= Math.abs(l);
   const isTooCloseSrc = getIsTooClose(d);
-  const isTooCloseTgt =  getIsTooClose(Math.abs(l) - Math.abs(d));
+  const isTooCloseTgt = getIsTooClose(Math.abs(l) - Math.abs(d));
   const isTooClose = isTooCloseSrc || isTooCloseTgt;
 
-  if( isTooClose && !forcedDir ){ // non-ideal routing
-    if( isVert ){ // vertical fallbacks
-      const lShapeInsideSrc = Math.abs(pl) <= srcH/2;
-      const lShapeInsideTgt = Math.abs(pdx) <= tgtW/2;
+  if (isTooClose && !forcedDir) {
+    // non-ideal routing
+    if (isVert) {
+      // vertical fallbacks
+      const lShapeInsideSrc = Math.abs(pl) <= srcH / 2;
+      const lShapeInsideTgt = Math.abs(pdx) <= tgtW / 2;
 
-      if( lShapeInsideSrc ){ // horizontal Z-shape (direction not respected)
-        const x = (posPts.x1 + posPts.x2)/2;
+      if (lShapeInsideSrc) {
+        // horizontal Z-shape (direction not respected)
+        const x = (posPts.x1 + posPts.x2) / 2;
         let { y1, y2 } = posPts;
 
-        rs.segpts = [
-          x, y1,
-          x, y2
-        ];
-      } else if( lShapeInsideTgt ){ // vertical Z-shape (distance not respected)
-        const y = (posPts.y1 + posPts.y2)/2;
+        rs.segpts = [x, y1, x, y2];
+      } else if (lShapeInsideTgt) {
+        // vertical Z-shape (distance not respected)
+        const y = (posPts.y1 + posPts.y2) / 2;
         let { x1, x2 } = posPts;
 
-        rs.segpts = [
-          x1, y,
-          x2, y
-        ];
-      } else { // L-shape fallback (turn distance not respected, but works well with tree siblings)
-        rs.segpts = [
-          posPts.x1, posPts.y2
-        ];
+        rs.segpts = [x1, y, x2, y];
+      } else {
+        // L-shape fallback (turn distance not respected, but works well with tree siblings)
+        rs.segpts = [posPts.x1, posPts.y2];
       }
+    } else {
+      // horizontal fallbacks
+      const lShapeInsideSrc = Math.abs(pl) <= srcW / 2;
+      const lShapeInsideTgt = Math.abs(pdy) <= tgtH / 2;
 
-    } else { // horizontal fallbacks
-      const lShapeInsideSrc = Math.abs(pl) <= srcW/2;
-      const lShapeInsideTgt = Math.abs(pdy) <= tgtH/2;
-
-      if( lShapeInsideSrc ){ // vertical Z-shape (direction not respected)
-        const y = (posPts.y1 + posPts.y2)/2;
+      if (lShapeInsideSrc) {
+        // vertical Z-shape (direction not respected)
+        const y = (posPts.y1 + posPts.y2) / 2;
         let { x1, x2 } = posPts;
 
-        rs.segpts = [
-          x1, y,
-          x2, y
-        ];
-      } else if( lShapeInsideTgt ){ // horizontal Z-shape (turn distance not respected)
-        const x = (posPts.x1 + posPts.x2)/2;
+        rs.segpts = [x1, y, x2, y];
+      } else if (lShapeInsideTgt) {
+        // horizontal Z-shape (turn distance not respected)
+        const x = (posPts.x1 + posPts.x2) / 2;
         let { y1, y2 } = posPts;
 
-        rs.segpts = [
-          x, y1,
-          x, y2
-        ];
-      } else { // L-shape (turn distance not respected, but works well for tree siblings)
-        rs.segpts = [
-          posPts.x2,
-          posPts.y1
-        ];
+        rs.segpts = [x, y1, x, y2];
+      } else {
+        // L-shape (turn distance not respected, but works well for tree siblings)
+        rs.segpts = [posPts.x2, posPts.y1];
       }
     }
-  } else { // ideal routing
-    if( isVert ){
-      const y = posPts.y1 + d + (dIncludesNodeBody ? srcH/2 * sgnL : 0);
+  } else {
+    // ideal routing
+    if (isVert) {
+      const y = posPts.y1 + d + (dIncludesNodeBody ? (srcH / 2) * sgnL : 0);
       let { x1, x2 } = posPts;
 
-      rs.segpts = [
-        x1, y,
-        x2, y
-      ];
-    } else { // horizontal
-      const x = posPts.x1 + d + (dIncludesNodeBody ? srcW/2 * sgnL : 0);
+      rs.segpts = [x1, y, x2, y];
+    } else {
+      // horizontal
+      const x = posPts.x1 + d + (dIncludesNodeBody ? (srcW / 2) * sgnL : 0);
       let { y1, y2 } = posPts;
 
-      rs.segpts = [
-        x, y1,
-        x, y2
-      ];
+      rs.segpts = [x, y1, x, y2];
     }
   }
 
   if (rs.isRound) {
-    const radius = edge.pstyle( 'taxi-radius' ).value;
-    const isArcRadius = edge.pstyle( 'radius-type' ).value[0] === 'arc-radius';
-    rs.radii = new Array( rs.segpts.length / 2 ).fill( radius );
-    rs.isArcRadius = new Array( rs.segpts.length / 2 ).fill( isArcRadius );
+    const radius = edge.pstyle("taxi-radius").value;
+    const isArcRadius = edge.pstyle("radius-type").value[0] === "arc-radius";
+    rs.radii = new Array(rs.segpts.length / 2).fill(radius);
+    rs.isArcRadius = new Array(rs.segpts.length / 2).fill(isArcRadius);
   }
 };
 
-BRp.tryToCorrectInvalidPoints = function( edge, pairInfo ){
+BRp.tryToCorrectInvalidPoints = function (edge, pairInfo) {
   const rs = edge._private.rscratch;
 
   // can only correct beziers for now...
-  if( rs.edgeType === 'bezier' ){
-    const { srcPos, tgtPos, srcW, srcH, tgtW, tgtH, srcShape, tgtShape, srcCornerRadius, tgtCornerRadius, srcRs, tgtRs } = pairInfo;
+  if (rs.edgeType === "bezier") {
+    const {
+      srcPos,
+      tgtPos,
+      srcW,
+      srcH,
+      tgtW,
+      tgtH,
+      srcShape,
+      tgtShape,
+      srcCornerRadius,
+      tgtCornerRadius,
+      srcRs,
+      tgtRs,
+    } = pairInfo;
 
-    const badStart = !is.number( rs.startX ) || !is.number( rs.startY );
-    const badAStart = !is.number( rs.arrowStartX ) || !is.number( rs.arrowStartY );
-    const badEnd = !is.number( rs.endX ) || !is.number( rs.endY );
-    const badAEnd = !is.number( rs.arrowEndX ) || !is.number( rs.arrowEndY );
+    const badStart = !is.number(rs.startX) || !is.number(rs.startY);
+    const badAStart = !is.number(rs.arrowStartX) || !is.number(rs.arrowStartY);
+    const badEnd = !is.number(rs.endX) || !is.number(rs.endY);
+    const badAEnd = !is.number(rs.arrowEndX) || !is.number(rs.arrowEndY);
 
     const minCpADistFactor = 3;
-    const arrowW = this.getArrowWidth( edge.pstyle( 'width' ).pfValue, edge.pstyle( 'arrow-scale' ).value )
-      * this.arrowShapeWidth;
+    const arrowW =
+      this.getArrowWidth(
+        edge.pstyle("width").pfValue,
+        edge.pstyle("arrow-scale").value,
+      ) * this.arrowShapeWidth;
     const minCpADist = minCpADistFactor * arrowW;
 
-    const startACpDist = math.dist( { x: rs.ctrlpts[0], y: rs.ctrlpts[1] }, { x: rs.startX, y: rs.startY } );
+    const startACpDist = math.dist(
+      { x: rs.ctrlpts[0], y: rs.ctrlpts[1] },
+      { x: rs.startX, y: rs.startY },
+    );
     const closeStartACp = startACpDist < minCpADist;
-    const endACpDist = math.dist( { x: rs.ctrlpts[0], y: rs.ctrlpts[1] }, { x: rs.endX, y: rs.endY } );
+    const endACpDist = math.dist(
+      { x: rs.ctrlpts[0], y: rs.ctrlpts[1] },
+      { x: rs.endX, y: rs.endY },
+    );
     const closeEndACp = endACpDist < minCpADist;
 
     const overlapping = false;
 
-    if( badStart || badAStart || closeStartACp ){
+    if (badStart || badAStart || closeStartACp) {
       overlapping = true;
 
       // project control point along line from src centre to outside the src shape
       // (otherwise intersection will yield nothing)
-      const cpD = { // delta
+      const cpD = {
+        // delta
         x: rs.ctrlpts[0] - srcPos.x,
-        y: rs.ctrlpts[1] - srcPos.y
+        y: rs.ctrlpts[1] - srcPos.y,
       };
-      const cpL = Math.sqrt( cpD.x * cpD.x + cpD.y * cpD.y ); // length of line
-      const cpM = { // normalised delta
+      const cpL = Math.sqrt(cpD.x * cpD.x + cpD.y * cpD.y); // length of line
+      const cpM = {
+        // normalised delta
         x: cpD.x / cpL,
-        y: cpD.y / cpL
+        y: cpD.y / cpL,
       };
-      const radius = Math.max( srcW, srcH );
-      const cpProj = { // *2 radius guarantees outside shape
+      const radius = Math.max(srcW, srcH);
+      const cpProj = {
+        // *2 radius guarantees outside shape
         x: rs.ctrlpts[0] + cpM.x * 2 * radius,
-        y: rs.ctrlpts[1] + cpM.y * 2 * radius
+        y: rs.ctrlpts[1] + cpM.y * 2 * radius,
       };
 
       const srcCtrlPtIntn = srcShape.intersectLine(
@@ -531,10 +580,12 @@ BRp.tryToCorrectInvalidPoints = function( edge, pairInfo ){
         srcH,
         cpProj.x,
         cpProj.y,
-        0, srcCornerRadius, srcRs
+        0,
+        srcCornerRadius,
+        srcRs,
       );
 
-      if( closeStartACp ){
+      if (closeStartACp) {
         rs.ctrlpts[0] = rs.ctrlpts[0] + cpM.x * (minCpADist - startACpDist);
         rs.ctrlpts[1] = rs.ctrlpts[1] + cpM.y * (minCpADist - startACpDist);
       } else {
@@ -543,24 +594,27 @@ BRp.tryToCorrectInvalidPoints = function( edge, pairInfo ){
       }
     }
 
-    if( badEnd || badAEnd || closeEndACp ){
+    if (badEnd || badAEnd || closeEndACp) {
       overlapping = true;
 
       // project control point along line from tgt centre to outside the tgt shape
       // (otherwise intersection will yield nothing)
-      const cpD = { // delta
+      const cpD = {
+        // delta
         x: rs.ctrlpts[0] - tgtPos.x,
-        y: rs.ctrlpts[1] - tgtPos.y
+        y: rs.ctrlpts[1] - tgtPos.y,
       };
-      const cpL = Math.sqrt( cpD.x * cpD.x + cpD.y * cpD.y ); // length of line
-      const cpM = { // normalised delta
+      const cpL = Math.sqrt(cpD.x * cpD.x + cpD.y * cpD.y); // length of line
+      const cpM = {
+        // normalised delta
         x: cpD.x / cpL,
-        y: cpD.y / cpL
+        y: cpD.y / cpL,
       };
-      const radius = Math.max( srcW, srcH );
-      const cpProj = { // *2 radius guarantees outside shape
+      const radius = Math.max(srcW, srcH);
+      const cpProj = {
+        // *2 radius guarantees outside shape
         x: rs.ctrlpts[0] + cpM.x * 2 * radius,
-        y: rs.ctrlpts[1] + cpM.y * 2 * radius
+        y: rs.ctrlpts[1] + cpM.y * 2 * radius,
       };
 
       const tgtCtrlPtIntn = tgtShape.intersectLine(
@@ -570,120 +624,137 @@ BRp.tryToCorrectInvalidPoints = function( edge, pairInfo ){
         tgtH,
         cpProj.x,
         cpProj.y,
-        0, tgtCornerRadius, tgtRs
+        0,
+        tgtCornerRadius,
+        tgtRs,
       );
 
-      if( closeEndACp ){
+      if (closeEndACp) {
         rs.ctrlpts[0] = rs.ctrlpts[0] + cpM.x * (minCpADist - endACpDist);
         rs.ctrlpts[1] = rs.ctrlpts[1] + cpM.y * (minCpADist - endACpDist);
       } else {
         rs.ctrlpts[0] = tgtCtrlPtIntn[0] + cpM.x * minCpADist;
         rs.ctrlpts[1] = tgtCtrlPtIntn[1] + cpM.y * minCpADist;
       }
-
     }
 
-    if( overlapping ){
+    if (overlapping) {
       // recalc endpts
-      this.findEndpoints( edge );
+      this.findEndpoints(edge);
     }
-
   }
 };
 
-BRp.storeAllpts = function( edge ){
+BRp.storeAllpts = function (edge) {
   const rs = edge._private.rscratch;
 
-  if( rs.edgeType === 'multibezier' || rs.edgeType === 'bezier' || rs.edgeType === 'self' || rs.edgeType === 'compound' ){
+  if (
+    rs.edgeType === "multibezier" ||
+    rs.edgeType === "bezier" ||
+    rs.edgeType === "self" ||
+    rs.edgeType === "compound"
+  ) {
     rs.allpts = [];
 
-    rs.allpts.push( rs.startX, rs.startY );
+    rs.allpts.push(rs.startX, rs.startY);
 
-    for (let b = 0; b + 1 < rs.ctrlpts.length; b += 2 ){
+    for (let b = 0; b + 1 < rs.ctrlpts.length; b += 2) {
       // ctrl pt itself
-      rs.allpts.push( rs.ctrlpts[ b ], rs.ctrlpts[ b + 1] );
+      rs.allpts.push(rs.ctrlpts[b], rs.ctrlpts[b + 1]);
 
       // the midpt between ctrlpts as intermediate destination pts
-      if( b + 3 < rs.ctrlpts.length ){
-        rs.allpts.push( (rs.ctrlpts[ b ] + rs.ctrlpts[ b + 2]) / 2, (rs.ctrlpts[ b + 1] + rs.ctrlpts[ b + 3]) / 2 );
-      }
-    }
-
-    rs.allpts.push( rs.endX, rs.endY );
-
-    let m, mt;
-    if( rs.ctrlpts.length / 2 % 2 === 0 ){
-      m = rs.allpts.length / 2 - 1;
-
-      rs.midX = rs.allpts[ m ];
-      rs.midY = rs.allpts[ m + 1];
-    } else {
-      m = rs.allpts.length / 2 - 3;
-      mt = 0.5;
-
-      rs.midX = math.qbezierAt( rs.allpts[ m ], rs.allpts[ m + 2], rs.allpts[ m + 4], mt );
-      rs.midY = math.qbezierAt( rs.allpts[ m + 1], rs.allpts[ m + 3], rs.allpts[ m + 5], mt );
-    }
-
-  } else if( rs.edgeType === 'straight' ){
-    // need to calc these after endpts
-    rs.allpts = [ rs.startX, rs.startY, rs.endX, rs.endY ];
-
-    // default midpt for labels etc
-    rs.midX = ( rs.startX + rs.endX + rs.arrowStartX + rs.arrowEndX ) / 4;
-    rs.midY = ( rs.startY + rs.endY + rs.arrowStartY + rs.arrowEndY ) / 4;
-
-  } else if( rs.edgeType === 'segments' ){
-    rs.allpts = [];
-    rs.allpts.push( rs.startX, rs.startY );
-    rs.allpts.push.apply( rs.allpts, rs.segpts );
-    rs.allpts.push( rs.endX, rs.endY );
-
-    if( rs.isRound ){
-      rs.roundCorners = [];
-
-      for (let i = 2; i + 3 < rs.allpts.length; i += 2 ){
-        const radius = rs.radii[ (i / 2)  - 1];
-        const isArcRadius = rs.isArcRadius[ (i / 2)  - 1 ];
-        rs.roundCorners.push(
-          getRoundCorner(
-            {x: rs.allpts[i - 2], y: rs.allpts[i - 1]},
-            {x: rs.allpts[i], y: rs.allpts[i + 1], radius},
-            {x: rs.allpts[i + 2], y: rs.allpts[i + 3]},
-            radius, isArcRadius
-          )
+      if (b + 3 < rs.ctrlpts.length) {
+        rs.allpts.push(
+          (rs.ctrlpts[b] + rs.ctrlpts[b + 2]) / 2,
+          (rs.ctrlpts[b + 1] + rs.ctrlpts[b + 3]) / 2,
         );
       }
     }
 
-    if( rs.segpts.length % 4 === 0 ){
+    rs.allpts.push(rs.endX, rs.endY);
+
+    let m, mt;
+    if ((rs.ctrlpts.length / 2) % 2 === 0) {
+      m = rs.allpts.length / 2 - 1;
+
+      rs.midX = rs.allpts[m];
+      rs.midY = rs.allpts[m + 1];
+    } else {
+      m = rs.allpts.length / 2 - 3;
+      mt = 0.5;
+
+      rs.midX = math.qbezierAt(
+        rs.allpts[m],
+        rs.allpts[m + 2],
+        rs.allpts[m + 4],
+        mt,
+      );
+      rs.midY = math.qbezierAt(
+        rs.allpts[m + 1],
+        rs.allpts[m + 3],
+        rs.allpts[m + 5],
+        mt,
+      );
+    }
+  } else if (rs.edgeType === "straight") {
+    // need to calc these after endpts
+    rs.allpts = [rs.startX, rs.startY, rs.endX, rs.endY];
+
+    // default midpt for labels etc
+    rs.midX = (rs.startX + rs.endX + rs.arrowStartX + rs.arrowEndX) / 4;
+    rs.midY = (rs.startY + rs.endY + rs.arrowStartY + rs.arrowEndY) / 4;
+  } else if (rs.edgeType === "segments") {
+    rs.allpts = [];
+    rs.allpts.push(rs.startX, rs.startY);
+    rs.allpts.push.apply(rs.allpts, rs.segpts);
+    rs.allpts.push(rs.endX, rs.endY);
+
+    if (rs.isRound) {
+      rs.roundCorners = [];
+
+      for (let i = 2; i + 3 < rs.allpts.length; i += 2) {
+        const radius = rs.radii[i / 2 - 1];
+        const isArcRadius = rs.isArcRadius[i / 2 - 1];
+        rs.roundCorners.push(
+          getRoundCorner(
+            { x: rs.allpts[i - 2], y: rs.allpts[i - 1] },
+            { x: rs.allpts[i], y: rs.allpts[i + 1], radius },
+            { x: rs.allpts[i + 2], y: rs.allpts[i + 3] },
+            radius,
+            isArcRadius,
+          ),
+        );
+      }
+    }
+
+    if (rs.segpts.length % 4 === 0) {
       const i2 = rs.segpts.length / 2;
       const i1 = i2 - 2;
 
-      rs.midX = ( rs.segpts[ i1 ] + rs.segpts[ i2 ] ) / 2;
-      rs.midY = ( rs.segpts[ i1 + 1] + rs.segpts[ i2 + 1] ) / 2;
+      rs.midX = (rs.segpts[i1] + rs.segpts[i2]) / 2;
+      rs.midY = (rs.segpts[i1 + 1] + rs.segpts[i2 + 1]) / 2;
     } else {
       const i1 = rs.segpts.length / 2 - 1;
-      if( !rs.isRound ){
-        rs.midX = rs.segpts[ i1 ];
-        rs.midY = rs.segpts[ i1 + 1 ];
+      if (!rs.isRound) {
+        rs.midX = rs.segpts[i1];
+        rs.midY = rs.segpts[i1 + 1];
       } else {
-        const point = {x: rs.segpts[i1], y: rs.segpts[i1 + 1]};
+        const point = { x: rs.segpts[i1], y: rs.segpts[i1 + 1] };
         const corner = rs.roundCorners[i1 / 2];
-        if( corner.radius === 0 ){ // On collinear points
-          const nextPoint = {x: rs.segpts[i1 + 2], y: rs.segpts[i1 + 3]};
+        if (corner.radius === 0) {
+          // On collinear points
+          const nextPoint = { x: rs.segpts[i1 + 2], y: rs.segpts[i1 + 3] };
           rs.midX = point.x;
           rs.midY = point.y;
           rs.midVector = [point.y - nextPoint.y, nextPoint.x - point.x];
-        } else { // On rounded points
-          let v = [
-            point.x - corner.cx,
-            point.y - corner.cy
-          ];
+        } else {
+          // On rounded points
+          let v = [point.x - corner.cx, point.y - corner.cy];
 
-          const factor = corner.radius / Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2));
+          const factor =
+            corner.radius / Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2));
 
-          v = v.map(c => c * factor);
+          v = v.map((c) => c * factor);
 
           rs.midX = corner.cx + v[0];
           rs.midY = corner.cy + v[1];
@@ -691,104 +762,122 @@ BRp.storeAllpts = function( edge ){
         }
       }
     }
-
-
   }
 };
 
-BRp.checkForInvalidEdgeWarning = function( edge ){
+BRp.checkForInvalidEdgeWarning = function (edge) {
   const rs = edge[0]._private.rscratch;
 
-  if( rs.nodesOverlap || (is.number(rs.startX) && is.number(rs.startY) && is.number(rs.endX) && is.number(rs.endY)) ){
+  if (
+    rs.nodesOverlap ||
+    (is.number(rs.startX) &&
+      is.number(rs.startY) &&
+      is.number(rs.endX) &&
+      is.number(rs.endY))
+  ) {
     rs.loggedErr = false;
   } else {
-    if( !rs.loggedErr ){
+    if (!rs.loggedErr) {
       rs.loggedErr = true;
-      util.warn('Edge `' + edge.id() + '` has invalid endpoints and so it is impossible to draw.  Adjust your edge style (e.g. control points) accordingly or use an alternative edge type.  This is expected behaviour when the source node and the target node overlap.');
+      util.warn(
+        "Edge `" +
+          edge.id() +
+          "` has invalid endpoints and so it is impossible to draw.  Adjust your edge style (e.g. control points) accordingly or use an alternative edge type.  This is expected behaviour when the source node and the target node overlap.",
+      );
     }
   }
 };
 
-BRp.findEdgeControlPoints = function( edges ){
-  if( !edges || edges.length === 0 ){ return; }
+BRp.findEdgeControlPoints = function (edges) {
+  if (!edges || edges.length === 0) {
+    return;
+  }
 
   const r = this;
   const cy = r.cy;
   const hasCompounds = cy.hasCompoundNodes();
 
   const hashTable = new Map();
-  const getKey = (pairId, edgeIsUnbundled) => [
-    ...pairId,
-    edgeIsUnbundled ? 1 : 0
-  ].join('-');
+  const getKey = (pairId, edgeIsUnbundled) =>
+    [...pairId, edgeIsUnbundled ? 1 : 0].join("-");
 
   const pairIds = [];
   const haystackEdges = [];
 
   // create a table of edge (src, tgt) => list of edges between them
-  for (let i = 0; i < edges.length; i++ ){
+  for (let i = 0; i < edges.length; i++) {
     const edge = edges[i];
     const _p = edge._private;
-    const curveStyle = edge.pstyle('curve-style').value;
+    const curveStyle = edge.pstyle("curve-style").value;
 
     // ignore edges who are not to be displayed
     // they shouldn't take up space
-    if( edge.removed() || !edge.takesUpSpace() ){
+    if (edge.removed() || !edge.takesUpSpace()) {
       continue;
     }
 
-    if( curveStyle === 'haystack' ){
-      haystackEdges.push( edge );
+    if (curveStyle === "haystack") {
+      haystackEdges.push(edge);
       continue;
     }
 
-    const edgeIsUnbundled = curveStyle === 'unbundled-bezier' || endsWith(curveStyle, 'segments') || curveStyle === 'straight' || curveStyle === 'straight-triangle' || endsWith(curveStyle, 'taxi');
-    const edgeIsBezier = curveStyle === 'unbundled-bezier' || curveStyle === 'bezier';
+    const edgeIsUnbundled =
+      curveStyle === "unbundled-bezier" ||
+      endsWith(curveStyle, "segments") ||
+      curveStyle === "straight" ||
+      curveStyle === "straight-triangle" ||
+      endsWith(curveStyle, "taxi");
+    const edgeIsBezier =
+      curveStyle === "unbundled-bezier" || curveStyle === "bezier";
     const src = _p.source;
     const tgt = _p.target;
     const srcIndex = src.poolIndex();
     const tgtIndex = tgt.poolIndex();
 
-    const pairId = [ srcIndex, tgtIndex ].sort();
+    const pairId = [srcIndex, tgtIndex].sort();
     const key = getKey(pairId, edgeIsUnbundled);
 
-    const tableEntry = hashTable.get( key );
+    const tableEntry = hashTable.get(key);
 
-    if( tableEntry == null ){
+    if (tableEntry == null) {
       tableEntry = { eles: [] };
 
       pairIds.push({ pairId, edgeIsUnbundled });
-      hashTable.set( key, tableEntry );
+      hashTable.set(key, tableEntry);
     }
 
-    tableEntry.eles.push( edge );
+    tableEntry.eles.push(edge);
 
-    if( edgeIsUnbundled ){
+    if (edgeIsUnbundled) {
       tableEntry.hasUnbundled = true;
     }
 
-    if( edgeIsBezier ){
+    if (edgeIsBezier) {
       tableEntry.hasBezier = true;
     }
   }
 
   // for each pair (src, tgt), create the ctrl pts
   // Nested for loop is OK; total number of iterations for both loops = edgeCount
-  for (let p = 0; p < pairIds.length; p++ ){
-    let { pairId, edgeIsUnbundled } = pairIds[ p ];
+  for (let p = 0; p < pairIds.length; p++) {
+    let { pairId, edgeIsUnbundled } = pairIds[p];
     const key = getKey(pairId, edgeIsUnbundled);
-    const pairInfo = hashTable.get( key );
+    const pairInfo = hashTable.get(key);
     let swappedpairInfo;
 
-    if( !pairInfo.hasUnbundled ){
-      const pllEdges = pairInfo.eles[0].parallelEdges().filter(e => e.isBundledBezier());
+    if (!pairInfo.hasUnbundled) {
+      const pllEdges = pairInfo.eles[0]
+        .parallelEdges()
+        .filter((e) => e.isBundledBezier());
 
-      util.clearArray( pairInfo.eles );
+      util.clearArray(pairInfo.eles);
 
-      pllEdges.forEach( edge => pairInfo.eles.push(edge) );
+      pllEdges.forEach((edge) => pairInfo.eles.push(edge));
 
       // for each pair id, the edges should be sorted by index
-      pairInfo.eles.sort( (edge1, edge2) => edge1.poolIndex() - edge2.poolIndex() );
+      pairInfo.eles.sort(
+        (edge1, edge2) => edge1.poolIndex() - edge2.poolIndex(),
+      );
     }
 
     const firstEdge = pairInfo.eles[0];
@@ -796,124 +885,163 @@ BRp.findEdgeControlPoints = function( edges ){
     const tgt = firstEdge.target();
 
     // make sure src/tgt distinction is consistent w.r.t. pairId
-    if( src.poolIndex() > tgt.poolIndex() ){
+    if (src.poolIndex() > tgt.poolIndex()) {
       const temp = src;
       src = tgt;
       tgt = temp;
     }
 
-    const srcPos = pairInfo.srcPos = src.position();
-    const tgtPos = pairInfo.tgtPos = tgt.position();
+    const srcPos = (pairInfo.srcPos = src.position());
+    const tgtPos = (pairInfo.tgtPos = tgt.position());
 
-    const srcW = pairInfo.srcW = src.outerWidth();
-    const srcH = pairInfo.srcH = src.outerHeight();
+    const srcW = (pairInfo.srcW = src.outerWidth());
+    const srcH = (pairInfo.srcH = src.outerHeight());
 
-    const tgtW = pairInfo.tgtW = tgt.outerWidth();
-    const tgtH = pairInfo.tgtH = tgt.outerHeight();
+    const tgtW = (pairInfo.tgtW = tgt.outerWidth());
+    const tgtH = (pairInfo.tgtH = tgt.outerHeight());
 
-    const srcShape = pairInfo.srcShape = r.nodeShapes[ this.getNodeShape( src ) ];
-    const tgtShape = pairInfo.tgtShape = r.nodeShapes[ this.getNodeShape( tgt ) ];
+    const srcShape = (pairInfo.srcShape = r.nodeShapes[this.getNodeShape(src)]);
+    const tgtShape = (pairInfo.tgtShape = r.nodeShapes[this.getNodeShape(tgt)]);
 
-    const srcCornerRadius = pairInfo.srcCornerRadius = src.pstyle('corner-radius').value === 'auto' ? 'auto' : src.pstyle('corner-radius').pfValue;
-    const tgtCornerRadius = pairInfo.tgtCornerRadius = tgt.pstyle('corner-radius').value === 'auto' ? 'auto' : tgt.pstyle('corner-radius').pfValue;
+    const srcCornerRadius = (pairInfo.srcCornerRadius =
+      src.pstyle("corner-radius").value === "auto"
+        ? "auto"
+        : src.pstyle("corner-radius").pfValue);
+    const tgtCornerRadius = (pairInfo.tgtCornerRadius =
+      tgt.pstyle("corner-radius").value === "auto"
+        ? "auto"
+        : tgt.pstyle("corner-radius").pfValue);
 
-    const tgtRs = pairInfo.tgtRs = tgt._private.rscratch;
-    const srcRs = pairInfo.srcRs = src._private.rscratch;
+    const tgtRs = (pairInfo.tgtRs = tgt._private.rscratch);
+    const srcRs = (pairInfo.srcRs = src._private.rscratch);
 
     pairInfo.dirCounts = {
-      'north': 0,
-      'west': 0,
-      'south': 0,
-      'east': 0,
-      'northwest': 0,
-      'southwest': 0,
-      'northeast': 0,
-      'southeast': 0
+      north: 0,
+      west: 0,
+      south: 0,
+      east: 0,
+      northwest: 0,
+      southwest: 0,
+      northeast: 0,
+      southeast: 0,
     };
 
-    for (let i = 0; i < pairInfo.eles.length; i++ ){
+    for (let i = 0; i < pairInfo.eles.length; i++) {
       const edge = pairInfo.eles[i];
       const rs = edge[0]._private.rscratch;
-      const curveStyle = edge.pstyle( 'curve-style' ).value;
-      const edgeIsUnbundled = curveStyle === 'unbundled-bezier' || endsWith(curveStyle, 'segments') || endsWith(curveStyle, 'taxi');
+      const curveStyle = edge.pstyle("curve-style").value;
+      const edgeIsUnbundled =
+        curveStyle === "unbundled-bezier" ||
+        endsWith(curveStyle, "segments") ||
+        endsWith(curveStyle, "taxi");
 
       // whether the normalised pair order is the reverse of the edge's src-tgt order
       const edgeIsSwapped = !src.same(edge.source());
 
-      if( !pairInfo.calculatedIntersection && src !== tgt && ( pairInfo.hasBezier || pairInfo.hasUnbundled ) ){
+      if (
+        !pairInfo.calculatedIntersection &&
+        src !== tgt &&
+        (pairInfo.hasBezier || pairInfo.hasUnbundled)
+      ) {
         pairInfo.calculatedIntersection = true;
 
         // pt outside src shape to calc distance/displacement from src to tgt
         const srcOutside = srcShape.intersectLine(
-          srcPos.x, srcPos.y,
-          srcW, srcH,
-          tgtPos.x, tgtPos.y,
-          0, srcCornerRadius, srcRs
+          srcPos.x,
+          srcPos.y,
+          srcW,
+          srcH,
+          tgtPos.x,
+          tgtPos.y,
+          0,
+          srcCornerRadius,
+          srcRs,
         );
 
-        const srcIntn = pairInfo.srcIntn = srcOutside;
+        const srcIntn = (pairInfo.srcIntn = srcOutside);
 
         // pt outside tgt shape to calc distance/displacement from src to tgt
         const tgtOutside = tgtShape.intersectLine(
-          tgtPos.x, tgtPos.y,
-          tgtW, tgtH,
-          srcPos.x, srcPos.y,
-          0, tgtCornerRadius, tgtRs
+          tgtPos.x,
+          tgtPos.y,
+          tgtW,
+          tgtH,
+          srcPos.x,
+          srcPos.y,
+          0,
+          tgtCornerRadius,
+          tgtRs,
         );
 
-        const tgtIntn = pairInfo.tgtIntn = tgtOutside;
+        const tgtIntn = (pairInfo.tgtIntn = tgtOutside);
 
-        const intersectionPts = pairInfo.intersectionPts = {
+        const intersectionPts = (pairInfo.intersectionPts = {
           x1: srcOutside[0],
           x2: tgtOutside[0],
           y1: srcOutside[1],
-          y2: tgtOutside[1]
-        };
+          y2: tgtOutside[1],
+        });
 
-        const posPts = pairInfo.posPts = {
+        const posPts = (pairInfo.posPts = {
           x1: srcPos.x,
           x2: tgtPos.x,
           y1: srcPos.y,
-          y2: tgtPos.y
-        };
+          y2: tgtPos.y,
+        });
 
-        const dy = ( tgtOutside[1] - srcOutside[1] );
-        const dx = ( tgtOutside[0] - srcOutside[0] );
-        const l = Math.sqrt(
-          (dx * dx) +
-          (dy * dy)
-        );
+        const dy = tgtOutside[1] - srcOutside[1];
+        const dx = tgtOutside[0] - srcOutside[0];
+        const l = Math.sqrt(dx * dx + dy * dy);
 
         if (is.number(l) && l >= AVOID_IMPOSSIBLE_BEZIER_CONSTANT_L) {
           // keep l
         } else {
           l = Math.sqrt(
             Math.max(dx * dx, AVOID_IMPOSSIBLE_BEZIER_CONSTANT) +
-            Math.max(dy * dy, AVOID_IMPOSSIBLE_BEZIER_CONSTANT)
+              Math.max(dy * dy, AVOID_IMPOSSIBLE_BEZIER_CONSTANT),
           );
         }
 
-        const vector = pairInfo.vector = {
+        const vector = (pairInfo.vector = {
           x: dx,
-          y: dy
-        };
+          y: dy,
+        });
 
-        const vectorNorm = pairInfo.vectorNorm = {
+        const vectorNorm = (pairInfo.vectorNorm = {
           x: vector.x / l,
-          y: vector.y / l
-        };
+          y: vector.y / l,
+        });
 
         const vectorNormInverse = {
           x: -vectorNorm.y,
-          y: vectorNorm.x
+          y: vectorNorm.x,
         };
 
         // if node shapes overlap, then no ctrl pts to draw
-        pairInfo.nodesOverlap = (
-          !is.number(l)
-          || tgtShape.checkPoint( srcOutside[0], srcOutside[1], 0, tgtW, tgtH, tgtPos.x, tgtPos.y, tgtCornerRadius, tgtRs )
-          || srcShape.checkPoint( tgtOutside[0], tgtOutside[1], 0, srcW, srcH, srcPos.x, srcPos.y, srcCornerRadius, srcRs )
-        );
+        pairInfo.nodesOverlap =
+          !is.number(l) ||
+          tgtShape.checkPoint(
+            srcOutside[0],
+            srcOutside[1],
+            0,
+            tgtW,
+            tgtH,
+            tgtPos.x,
+            tgtPos.y,
+            tgtCornerRadius,
+            tgtRs,
+          ) ||
+          srcShape.checkPoint(
+            tgtOutside[0],
+            tgtOutside[1],
+            0,
+            srcW,
+            srcH,
+            srcPos.x,
+            srcPos.y,
+            srcCornerRadius,
+            srcRs,
+          );
 
         pairInfo.vectorNormInverse = vectorNormInverse;
 
@@ -937,16 +1065,23 @@ BRp.findEdgeControlPoints = function( edges ){
           srcShape: tgtShape,
           tgtShape: srcShape,
           posPts: {
-            x1: posPts.x2, y1: posPts.y2,
-            x2: posPts.x1, y2: posPts.y1
+            x1: posPts.x2,
+            y1: posPts.y2,
+            x2: posPts.x1,
+            y2: posPts.y1,
           },
           intersectionPts: {
-            x1: intersectionPts.x2, y1: intersectionPts.y2,
-            x2: intersectionPts.x1, y2: intersectionPts.y1
+            x1: intersectionPts.x2,
+            y1: intersectionPts.y2,
+            x2: intersectionPts.x1,
+            y2: intersectionPts.y1,
           },
           vector: { x: -vector.x, y: -vector.y },
           vectorNorm: { x: -vectorNorm.x, y: -vectorNorm.y },
-          vectorNormInverse: { x: -vectorNormInverse.x, y: -vectorNormInverse.y }
+          vectorNormInverse: {
+            x: -vectorNormInverse.x,
+            y: -vectorNormInverse.y,
+          },
         };
       }
 
@@ -956,64 +1091,67 @@ BRp.findEdgeControlPoints = function( edges ){
       rs.srcIntn = passedPairInfo.srcIntn;
       rs.tgtIntn = passedPairInfo.tgtIntn;
 
-      rs.isRound = curveStyle.startsWith('round');
+      rs.isRound = curveStyle.startsWith("round");
 
-      if(
+      if (
         hasCompounds &&
-        ( src.isParent() || src.isChild() || tgt.isParent() || tgt.isChild() ) &&
-        ( src.parents().anySame(tgt) || tgt.parents().anySame(src) || (src.same(tgt) && src.isParent()) )
-      ){
+        (src.isParent() || src.isChild() || tgt.isParent() || tgt.isChild()) &&
+        (src.parents().anySame(tgt) ||
+          tgt.parents().anySame(src) ||
+          (src.same(tgt) && src.isParent()))
+      ) {
         this.findCompoundLoopPoints(edge, passedPairInfo, i, edgeIsUnbundled);
-
-      } else if( src === tgt ){
+      } else if (src === tgt) {
         this.findLoopPoints(edge, passedPairInfo, i, edgeIsUnbundled);
-
-      } else if( curveStyle.endsWith( 'segments' )){
+      } else if (curveStyle.endsWith("segments")) {
         this.findSegmentsPoints(edge, passedPairInfo);
-
-      } else if( curveStyle.endsWith( 'taxi' )){
+      } else if (curveStyle.endsWith("taxi")) {
         this.findTaxiPoints(edge, passedPairInfo);
-
-      } else if(
-        curveStyle === 'straight'
-        || (
-          !edgeIsUnbundled
-          && pairInfo.eles.length % 2 === 1
-          && i === Math.floor( pairInfo.eles.length / 2 )
-        )
-      ){
+      } else if (
+        curveStyle === "straight" ||
+        (!edgeIsUnbundled &&
+          pairInfo.eles.length % 2 === 1 &&
+          i === Math.floor(pairInfo.eles.length / 2))
+      ) {
         this.findStraightEdgePoints(edge);
-
       } else {
-        this.findBezierPoints(edge, passedPairInfo, i, edgeIsUnbundled, edgeIsSwapped);
+        this.findBezierPoints(
+          edge,
+          passedPairInfo,
+          i,
+          edgeIsUnbundled,
+          edgeIsSwapped,
+        );
       }
 
-      this.findEndpoints( edge );
+      this.findEndpoints(edge);
 
-      this.tryToCorrectInvalidPoints( edge, passedPairInfo );
+      this.tryToCorrectInvalidPoints(edge, passedPairInfo);
 
-      this.checkForInvalidEdgeWarning( edge );
+      this.checkForInvalidEdgeWarning(edge);
 
-      this.storeAllpts( edge );
-      this.storeEdgeProjections( edge );
-      this.calculateArrowAngles( edge );
-      this.recalculateEdgeLabelProjections( edge );
-      this.calculateLabelAngles( edge );
+      this.storeAllpts(edge);
+      this.storeEdgeProjections(edge);
+      this.calculateArrowAngles(edge);
+      this.recalculateEdgeLabelProjections(edge);
+      this.calculateLabelAngles(edge);
     } // for pair edges
   } // for pair ids
 
   // haystacks avoid the expense of pairInfo stuff (intersections etc.)
-  this.findHaystackPoints( haystackEdges );
+  this.findHaystackPoints(haystackEdges);
 };
 
-function getPts( pts ){
+function getPts(pts) {
   const retPts = [];
 
-  if( pts == null ){ return; }
+  if (pts == null) {
+    return;
+  }
 
-  for (let i = 0; i < pts.length; i += 2 ){
+  for (let i = 0; i < pts.length; i += 2) {
     const x = pts[i];
-    const y = pts[i+1];
+    const y = pts[i + 1];
 
     retPts.push({ x, y });
   }
@@ -1021,36 +1159,41 @@ function getPts( pts ){
   return retPts;
 }
 
-BRp.getSegmentPoints = function( edge ){
+BRp.getSegmentPoints = function (edge) {
   const rs = edge[0]._private.rscratch;
 
-  this.recalculateRenderedStyle( edge );
+  this.recalculateRenderedStyle(edge);
 
   const type = rs.edgeType;
-  if( type === 'segments' ){
-    return getPts( rs.segpts );
+  if (type === "segments") {
+    return getPts(rs.segpts);
   }
 };
 
-BRp.getControlPoints = function( edge ){
+BRp.getControlPoints = function (edge) {
   const rs = edge[0]._private.rscratch;
 
-  this.recalculateRenderedStyle( edge );
+  this.recalculateRenderedStyle(edge);
 
   const type = rs.edgeType;
-  if( type === 'bezier' || type === 'multibezier' || type === 'self' || type === 'compound' ){
-    return getPts( rs.ctrlpts );
+  if (
+    type === "bezier" ||
+    type === "multibezier" ||
+    type === "self" ||
+    type === "compound"
+  ) {
+    return getPts(rs.ctrlpts);
   }
 };
 
-BRp.getEdgeMidpoint = function( edge ){
+BRp.getEdgeMidpoint = function (edge) {
   const rs = edge[0]._private.rscratch;
 
-  this.recalculateRenderedStyle( edge );
+  this.recalculateRenderedStyle(edge);
 
   return {
     x: rs.midX,
-    y: rs.midY
+    y: rs.midY,
   };
 };
 

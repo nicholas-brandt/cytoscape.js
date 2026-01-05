@@ -1,64 +1,72 @@
 // Common distance metrics for clustering algorithms
 // https://en.wikipedia.org/wiki/Hierarchical_clustering#Metric
 
-import * as is from '../../is.mjs';
+import * as is from "../../is.mjs";
 
-const identity = x => x;
-const absDiff = ( p, q ) => Math.abs( q - p );
-const addAbsDiff = ( total, p, q ) => total + absDiff(p, q);
-const addSquaredDiff = ( total, p, q ) => total + Math.pow( q - p, 2 );
-const sqrt = x => Math.sqrt(x);
-const maxAbsDiff = ( currentMax, p, q ) => Math.max( currentMax, absDiff(p, q) );
+const identity = (x) => x;
+const absDiff = (p, q) => Math.abs(q - p);
+const addAbsDiff = (total, p, q) => total + absDiff(p, q);
+const addSquaredDiff = (total, p, q) => total + Math.pow(q - p, 2);
+const sqrt = (x) => Math.sqrt(x);
+const maxAbsDiff = (currentMax, p, q) => Math.max(currentMax, absDiff(p, q));
 
-const getDistance = function( length, getP, getQ, init, visit, post = identity ){
+const getDistance = function (
+  length,
+  getP,
+  getQ,
+  init,
+  visit,
+  post = identity,
+) {
   const ret = init;
   let p, q;
 
-  for ( const dim = 0; dim < length; dim++ ) {
+  for (const dim = 0; dim < length; dim++) {
     p = getP(dim);
     q = getQ(dim);
 
-    ret = visit( ret, p, q );
+    ret = visit(ret, p, q);
   }
 
-  return post( ret );
+  return post(ret);
 };
 
 const distances = {
-  euclidean: function ( length, getP, getQ ) {
-    if( length >= 2 ){
-      return getDistance( length, getP, getQ, 0, addSquaredDiff, sqrt );
-    } else { // for single attr case, more efficient to avoid sqrt
-      return getDistance( length, getP, getQ, 0, addAbsDiff );
+  euclidean: function (length, getP, getQ) {
+    if (length >= 2) {
+      return getDistance(length, getP, getQ, 0, addSquaredDiff, sqrt);
+    } else {
+      // for single attr case, more efficient to avoid sqrt
+      return getDistance(length, getP, getQ, 0, addAbsDiff);
     }
   },
-  squaredEuclidean: function ( length, getP, getQ ) {
-    return getDistance( length, getP, getQ, 0, addSquaredDiff );
+  squaredEuclidean: function (length, getP, getQ) {
+    return getDistance(length, getP, getQ, 0, addSquaredDiff);
   },
-  manhattan: function ( length, getP, getQ ) {
-    return getDistance( length, getP, getQ, 0, addAbsDiff );
+  manhattan: function (length, getP, getQ) {
+    return getDistance(length, getP, getQ, 0, addAbsDiff);
   },
-  max: function ( length, getP, getQ ) {
-    return getDistance( length, getP, getQ, -Infinity, maxAbsDiff );
-  }
+  max: function (length, getP, getQ) {
+    return getDistance(length, getP, getQ, -Infinity, maxAbsDiff);
+  },
 };
 
 // in case the user accidentally doesn't use camel case
-distances['squared-euclidean'] = distances['squaredEuclidean'];
-distances['squaredeuclidean'] = distances['squaredEuclidean'];
+distances["squared-euclidean"] = distances["squaredEuclidean"];
+distances["squaredeuclidean"] = distances["squaredEuclidean"];
 
-export default function( method, length, getP, getQ, nodeP, nodeQ ){
+export default function (method, length, getP, getQ, nodeP, nodeQ) {
   let impl;
 
-  if( is.fn( method ) ){
+  if (is.fn(method)) {
     impl = method;
   } else {
-    impl = distances[ method ] || distances.euclidean;
+    impl = distances[method] || distances.euclidean;
   }
 
-  if( length === 0 && is.fn( method ) ){
-    return impl( nodeP, nodeQ );
+  if (length === 0 && is.fn(method)) {
+    return impl(nodeP, nodeQ);
   } else {
-    return impl( length, getP, getQ, nodeP, nodeQ );
+    return impl(length, getP, getQ, nodeP, nodeQ);
   }
 }

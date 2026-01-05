@@ -1,16 +1,16 @@
-import * as is from '../../is.mjs';
-import { defaults } from '../../util/index.mjs';
+import * as is from "../../is.mjs";
+import { defaults } from "../../util/index.mjs";
 
 const hierholzerDefaults = defaults({
   root: undefined,
-  directed: false
+  directed: false,
 });
 
-const elesfn = ({
-  hierholzer: function( options ){
+const elesfn = {
+  hierholzer: function (options) {
     if (!is.plainObject(options)) {
       const args = arguments;
-      options = { root: args[0],   directed: args[1] };
+      options = { root: args[0], directed: args[1] };
     }
     let { root, directed } = hierholzerDefaults(options);
     const eles = this;
@@ -18,14 +18,15 @@ const elesfn = ({
     let oddIn;
     let oddOut;
     let startVertex;
-    if (root) startVertex = is.string(root) ? this.filter(root)[0].id() : root[0].id();
+    if (root)
+      startVertex = is.string(root) ? this.filter(root)[0].id() : root[0].id();
     const nodes = {};
     const edges = {};
 
     if (directed) {
-      eles.forEach(function(ele){
+      eles.forEach(function (ele) {
         const id = ele.id();
-        if(ele.isNode()) {
+        if (ele.isNode()) {
           const ind = ele.indegree(true);
           const outd = ele.outdegree(true);
           const d1 = ind - outd;
@@ -36,11 +37,11 @@ const elesfn = ({
           } else if (d2 == 1) {
             if (oddOut) dflag = true;
             else oddOut = id;
-          } else if ((d2 > 1) || (d1 > 1)) {
+          } else if (d2 > 1 || d1 > 1) {
             dflag = true;
           }
           nodes[id] = [];
-          ele.outgoers().forEach(e => {
+          ele.outgoers().forEach((e) => {
             if (e.isEdge()) nodes[id].push(e.id());
           });
         } else {
@@ -48,17 +49,17 @@ const elesfn = ({
         }
       });
     } else {
-      eles.forEach(function(ele){
+      eles.forEach(function (ele) {
         const id = ele.id();
-        if(ele.isNode()) {
+        if (ele.isNode()) {
           const d = ele.degree(true);
-          if (d%2) {
+          if (d % 2) {
             if (!oddIn) oddIn = id;
             else if (!oddOut) oddOut = id;
             else dflag = true;
           }
           nodes[id] = [];
-          ele.connectedEdges().forEach(e => nodes[id].push(e.id()));
+          ele.connectedEdges().forEach((e) => nodes[id].push(e.id()));
         } else {
           edges[id] = [ele.source().id(), ele.target().id()];
         }
@@ -67,18 +68,18 @@ const elesfn = ({
 
     const result = {
       found: false,
-      trail: undefined
+      trail: undefined,
     };
 
     if (dflag) return result;
     else if (oddOut && oddIn) {
       if (directed) {
-        if (startVertex && (oddOut != startVertex)) {
+        if (startVertex && oddOut != startVertex) {
           return result;
         }
         startVertex = oddOut;
       } else {
-        if (startVertex && (oddOut != startVertex) && (oddIn != startVertex)) {
+        if (startVertex && oddOut != startVertex && oddIn != startVertex) {
           return result;
         } else if (!startVertex) {
           startVertex = oddOut;
@@ -97,10 +98,10 @@ const elesfn = ({
         adjTail = edges[adj][0];
         adjHead = edges[adj][1];
         if (currentNode != adjHead) {
-          nodes[adjHead] = nodes[adjHead].filter(e => e != adj);
+          nodes[adjHead] = nodes[adjHead].filter((e) => e != adj);
           currentNode = adjHead;
-        } else if (!directed && (currentNode != adjTail)) {
-          nodes[adjTail] = nodes[adjTail].filter(e => e != adj);
+        } else if (!directed && currentNode != adjTail) {
+          nodes[adjTail] = nodes[adjTail].filter((e) => e != adj);
           currentNode = adjTail;
         }
         subtour.unshift(adj);
@@ -128,9 +129,9 @@ const elesfn = ({
       }
     }
     result.found = true;
-    result.trail = this.spawn( trail, true );
+    result.trail = this.spawn(trail, true);
     return result;
   },
-});
+};
 
 export default elesfn;

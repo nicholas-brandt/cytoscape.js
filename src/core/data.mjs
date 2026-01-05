@@ -1,45 +1,45 @@
-import define from '../define/index.mjs';
+import define from "../define/index.mjs";
 
 const fn = {
-  data: define.data( {
-    field: 'data',
-    bindingEvent: 'data',
+  data: define.data({
+    field: "data",
+    bindingEvent: "data",
     allowBinding: true,
     allowSetting: true,
-    settingEvent: 'data',
+    settingEvent: "data",
     settingTriggersEvent: true,
-    triggerFnName: 'trigger',
+    triggerFnName: "trigger",
     allowGetting: true,
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  removeData: define.removeData( {
-    field: 'data',
-    event: 'data',
-    triggerFnName: 'trigger',
+  removeData: define.removeData({
+    field: "data",
+    event: "data",
+    triggerFnName: "trigger",
     triggerEvent: true,
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  scratch: define.data( {
-    field: 'scratch',
-    bindingEvent: 'scratch',
+  scratch: define.data({
+    field: "scratch",
+    bindingEvent: "scratch",
     allowBinding: true,
     allowSetting: true,
-    settingEvent: 'scratch',
+    settingEvent: "scratch",
     settingTriggersEvent: true,
-    triggerFnName: 'trigger',
+    triggerFnName: "trigger",
     allowGetting: true,
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  removeScratch: define.removeData( {
-    field: 'scratch',
-    event: 'scratch',
-    triggerFnName: 'trigger',
+  removeScratch: define.removeData({
+    field: "scratch",
+    event: "scratch",
+    triggerFnName: "trigger",
     triggerEvent: true,
-    updateStyle: true
-  } )
+    updateStyle: true,
+  }),
 };
 
 // aliases

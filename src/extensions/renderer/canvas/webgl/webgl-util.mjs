@@ -1,11 +1,8 @@
-
 /**
  * Notes:
- * - All colors have premultiplied alpha. Very important for textues and 
+ * - All colors have premultiplied alpha. Very important for textues and
  *   blending to work correctly.
  */
-
-
 
 export function compileShader(gl, type, source) {
   const shader = gl.createShader(type);
@@ -18,7 +15,6 @@ export function compileShader(gl, type, source) {
   return shader;
 }
 
-
 export function createProgram(gl, vertexSource, fragementSource) {
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexSource);
   const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragementSource);
@@ -26,8 +22,8 @@ export function createProgram(gl, vertexSource, fragementSource) {
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
-  if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    throw new Error('Could not initialize shaders');
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    throw new Error("Could not initialize shaders");
   }
   return program;
 }
@@ -37,11 +33,11 @@ export function createProgram(gl, vertexSource, fragementSource) {
  * canvas renderer to use for drawing textures.
  */
 export function createTextureCanvas(r, width, height) {
-  if(height === undefined) {
+  if (height === undefined) {
     height = width;
   }
   const canvas = r.makeOffscreenCanvas(width, height);
-  const ctx = canvas.context = canvas.getContext('2d');
+  const ctx = (canvas.context = canvas.getContext("2d"));
   canvas.clear = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
   canvas.clear();
   return canvas;
@@ -53,13 +49,13 @@ export function createTextureCanvas(r, width, height) {
 export function getEffectivePanZoom(r) {
   const { pixelRatio } = r;
   const zoom = r.cy.zoom();
-  const pan  = r.cy.pan();
+  const pan = r.cy.pan();
   return {
     zoom: zoom * pixelRatio,
     pan: {
       x: pan.x * pixelRatio,
       y: pan.y * pixelRatio,
-    }
+    },
   };
 }
 
@@ -76,35 +72,28 @@ export function modelToRenderedPosition(r, pan, zoom, x, y) {
   const rx = x * zoom + pan.x;
   let ry = y * zoom + pan.y;
   ry = Math.round(r.canvasHeight - ry); // adjust for webgl
-  return [ rx, ry ];
+  return [rx, ry];
 }
-
 
 export function isSimpleShape(node) {
   // the actual shape is checked in ElementDrawingWebGL._getVertTypeForShape()
   // no need to check it twice, this just checks other visual properties
-  if(node.pstyle('background-fill').value !== 'solid')
-    return false;
-  if(node.pstyle('background-image').strValue !== 'none')
-    return false;
-  if(node.pstyle('border-width').value === 0)
-    return true;
-  if(node.pstyle('border-opacity').value === 0)
-    return true;
+  if (node.pstyle("background-fill").value !== "solid") return false;
+  if (node.pstyle("background-image").strValue !== "none") return false;
+  if (node.pstyle("border-width").value === 0) return true;
+  if (node.pstyle("border-opacity").value === 0) return true;
   // we have a border but it must be simple
-  if(node.pstyle('border-style').value !== 'solid')
-    return false;
+  if (node.pstyle("border-style").value !== "solid") return false;
   // TODO ignoring 'border-cap', 'border-join' and 'border-position' for now
   return true;
 }
 
-
 export function arrayEqual(a1, a2) {
-  if(a1.length !== a2.length) {
+  if (a1.length !== a2.length) {
     return false;
   }
   for (let i = 0; i < a1.length; i++) {
-    if(a1[i] !== a2[i]) {
+    if (a1[i] !== a2[i]) {
       return false;
     }
   }
@@ -112,7 +101,7 @@ export function arrayEqual(a1, a2) {
 }
 
 /**
- * Takes color & opacity style values and converts them to WebGL format. 
+ * Takes color & opacity style values and converts them to WebGL format.
  * Alpha is premultiplied.
  */
 export function toWebGLColor(color, opacity, outArray) {
@@ -126,7 +115,7 @@ export function toWebGLColor(color, opacity, outArray) {
   arr[1] = g * a;
   arr[2] = b * a;
   arr[3] = a;
-  
+
   return arr;
 }
 
@@ -139,20 +128,15 @@ export function zeroColor(color) {
 
 export function indexToVec4(index, outArray) {
   const arr = outArray || new Array(4);
-  arr[0] = ((index >>  0) & 0xFF) / 0xFF;
-  arr[1] = ((index >>  8) & 0xFF) / 0xFF;
-  arr[2] = ((index >> 16) & 0xFF) / 0xFF;
-  arr[3] = ((index >> 24) & 0xFF) / 0xFF;
+  arr[0] = ((index >> 0) & 0xff) / 0xff;
+  arr[1] = ((index >> 8) & 0xff) / 0xff;
+  arr[2] = ((index >> 16) & 0xff) / 0xff;
+  arr[3] = ((index >> 24) & 0xff) / 0xff;
   return arr;
 }
 
 export function vec4ToIndex(vec4) {
-  return (
-     vec4[0] + 
-    (vec4[1] << 8) + 
-    (vec4[2] << 16) + 
-    (vec4[3] << 24)
-  );
+  return vec4[0] + (vec4[1] << 8) + (vec4[2] << 16) + (vec4[3] << 24);
 }
 
 export function createTexture(gl, debugID) {
@@ -160,18 +144,29 @@ export function createTexture(gl, debugID) {
 
   texture.buffer = (offscreenCanvas) => {
     gl.bindTexture(gl.TEXTURE_2D, texture);
- 
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-  
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_NEAREST,
+    );
+
     // very important, this tells webgl to premultiply colors by the alpha channel
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-  
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
+
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      offscreenCanvas,
+    );
     gl.generateMipmap(gl.TEXTURE_2D);
-  
+
     gl.bindTexture(gl.TEXTURE_2D, null);
   };
 
@@ -182,43 +177,52 @@ export function createTexture(gl, debugID) {
   return texture;
 }
 
-
 function getTypeInfo(gl, glslType) {
-  switch(glslType) {
-    case 'float': return [ 1, gl.FLOAT, 4 ];
-    case 'vec2' : return [ 2, gl.FLOAT, 4 ];
-    case 'vec3' : return [ 3, gl.FLOAT, 4 ];
-    case 'vec4' : return [ 4, gl.FLOAT, 4 ];
-    case 'int'  : return [ 1, gl.INT  , 4 ];
-    case 'ivec2': return [ 2, gl.INT  , 4 ];
+  switch (glslType) {
+    case "float":
+      return [1, gl.FLOAT, 4];
+    case "vec2":
+      return [2, gl.FLOAT, 4];
+    case "vec3":
+      return [3, gl.FLOAT, 4];
+    case "vec4":
+      return [4, gl.FLOAT, 4];
+    case "int":
+      return [1, gl.INT, 4];
+    case "ivec2":
+      return [2, gl.INT, 4];
   }
 }
 
 function createTypedArray(gl, glType, dataOrSize) {
-  switch(glType) {
-    case gl.FLOAT: return new Float32Array(dataOrSize);
-    case gl.INT  : return new Int32Array(dataOrSize);
+  switch (glType) {
+    case gl.FLOAT:
+      return new Float32Array(dataOrSize);
+    case gl.INT:
+      return new Int32Array(dataOrSize);
   }
 }
 
 function createTypedArrayView(gl, glType, array, stride, size, i) {
-  switch(glType) {
-    case gl.FLOAT: return new Float32Array(array.buffer, i * stride, size);
-    case gl.INT  : return new Int32Array(array.buffer, i * stride, size);
+  switch (glType) {
+    case gl.FLOAT:
+      return new Float32Array(array.buffer, i * stride, size);
+    case gl.INT:
+      return new Int32Array(array.buffer, i * stride, size);
   }
 }
 
 /** @param {WebGLRenderingContext} gl */
 export function createBufferStaticDraw(gl, type, attributeLoc, dataArray) {
-  const [ size, glType ] = getTypeInfo(gl, type);
+  const [size, glType] = getTypeInfo(gl, type);
   const data = createTypedArray(gl, glType, dataArray);
 
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-  if(glType === gl.FLOAT) {
+  if (glType === gl.FLOAT) {
     gl.vertexAttribPointer(attributeLoc, size, glType, false, 0, 0);
-  } else if(glType === gl.INT) {
+  } else if (glType === gl.INT) {
     gl.vertexAttribIPointer(attributeLoc, size, glType, 0, 0);
   }
   gl.enableVertexAttribArray(attributeLoc);
@@ -226,24 +230,23 @@ export function createBufferStaticDraw(gl, type, attributeLoc, dataArray) {
   return buffer;
 }
 
-
-/** 
+/**
  * Creates a float buffer with gl.DYNAMIC_DRAW.
  * The returned buffer object contains functions to easily set instance data and buffer the data before a draw call.
- * @param {WebGLRenderingContext} gl 
+ * @param {WebGLRenderingContext} gl
  */
 export function createBufferDynamicDraw(gl, instances, type, attributeLoc) {
-  const [ size, glType, bytes ] = getTypeInfo(gl, type);
+  const [size, glType, bytes] = getTypeInfo(gl, type);
   const dataArray = createTypedArray(gl, glType, instances * size);
   const stride = size * bytes;
 
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, instances * stride, gl.DYNAMIC_DRAW); 
+  gl.bufferData(gl.ARRAY_BUFFER, instances * stride, gl.DYNAMIC_DRAW);
   gl.enableVertexAttribArray(attributeLoc);
-  if(glType === gl.FLOAT) {
+  if (glType === gl.FLOAT) {
     gl.vertexAttribPointer(attributeLoc, size, glType, false, stride, 0);
-  } else if(glType === gl.INT) {
+  } else if (glType === gl.INT) {
     gl.vertexAttribIPointer(attributeLoc, size, glType, stride, 0);
   }
   gl.vertexAttribDivisor(attributeLoc, 1);
@@ -271,19 +274,19 @@ export function createBufferDynamicDraw(gl, instances, type, attributeLoc) {
 
   buffer.bufferSubData = (count) => {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    if(count) {
+    if (count) {
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, dataArray, 0, count * size);
     } else {
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, dataArray); 
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, dataArray);
     }
   };
 
   return buffer;
 }
 
-/** 
+/**
  * Creates a buffer of 3x3 matrix data for use as attribute data.
- * @param {WebGLRenderingContext} gl 
+ * @param {WebGLRenderingContext} gl
  */
 export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
   const matrixSize = 9; // 3x3 matrix
@@ -293,7 +296,11 @@ export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
   const matrixViews = new Array(instances);
   for (let i = 0; i < instances; i++) {
     const byteOffset = i * matrixSize * 4; // 4 bytes per float
-    matrixViews[i] = new Float32Array(matrixData.buffer, byteOffset, matrixSize); // array view
+    matrixViews[i] = new Float32Array(
+      matrixData.buffer,
+      byteOffset,
+      matrixSize,
+    ); // array view
   }
 
   const buffer = gl.createBuffer();
@@ -315,7 +322,7 @@ export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
 
   // TODO this is too slow, use getMatrixView and pass the view directly to the glmatrix library
   buffer.setData = (matrix, i) => {
-    matrixViews[i].set(matrix, 0); 
+    matrixViews[i].set(matrix, 0);
   };
 
   buffer.bufferSubData = () => {
@@ -326,10 +333,9 @@ export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
   return buffer;
 }
 
-
-/** 
+/**
  * Creates a Frame Buffer to use for offscreen rendering.
- * @param {WebGLRenderingContext} gl 
+ * @param {WebGLRenderingContext} gl
  */
 export function createPickingFrameBuffer(gl) {
   // Create and bind the framebuffer
@@ -344,14 +350,30 @@ export function createPickingFrameBuffer(gl) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   // attach the texture as the first color attachment
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
-  
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    targetTexture,
+    0,
+  );
+
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
   fb.setFramebufferAttachmentSizes = (width, height) => {
     gl.bindTexture(gl.TEXTURE_2D, targetTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null,
+    );
   };
-  
+
   return fb;
 }

@@ -1,6 +1,6 @@
 // Fragment shader functions to calculate signed distance
 // https://iquilezles.org/articles/distfunctions2d/
-// ellipse: https://www.shadertoy.com/view/4lsXDN 
+// ellipse: https://www.shadertoy.com/view/4lsXDN
 
 /**
  * param p - point
@@ -62,4 +62,3 @@ export const ellipseSD = `
     return (dot(p/ab,p/ab)>1.0) ? d : -d;
   }
 `;
-

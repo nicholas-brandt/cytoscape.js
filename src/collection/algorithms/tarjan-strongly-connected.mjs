@@ -1,5 +1,4 @@
-const tarjanStronglyConnected = function() {
-
+const tarjanStronglyConnected = function () {
   const eles = this;
   const nodes = {};
   const index = 0;
@@ -7,27 +6,30 @@ const tarjanStronglyConnected = function() {
   const stack = [];
   const cut = eles.spawn(eles);
 
-  const stronglyConnectedSearch = sourceNodeId => {
+  const stronglyConnectedSearch = (sourceNodeId) => {
     stack.push(sourceNodeId);
     nodes[sourceNodeId] = {
-      index : index,
-      low : index++,
-      explored : false
+      index: index,
+      low: index++,
+      explored: false,
     };
 
-    const connectedEdges = eles.getElementById(sourceNodeId)
-                             .connectedEdges()
-                             .intersection(eles);
+    const connectedEdges = eles
+      .getElementById(sourceNodeId)
+      .connectedEdges()
+      .intersection(eles);
 
-    connectedEdges.forEach(edge => {
+    connectedEdges.forEach((edge) => {
       const targetNodeId = edge.target().id();
       if (targetNodeId !== sourceNodeId) {
         if (!(targetNodeId in nodes)) {
           stronglyConnectedSearch(targetNodeId);
         }
-        if (!(nodes[targetNodeId].explored)) {
-          nodes[sourceNodeId].low = Math.min(nodes[sourceNodeId].low,
-                                             nodes[targetNodeId].low);
+        if (!nodes[targetNodeId].explored) {
+          nodes[sourceNodeId].low = Math.min(
+            nodes[sourceNodeId].low,
+            nodes[targetNodeId].low,
+          );
         }
       }
     });
@@ -51,7 +53,7 @@ const tarjanStronglyConnected = function() {
     }
   };
 
-  eles.forEach(ele => {
+  eles.forEach((ele) => {
     if (ele.isNode()) {
       const nodeId = ele.id();
       if (!(nodeId in nodes)) {
@@ -62,14 +64,13 @@ const tarjanStronglyConnected = function() {
 
   return {
     cut,
-    components
+    components,
   };
-
 };
 
 export default {
   tarjanStronglyConnected,
   tsc: tarjanStronglyConnected,
   tscc: tarjanStronglyConnected,
-  tarjanStronglyConnectedComponents: tarjanStronglyConnected
+  tarjanStronglyConnectedComponents: tarjanStronglyConnected,
 };

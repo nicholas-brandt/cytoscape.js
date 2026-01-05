@@ -1,9 +1,8 @@
-import define from '../../define/index.mjs';
-import * as util from '../../util/index.mjs';
-import stepAll from './step-all.mjs';
+import define from "../../define/index.mjs";
+import * as util from "../../util/index.mjs";
+import stepAll from "./step-all.mjs";
 
-const corefn = ({
-
+const corefn = {
   // pull in animation functions
   animate: define.animate(),
   animation: define.animation(),
@@ -13,48 +12,55 @@ const corefn = ({
   delayAnimation: define.delayAnimation(),
   stop: define.stop(),
 
-  addToAnimationPool: function( eles ){
+  addToAnimationPool: function (eles) {
     const cy = this;
 
-    if( !cy.styleEnabled() ){ return; } // save cycles when no style used
+    if (!cy.styleEnabled()) {
+      return;
+    } // save cycles when no style used
 
-    cy._private.aniEles.merge( eles );
+    cy._private.aniEles.merge(eles);
   },
 
-  stopAnimationLoop: function(){
+  stopAnimationLoop: function () {
     this._private.animationsRunning = false;
   },
 
-  startAnimationLoop: function(){
+  startAnimationLoop: function () {
     const cy = this;
 
     cy._private.animationsRunning = true;
 
-    if( !cy.styleEnabled() ){ return; } // save cycles when no style used
+    if (!cy.styleEnabled()) {
+      return;
+    } // save cycles when no style used
 
     // NB the animation loop will exec in headless environments if style enabled
     // and explicit cy.destroy() is necessary to stop the loop
 
-    function headlessStep(){
-      if( !cy._private.animationsRunning ){ return; }
+    function headlessStep() {
+      if (!cy._private.animationsRunning) {
+        return;
+      }
 
-      util.requestAnimationFrame( function animationStep( now ){
-        stepAll( now, cy );
+      util.requestAnimationFrame(function animationStep(now) {
+        stepAll(now, cy);
         headlessStep();
-      } );
+      });
     }
 
     const renderer = cy.renderer();
 
-    if( renderer && renderer.beforeRender ){ // let the renderer schedule animations
-      renderer.beforeRender( function rendererAnimationStep( willDraw, now ){
-        stepAll( now, cy );
-      }, renderer.beforeRenderPriorities.animations );
-    } else { // manage the animation loop ourselves
+    if (renderer && renderer.beforeRender) {
+      // let the renderer schedule animations
+      renderer.beforeRender(function rendererAnimationStep(willDraw, now) {
+        stepAll(now, cy);
+      }, renderer.beforeRenderPriorities.animations);
+    } else {
+      // manage the animation loop ourselves
       headlessStep(); // first call
     }
-  }
-
-});
+  },
+};
 
 export default corefn;

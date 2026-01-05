@@ -1,4 +1,4 @@
-import * as util from '../util/index.mjs';
+import * as util from "../util/index.mjs";
 
 const rendererDefaults = util.defaults({
   hideEdgesOnViewport: false,
@@ -11,7 +11,7 @@ const rendererDefaults = util.defaults({
   wheelSensitivity: 1,
   debug: false,
   showFps: false,
-  
+
   // webgl options
   webgl: false,
   webglDebug: false,
@@ -22,74 +22,77 @@ const rendererDefaults = util.defaults({
   webglTexRowsNodes: 18,
   webglBatchSize: 2048,
   webglTexPerBatch: 14,
-  webglBgColor: [255, 255, 255]
+  webglBgColor: [255, 255, 255],
 });
 
-const corefn = ({
-
-  renderTo: function( context, zoom, pan, pxRatio ){
+const corefn = {
+  renderTo: function (context, zoom, pan, pxRatio) {
     const r = this._private.renderer;
 
-    r.renderTo( context, zoom, pan, pxRatio );
+    r.renderTo(context, zoom, pan, pxRatio);
     return this;
   },
 
-  renderer: function(){
+  renderer: function () {
     return this._private.renderer;
   },
 
-  forceRender: function(){
-    this.notify('draw');
+  forceRender: function () {
+    this.notify("draw");
 
     return this;
   },
 
-  resize: function(){
+  resize: function () {
     this.invalidateSize();
 
-    this.emitAndNotify('resize');
+    this.emitAndNotify("resize");
 
     return this;
   },
 
-  initRenderer: function( options ){
+  initRenderer: function (options) {
     const cy = this;
 
-    const RendererProto = cy.extension( 'renderer', options.name );
-    if( RendererProto == null ){
-      util.error( `Can not initialise: No such renderer \`${options.name}\` found. Did you forget to import it and \`cytoscape.use()\` it?` );
+    const RendererProto = cy.extension("renderer", options.name);
+    if (RendererProto == null) {
+      util.error(
+        `Can not initialise: No such renderer \`${options.name}\` found. Did you forget to import it and \`cytoscape.use()\` it?`,
+      );
       return;
     }
 
-    if( options.wheelSensitivity !== undefined ){
-      util.warn(`You have set a custom wheel sensitivity.  This will make your app zoom unnaturally when using mainstream mice.  You should change this value from the default only if you can guarantee that all your users will use the same hardware and OS configuration as your current machine.`);
+    if (options.wheelSensitivity !== undefined) {
+      util.warn(
+        `You have set a custom wheel sensitivity.  This will make your app zoom unnaturally when using mainstream mice.  You should change this value from the default only if you can guarantee that all your users will use the same hardware and OS configuration as your current machine.`,
+      );
     }
 
     const rOpts = rendererDefaults(options);
 
     rOpts.cy = cy;
 
-    cy._private.renderer = new RendererProto( rOpts );
+    cy._private.renderer = new RendererProto(rOpts);
 
-    this.notify('init');
+    this.notify("init");
   },
 
-  destroyRenderer: function(){
+  destroyRenderer: function () {
     const cy = this;
 
-    cy.notify('destroy'); // destroy the renderer
+    cy.notify("destroy"); // destroy the renderer
 
     const domEle = cy.container();
-    if( domEle ){
+    if (domEle) {
       domEle._cyreg = null;
 
-      while( domEle.childNodes.length > 0 ){
-        domEle.removeChild( domEle.childNodes[0] );
+      while (domEle.childNodes.length > 0) {
+        domEle.removeChild(domEle.childNodes[0]);
       }
     }
 
     cy._private.renderer = null; // to be extra safe, remove the ref
-    cy.mutableElements().forEach(function( ele ){
+    cy.mutableElements().forEach(function (ele) {
       const _p = ele._private;
       _p.rscratch = {};
       _p.rstyle = {};
@@ -98,15 +101,14 @@ const corefn = ({
     });
   },
 
-  onRender: function( fn ){
-    return this.on('render', fn);
+  onRender: function (fn) {
+    return this.on("render", fn);
   },
 
-  offRender: function( fn ){
-    return this.off('render', fn);
-  }
-
-});
+  offRender: function (fn) {
+    return this.off("render", fn);
+  },
+};
 
 corefn.invalidateDimensions = corefn.resize;
 

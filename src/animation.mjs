@@ -1,14 +1,18 @@
-import * as util from './util/index.mjs';
-import * as is from './is.mjs';
-import Promise from './promise.mjs';
+import * as util from "./util/index.mjs";
+import * as is from "./is.mjs";
+import Promise from "./promise.mjs";
 
-const Animation = function( target, opts, opts2 ){
+const Animation = function (target, opts, opts2) {
   const isCore = is.core(target);
   const isEle = !isCore;
 
-  const _p = this._private = util.extend( {
-    duration: 1000
-  }, opts, opts2 );
+  const _p = (this._private = util.extend(
+    {
+      duration: 1000,
+    },
+    opts,
+    opts2,
+  ));
 
   _p.target = target;
   _p.style = _p.style || _p.css;
@@ -20,27 +24,29 @@ const Animation = function( target, opts, opts2 ){
   _p.completes = [];
   _p.frames = [];
 
-  if( _p.complete && is.fn( _p.complete ) ){
-    _p.completes.push( _p.complete );
+  if (_p.complete && is.fn(_p.complete)) {
+    _p.completes.push(_p.complete);
   }
 
-  if( isEle ){
+  if (isEle) {
     const pos = target.position();
 
     _p.startPosition = _p.startPosition || {
       x: pos.x,
-      y: pos.y
+      y: pos.y,
     };
 
-    _p.startStyle = _p.startStyle || target.cy().style().getAnimationStartStyle( target, _p.style );
+    _p.startStyle =
+      _p.startStyle ||
+      target.cy().style().getAnimationStartStyle(target, _p.style);
   }
 
-  if( isCore ){
+  if (isCore) {
     const pan = target.pan();
 
     _p.startPan = {
       x: pan.x,
-      y: pan.y
+      y: pan.y,
     };
 
     _p.startZoom = target.zoom();
@@ -53,27 +59,28 @@ const Animation = function( target, opts, opts2 ){
 
 const anifn = Animation.prototype;
 
-util.extend( anifn, {
+util.extend(anifn, {
+  instanceString: function () {
+    return "animation";
+  },
 
-  instanceString: function(){ return 'animation'; },
-
-  hook: function(){
+  hook: function () {
     const _p = this._private;
 
-    if( !_p.hooked ){
+    if (!_p.hooked) {
       // add to target's animation queue
       let q;
       const tAni = _p.target._private.animation;
-      if( _p.queue ){
+      if (_p.queue) {
         q = tAni.queue;
       } else {
         q = tAni.current;
       }
-      q.push( this );
+      q.push(this);
 
       // add to the animation loop pool
-      if( is.elementOrCollection( _p.target ) ){
-        _p.target.cy().addToAnimationPool( _p.target );
+      if (is.elementOrCollection(_p.target)) {
+        _p.target.cy().addToAnimationPool(_p.target);
       }
 
       _p.hooked = true;
@@ -82,11 +89,11 @@ util.extend( anifn, {
     return this;
   },
 
-  play: function(){
+  play: function () {
     const _p = this._private;
 
     // autorewind
-    if( _p.progress === 1 ){
+    if (_p.progress === 1) {
       _p.progress = 0;
     }
 
@@ -101,11 +108,11 @@ util.extend( anifn, {
     return this;
   },
 
-  playing: function(){
+  playing: function () {
     return this._private.playing;
   },
 
-  apply: function(){
+  apply: function () {
     const _p = this._private;
 
     _p.applying = true;
@@ -119,11 +126,11 @@ util.extend( anifn, {
     return this;
   },
 
-  applying: function(){
+  applying: function () {
     return this._private.applying;
   },
 
-  pause: function(){
+  pause: function () {
     const _p = this._private;
 
     _p.playing = false;
@@ -132,7 +139,7 @@ util.extend( anifn, {
     return this;
   },
 
-  stop: function(){
+  stop: function () {
     const _p = this._private;
 
     _p.playing = false;
@@ -142,39 +149,39 @@ util.extend( anifn, {
     return this;
   },
 
-  rewind: function(){
-    return this.progress( 0 );
+  rewind: function () {
+    return this.progress(0);
   },
 
-  fastforward: function(){
-    return this.progress( 1 );
+  fastforward: function () {
+    return this.progress(1);
   },
 
-  time: function( t ){
+  time: function (t) {
     const _p = this._private;
 
-    if( t === undefined ){
+    if (t === undefined) {
       return _p.progress * _p.duration;
     } else {
-      return this.progress( t / _p.duration );
+      return this.progress(t / _p.duration);
     }
   },
 
-  progress: function( p ){
+  progress: function (p) {
     const _p = this._private;
     const wasPlaying = _p.playing;
 
-    if( p === undefined ){
+    if (p === undefined) {
       return _p.progress;
     } else {
-      if( wasPlaying ){
+      if (wasPlaying) {
         this.pause();
       }
 
       _p.progress = p;
       _p.started = false;
 
-      if( wasPlaying ){
+      if (wasPlaying) {
         this.play();
       }
     }
@@ -182,76 +189,77 @@ util.extend( anifn, {
     return this;
   },
 
-  completed: function(){
+  completed: function () {
     return this._private.progress === 1;
   },
 
-  reverse: function(){
+  reverse: function () {
     const _p = this._private;
     const wasPlaying = _p.playing;
 
-    if( wasPlaying ){
+    if (wasPlaying) {
       this.pause();
     }
 
     _p.progress = 1 - _p.progress;
     _p.started = false;
 
-    const swap = function( a, b ){
-      const _pa = _p[ a ];
+    const swap = function (a, b) {
+      const _pa = _p[a];
 
-      if( _pa == null ){ return; }
+      if (_pa == null) {
+        return;
+      }
 
-      _p[ a ] = _p[ b ];
-      _p[ b ] = _pa;
+      _p[a] = _p[b];
+      _p[b] = _pa;
     };
 
-    swap( 'zoom', 'startZoom' );
-    swap( 'pan', 'startPan' );
-    swap( 'position', 'startPosition' );
+    swap("zoom", "startZoom");
+    swap("pan", "startPan");
+    swap("position", "startPosition");
 
     // swap styles
-    if( _p.style ){
-      for (let i = 0; i < _p.style.length; i++ ){
-        const prop = _p.style[ i ];
+    if (_p.style) {
+      for (let i = 0; i < _p.style.length; i++) {
+        const prop = _p.style[i];
         const name = prop.name;
-        const startStyleProp = _p.startStyle[ name ];
+        const startStyleProp = _p.startStyle[name];
 
-        _p.startStyle[ name ] = prop;
-        _p.style[ i ] = startStyleProp;
+        _p.startStyle[name] = prop;
+        _p.style[i] = startStyleProp;
       }
     }
 
-    if( wasPlaying ){
+    if (wasPlaying) {
       this.play();
     }
 
     return this;
   },
 
-  promise: function( type ){
+  promise: function (type) {
     const _p = this._private;
 
     let arr;
 
-    switch( type ){
-      case 'frame':
+    switch (type) {
+      case "frame":
         arr = _p.frames;
         break;
       default:
-      case 'complete':
-      case 'completed':
+      case "complete":
+      case "completed":
         arr = _p.completes;
     }
 
-    return new Promise( function( resolve, reject ){
-      arr.push( function(){
+    return new Promise(function (resolve, reject) {
+      arr.push(function () {
         resolve();
-      } );
-    } );
-  }
-
-} );
+      });
+    });
+  },
+});
 
 anifn.complete = anifn.completed;
 anifn.run = anifn.play;

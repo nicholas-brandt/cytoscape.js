@@ -1,73 +1,73 @@
-import * as is from '../is.mjs';
+import * as is from "../is.mjs";
 
 export const valCmp = (fieldVal, operator, value) => {
   let matches;
-  const isFieldStr = is.string( fieldVal );
-  const isFieldNum = is.number( fieldVal );
+  const isFieldStr = is.string(fieldVal);
+  const isFieldNum = is.number(fieldVal);
   const isValStr = is.string(value);
   let fieldStr, valStr;
   const caseInsensitive = false;
   const notExpr = false;
   const isIneqCmp = false;
 
-  if( operator.indexOf( '!' ) >= 0 ){
-    operator = operator.replace( '!', '' );
+  if (operator.indexOf("!") >= 0) {
+    operator = operator.replace("!", "");
     notExpr = true;
   }
 
-  if( operator.indexOf( '@' ) >= 0 ){
-    operator = operator.replace( '@', '' );
+  if (operator.indexOf("@") >= 0) {
+    operator = operator.replace("@", "");
     caseInsensitive = true;
   }
 
-  if( isFieldStr || isValStr || caseInsensitive ){
-    fieldStr = !isFieldStr && !isFieldNum ? '' : '' + fieldVal;
-    valStr = '' + value;
+  if (isFieldStr || isValStr || caseInsensitive) {
+    fieldStr = !isFieldStr && !isFieldNum ? "" : "" + fieldVal;
+    valStr = "" + value;
   }
 
   // if we're doing a case insensitive comparison, then we're using a STRING comparison
   // even if we're comparing numbers
-  if( caseInsensitive ){
+  if (caseInsensitive) {
     fieldVal = fieldStr = fieldStr.toLowerCase();
     value = valStr = valStr.toLowerCase();
   }
 
-  switch( operator ){
-  case '*=':
-    matches = fieldStr.indexOf( valStr ) >= 0;
-    break;
-  case '$=':
-    matches = fieldStr.indexOf( valStr, fieldStr.length - valStr.length ) >= 0;
-    break;
-  case '^=':
-    matches = fieldStr.indexOf( valStr ) === 0;
-    break;
-  case '=':
-    matches = fieldVal === value;
-    break;
-  case '>':
-    isIneqCmp = true;
-    matches = fieldVal > value;
-    break;
-  case '>=':
-    isIneqCmp = true;
-    matches = fieldVal >= value;
-    break;
-  case '<':
-    isIneqCmp = true;
-    matches = fieldVal < value;
-    break;
-  case '<=':
-    isIneqCmp = true;
-    matches = fieldVal <= value;
-    break;
-  default:
-    matches = false;
-    break;
+  switch (operator) {
+    case "*=":
+      matches = fieldStr.indexOf(valStr) >= 0;
+      break;
+    case "$=":
+      matches = fieldStr.indexOf(valStr, fieldStr.length - valStr.length) >= 0;
+      break;
+    case "^=":
+      matches = fieldStr.indexOf(valStr) === 0;
+      break;
+    case "=":
+      matches = fieldVal === value;
+      break;
+    case ">":
+      isIneqCmp = true;
+      matches = fieldVal > value;
+      break;
+    case ">=":
+      isIneqCmp = true;
+      matches = fieldVal >= value;
+      break;
+    case "<":
+      isIneqCmp = true;
+      matches = fieldVal < value;
+      break;
+    case "<=":
+      isIneqCmp = true;
+      matches = fieldVal <= value;
+      break;
+    default:
+      matches = false;
+      break;
   }
 
   // apply the not op, but null vals for inequalities should always stay non-matching
-  if( notExpr && ( fieldVal != null || !isIneqCmp ) ){
+  if (notExpr && (fieldVal != null || !isIneqCmp)) {
     matches = !matches;
   }
 
@@ -75,13 +75,13 @@ export const valCmp = (fieldVal, operator, value) => {
 };
 
 export const boolCmp = (fieldVal, operator) => {
-  switch( operator ){
-  case '?':
-    return fieldVal ? true : false;
-  case '!':
-    return fieldVal ? false : true;
-  case '^':
-    return fieldVal === undefined;
+  switch (operator) {
+    case "?":
+      return fieldVal ? true : false;
+    case "!":
+      return fieldVal ? false : true;
+    case "^":
+      return fieldVal === undefined;
   }
 };
 

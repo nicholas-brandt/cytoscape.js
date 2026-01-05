@@ -1,37 +1,37 @@
-import * as util from '../../util/index.mjs';
+import * as util from "../../util/index.mjs";
 
 let fn, elesfn;
 
 fn = elesfn = {};
 
-const defineDimFns = function( opts ){
-  opts.uppercaseName = util.capitalize( opts.name );
-  opts.autoName = 'auto' + opts.uppercaseName;
-  opts.labelName = 'label' + opts.uppercaseName;
-  opts.outerName = 'outer' + opts.uppercaseName;
-  opts.uppercaseOuterName = util.capitalize( opts.outerName );
+const defineDimFns = function (opts) {
+  opts.uppercaseName = util.capitalize(opts.name);
+  opts.autoName = "auto" + opts.uppercaseName;
+  opts.labelName = "label" + opts.uppercaseName;
+  opts.outerName = "outer" + opts.uppercaseName;
+  opts.uppercaseOuterName = util.capitalize(opts.outerName);
 
-  fn[ opts.name ] = function dimImpl(){
+  fn[opts.name] = function dimImpl() {
     const ele = this[0];
     const _p = ele._private;
     const cy = _p.cy;
     const styleEnabled = cy._private.styleEnabled;
 
-    if( ele ){
-      if( styleEnabled ){
-        if( ele.isParent() ){
+    if (ele) {
+      if (styleEnabled) {
+        if (ele.isParent()) {
           ele.updateCompoundBounds();
 
-          return _p[ opts.autoName ] || 0;
+          return _p[opts.autoName] || 0;
         }
 
-        const d = ele.pstyle( opts.name );
+        const d = ele.pstyle(opts.name);
 
-        switch( d.strValue ){
-          case 'label':
+        switch (d.strValue) {
+          case "label":
             ele.recalculateRenderedStyle();
 
-            return _p.rstyle[ opts.labelName ] || 0;
+            return _p.rstyle[opts.labelName] || 0;
 
           default:
             return d.pfValue;
@@ -42,24 +42,25 @@ const defineDimFns = function( opts ){
     }
   };
 
-  fn[ 'outer' + opts.uppercaseName ] = function outerDimImpl(){
+  fn["outer" + opts.uppercaseName] = function outerDimImpl() {
     const ele = this[0];
     const _p = ele._private;
     const cy = _p.cy;
     const styleEnabled = cy._private.styleEnabled;
 
-    if( ele ){
-      if( styleEnabled ){
-        const dim = ele[ opts.name ]();
+    if (ele) {
+      if (styleEnabled) {
+        const dim = ele[opts.name]();
 
-        const borderPos = ele.pstyle( 'border-position' ).value;
+        const borderPos = ele.pstyle("border-position").value;
 
         let border;
-        if(borderPos === 'center') {
-          border = ele.pstyle( 'border-width' ).pfValue; // n.b. 1/2 each side
-        } else if(borderPos === 'outside') {
-          border = 2 * ele.pstyle( 'border-width' ).pfValue;
-        } else { // 'inside'
+        if (borderPos === "center") {
+          border = ele.pstyle("border-width").pfValue; // n.b. 1/2 each side
+        } else if (borderPos === "outside") {
+          border = 2 * ele.pstyle("border-width").pfValue;
+        } else {
+          // 'inside'
           border = 0;
         }
 
@@ -72,59 +73,59 @@ const defineDimFns = function( opts ){
     }
   };
 
-  fn[ 'rendered' + opts.uppercaseName ] = function renderedDimImpl(){
+  fn["rendered" + opts.uppercaseName] = function renderedDimImpl() {
     const ele = this[0];
 
-    if( ele ){
-      const d = ele[ opts.name ]();
+    if (ele) {
+      const d = ele[opts.name]();
       return d * this.cy().zoom();
     }
   };
 
-  fn[ 'rendered' + opts.uppercaseOuterName ] = function renderedOuterDimImpl(){
+  fn["rendered" + opts.uppercaseOuterName] = function renderedOuterDimImpl() {
     const ele = this[0];
 
-    if( ele ){
-      const od = ele[ opts.outerName ]();
+    if (ele) {
+      const od = ele[opts.outerName]();
       return od * this.cy().zoom();
     }
   };
 };
 
-defineDimFns( {
-  name: 'width'
-} );
+defineDimFns({
+  name: "width",
+});
 
-defineDimFns( {
-  name: 'height'
-} );
+defineDimFns({
+  name: "height",
+});
 
-elesfn.padding = function(){
+elesfn.padding = function () {
   const ele = this[0];
   const _p = ele._private;
-  if( ele.isParent() ){
+  if (ele.isParent()) {
     ele.updateCompoundBounds();
 
-    if( _p.autoPadding !== undefined ){
+    if (_p.autoPadding !== undefined) {
       return _p.autoPadding;
     } else {
-      return ele.pstyle('padding').pfValue;
+      return ele.pstyle("padding").pfValue;
     }
   } else {
-    return ele.pstyle('padding').pfValue;
+    return ele.pstyle("padding").pfValue;
   }
 };
 
-elesfn.paddedHeight = function(){
+elesfn.paddedHeight = function () {
   const ele = this[0];
 
-  return ele.height() + (2 * ele.padding());
+  return ele.height() + 2 * ele.padding();
 };
 
-elesfn.paddedWidth = function(){
+elesfn.paddedWidth = function () {
   const ele = this[0];
 
-  return ele.width() + (2 * ele.padding());
+  return ele.width() + 2 * ele.padding();
 };
 
 export default elesfn;

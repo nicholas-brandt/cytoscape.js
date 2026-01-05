@@ -64,7 +64,7 @@ const Type = {
   COMPOUND_SPLIT: 19,
 
   /** Always matches, useful placeholder for subject in `COMPOUND_SPLIT` */
-  TRUE: 20
+  TRUE: 20,
 };
 
 export default Type;

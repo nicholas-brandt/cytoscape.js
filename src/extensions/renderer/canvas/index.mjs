@@ -6,23 +6,23 @@ Modifications tracked on Github.
 
 /* global OffscreenCanvas */
 
-import * as util from '../../../util/index.mjs';
-import * as is from '../../../is.mjs';
-import { makeBoundingBox } from '../../../math.mjs';
-import ElementTextureCache from './ele-texture-cache.mjs';
-import LayeredTextureCache from './layered-texture-cache.mjs';
+import * as util from "../../../util/index.mjs";
+import * as is from "../../../is.mjs";
+import { makeBoundingBox } from "../../../math.mjs";
+import ElementTextureCache from "./ele-texture-cache.mjs";
+import LayeredTextureCache from "./layered-texture-cache.mjs";
 
-import arrowShapes from './arrow-shapes.mjs';
-import drawingElements from './drawing-elements.mjs';
-import drawingEdges from './drawing-edges.mjs';
-import drawingImages from './drawing-images.mjs';
-import drawingLabelText from './drawing-label-text.mjs';
-import drawingNodes from './drawing-nodes.mjs';
-import drawingRedraw from './drawing-redraw.mjs';
-import drawingRedrawWebGL from './webgl/drawing-redraw-webgl.mjs';
-import drawingShapes from './drawing-shapes.mjs';
-import exportImage from './export-image.mjs';
-import nodeShapes from './node-shapes.mjs';
+import arrowShapes from "./arrow-shapes.mjs";
+import drawingElements from "./drawing-elements.mjs";
+import drawingEdges from "./drawing-edges.mjs";
+import drawingImages from "./drawing-images.mjs";
+import drawingLabelText from "./drawing-label-text.mjs";
+import drawingNodes from "./drawing-nodes.mjs";
+import drawingRedraw from "./drawing-redraw.mjs";
+import drawingRedrawWebGL from "./webgl/drawing-redraw-webgl.mjs";
+import drawingShapes from "./drawing-shapes.mjs";
+import exportImage from "./export-image.mjs";
+import nodeShapes from "./node-shapes.mjs";
 
 const CR = CanvasRenderer;
 const CRp = CanvasRenderer.prototype;
@@ -34,7 +34,7 @@ CRp.DRAG = 1;
 CRp.NODE = 2;
 CRp.WEBGL = 3;
 
-CRp.CANVAS_TYPES = [ '2d', '2d', '2d', 'webgl2' ];
+CRp.CANVAS_TYPES = ["2d", "2d", "2d", "webgl2"];
 
 CRp.BUFFER_COUNT = 3;
 //
@@ -42,85 +42,97 @@ CRp.TEXTURE_BUFFER = 0;
 CRp.MOTIONBLUR_BUFFER_NODE = 1;
 CRp.MOTIONBLUR_BUFFER_DRAG = 2;
 
-function CanvasRenderer( options ){
+function CanvasRenderer(options) {
   const r = this;
 
   const containerWindow = r.cy.window();
   const document = containerWindow.document;
 
-  if( options.webgl ){
+  if (options.webgl) {
     CRp.CANVAS_LAYERS = r.CANVAS_LAYERS = 4;
-    console.log('webgl rendering enabled');
+    console.log("webgl rendering enabled");
   }
 
   r.data = {
-    canvases: new Array( CRp.CANVAS_LAYERS ),
-    contexts: new Array( CRp.CANVAS_LAYERS ),
-    canvasNeedsRedraw: new Array( CRp.CANVAS_LAYERS ),
+    canvases: new Array(CRp.CANVAS_LAYERS),
+    contexts: new Array(CRp.CANVAS_LAYERS),
+    canvasNeedsRedraw: new Array(CRp.CANVAS_LAYERS),
 
-    bufferCanvases: new Array( CRp.BUFFER_COUNT ),
-    bufferContexts: new Array( CRp.CANVAS_LAYERS ),
+    bufferCanvases: new Array(CRp.BUFFER_COUNT),
+    bufferContexts: new Array(CRp.CANVAS_LAYERS),
   };
 
-  const tapHlOffAttr = '-webkit-tap-highlight-color';
-  const tapHlOffStyle = 'rgba(0,0,0,0)';
-  r.data.canvasContainer = document.createElement( 'div' ); // eslint-disable-line no-undef
+  const tapHlOffAttr = "-webkit-tap-highlight-color";
+  const tapHlOffStyle = "rgba(0,0,0,0)";
+  r.data.canvasContainer = document.createElement("div"); // eslint-disable-line no-undef
   const containerStyle = r.data.canvasContainer.style;
   r.data.canvasContainer.style[tapHlOffAttr] = tapHlOffStyle;
-  containerStyle.position = 'relative';
-  containerStyle.zIndex = '0';
-  containerStyle.overflow = 'hidden';
+  containerStyle.position = "relative";
+  containerStyle.zIndex = "0";
+  containerStyle.overflow = "hidden";
 
   const container = options.cy.container();
-  container.appendChild( r.data.canvasContainer );
+  container.appendChild(r.data.canvasContainer);
   container.style[tapHlOffAttr] = tapHlOffStyle;
 
   const styleMap = {
-    '-webkit-user-select': 'none',
-    '-moz-user-select': '-moz-none',
-    'user-select': 'none',
-    '-webkit-tap-highlight-color': 'rgba(0,0,0,0)',
-    'outline-style': 'none',
+    "-webkit-user-select": "none",
+    "-moz-user-select": "-moz-none",
+    "user-select": "none",
+    "-webkit-tap-highlight-color": "rgba(0,0,0,0)",
+    "outline-style": "none",
   };
 
-  if(is.ms()) {
-    styleMap['-ms-touch-action'] = 'none';
-    styleMap['touch-action'] = 'none';
+  if (is.ms()) {
+    styleMap["-ms-touch-action"] = "none";
+    styleMap["touch-action"] = "none";
   }
 
-  for (let i = 0; i < CRp.CANVAS_LAYERS; i++ ){
-    const canvas = r.data.canvases[ i ] = document.createElement( 'canvas' );  // eslint-disable-line no-undef
-    const type = CRp.CANVAS_TYPES[ i ];
-    r.data.contexts[ i ] = canvas.getContext( type );
-    if( !r.data.contexts[ i ] ) {
-      util.error( 'Could not create canvas of type ' + type );
+  for (let i = 0; i < CRp.CANVAS_LAYERS; i++) {
+    const canvas = (r.data.canvases[i] = document.createElement("canvas")); // eslint-disable-line no-undef
+    const type = CRp.CANVAS_TYPES[i];
+    r.data.contexts[i] = canvas.getContext(type);
+    if (!r.data.contexts[i]) {
+      util.error("Could not create canvas of type " + type);
     }
     Object.keys(styleMap).forEach((k) => {
       canvas.style[k] = styleMap[k];
     });
-    canvas.style.position = 'absolute';
-    canvas.setAttribute( 'data-id', 'layer' + i );
-    canvas.style.zIndex = String( CRp.CANVAS_LAYERS - i );
-    r.data.canvasContainer.appendChild( canvas );
+    canvas.style.position = "absolute";
+    canvas.setAttribute("data-id", "layer" + i);
+    canvas.style.zIndex = String(CRp.CANVAS_LAYERS - i);
+    r.data.canvasContainer.appendChild(canvas);
 
-    r.data.canvasNeedsRedraw[ i ] = false;
+    r.data.canvasNeedsRedraw[i] = false;
   }
   r.data.topCanvas = r.data.canvases[0];
 
-  r.data.canvases[ CRp.NODE ].setAttribute( 'data-id', 'layer' + CRp.NODE + '-node' );
-  r.data.canvases[ CRp.SELECT_BOX ].setAttribute( 'data-id', 'layer' + CRp.SELECT_BOX + '-selectbox' );
-  r.data.canvases[ CRp.DRAG ].setAttribute( 'data-id', 'layer' + CRp.DRAG + '-drag' );
-  if( r.data.canvases[ CRp.WEBGL ] ) {
-    r.data.canvases[ CRp.WEBGL ].setAttribute( 'data-id', 'layer' + CRp.WEBGL + '-webgl' );
+  r.data.canvases[CRp.NODE].setAttribute(
+    "data-id",
+    "layer" + CRp.NODE + "-node",
+  );
+  r.data.canvases[CRp.SELECT_BOX].setAttribute(
+    "data-id",
+    "layer" + CRp.SELECT_BOX + "-selectbox",
+  );
+  r.data.canvases[CRp.DRAG].setAttribute(
+    "data-id",
+    "layer" + CRp.DRAG + "-drag",
+  );
+  if (r.data.canvases[CRp.WEBGL]) {
+    r.data.canvases[CRp.WEBGL].setAttribute(
+      "data-id",
+      "layer" + CRp.WEBGL + "-webgl",
+    );
   }
 
-  for (let i = 0; i < CRp.BUFFER_COUNT; i++ ){
-    r.data.bufferCanvases[ i ] = document.createElement( 'canvas' );  // eslint-disable-line no-undef
-    r.data.bufferContexts[ i ] = r.data.bufferCanvases[ i ].getContext( '2d' );
-    r.data.bufferCanvases[ i ].style.position = 'absolute';
-    r.data.bufferCanvases[ i ].setAttribute( 'data-id', 'buffer' + i );
-    r.data.bufferCanvases[ i ].style.zIndex = String( -i - 1 );
-    r.data.bufferCanvases[ i ].style.visibility = 'hidden';
+  for (let i = 0; i < CRp.BUFFER_COUNT; i++) {
+    r.data.bufferCanvases[i] = document.createElement("canvas"); // eslint-disable-line no-undef
+    r.data.bufferContexts[i] = r.data.bufferCanvases[i].getContext("2d");
+    r.data.bufferCanvases[i].style.position = "absolute";
+    r.data.bufferCanvases[i].setAttribute("data-id", "buffer" + i);
+    r.data.bufferCanvases[i].style.zIndex = String(-i - 1);
+    r.data.bufferCanvases[i].style.visibility = "hidden";
     //r.data.canvasContainer.appendChild(r.data.bufferCanvases[i]);
   }
 
@@ -128,42 +140,82 @@ function CanvasRenderer( options ){
 
   const emptyBb = makeBoundingBox();
 
-  const getBoxCenter = bb => ({ x: (bb.x1 + bb.x2)/2, y: (bb.y1 + bb.y2)/2 });
+  const getBoxCenter = (bb) => ({
+    x: (bb.x1 + bb.x2) / 2,
+    y: (bb.y1 + bb.y2) / 2,
+  });
 
-  const getCenterOffset = bb => ({ x: -bb.w/2, y: -bb.h/2 });
+  const getCenterOffset = (bb) => ({ x: -bb.w / 2, y: -bb.h / 2 });
 
-  const backgroundTimestampHasChanged = ele => {
+  const backgroundTimestampHasChanged = (ele) => {
     const _p = ele[0]._private;
     const same = _p.oldBackgroundTimestamp === _p.backgroundTimestamp;
 
     return !same;
   };
 
-  const getStyleKey = ele => ele[0]._private.nodeKey;
-  const getLabelKey = ele => ele[0]._private.labelStyleKey;
-  const getSourceLabelKey = ele => ele[0]._private.sourceLabelStyleKey;
-  const getTargetLabelKey = ele => ele[0]._private.targetLabelStyleKey;
+  const getStyleKey = (ele) => ele[0]._private.nodeKey;
+  const getLabelKey = (ele) => ele[0]._private.labelStyleKey;
+  const getSourceLabelKey = (ele) => ele[0]._private.sourceLabelStyleKey;
+  const getTargetLabelKey = (ele) => ele[0]._private.targetLabelStyleKey;
 
-  const drawElement = (context, ele, bb, scaledLabelShown, useEleOpacity) => r.drawElement( context, ele, bb, false, false, useEleOpacity );
-  const drawLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) => r.drawElementText( context, ele, bb, scaledLabelShown, 'main', useEleOpacity );
-  const drawSourceLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) => r.drawElementText( context, ele, bb, scaledLabelShown, 'source', useEleOpacity );
-  const drawTargetLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) => r.drawElementText( context, ele, bb, scaledLabelShown, 'target', useEleOpacity );
+  const drawElement = (context, ele, bb, scaledLabelShown, useEleOpacity) =>
+    r.drawElement(context, ele, bb, false, false, useEleOpacity);
+  const drawLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) =>
+    r.drawElementText(
+      context,
+      ele,
+      bb,
+      scaledLabelShown,
+      "main",
+      useEleOpacity,
+    );
+  const drawSourceLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) =>
+    r.drawElementText(
+      context,
+      ele,
+      bb,
+      scaledLabelShown,
+      "source",
+      useEleOpacity,
+    );
+  const drawTargetLabel = (context, ele, bb, scaledLabelShown, useEleOpacity) =>
+    r.drawElementText(
+      context,
+      ele,
+      bb,
+      scaledLabelShown,
+      "target",
+      useEleOpacity,
+    );
 
-  const getElementBox = ele => { ele.boundingBox(); return ele[0]._private.bodyBounds; };
-  const getLabelBox   = ele => { ele.boundingBox(); return ele[0]._private.labelBounds.main || emptyBb; };
-  const getSourceLabelBox = ele => { ele.boundingBox(); return ele[0]._private.labelBounds.source || emptyBb; };
-  const getTargetLabelBox = ele => { ele.boundingBox(); return ele[0]._private.labelBounds.target || emptyBb; };
+  const getElementBox = (ele) => {
+    ele.boundingBox();
+    return ele[0]._private.bodyBounds;
+  };
+  const getLabelBox = (ele) => {
+    ele.boundingBox();
+    return ele[0]._private.labelBounds.main || emptyBb;
+  };
+  const getSourceLabelBox = (ele) => {
+    ele.boundingBox();
+    return ele[0]._private.labelBounds.source || emptyBb;
+  };
+  const getTargetLabelBox = (ele) => {
+    ele.boundingBox();
+    return ele[0]._private.labelBounds.target || emptyBb;
+  };
 
   const isLabelVisibleAtScale = (ele, scaledLabelShown) => scaledLabelShown;
 
-  const getElementRotationPoint = ele => getBoxCenter( getElementBox(ele) );
+  const getElementRotationPoint = (ele) => getBoxCenter(getElementBox(ele));
 
   const addTextMargin = (prefix, pt, ele) => {
-    const pre = prefix ? prefix + '-' : '';
+    const pre = prefix ? prefix + "-" : "";
 
     return {
-      x: pt.x + ele.pstyle(pre + 'text-margin-x').pfValue,
-      y: pt.y + ele.pstyle(pre + 'text-margin-y').pfValue
+      x: pt.x + ele.pstyle(pre + "text-margin-x").pfValue,
+      y: pt.y + ele.pstyle(pre + "text-margin-y").pfValue,
     };
   };
 
@@ -173,33 +225,38 @@ function CanvasRenderer( options ){
     return { x: rs[x], y: rs[y] };
   };
 
-  const getLabelRotationPoint = ele => addTextMargin('', getRsPt(ele, 'labelX', 'labelY'), ele);
-  const getSourceLabelRotationPoint = ele => addTextMargin('source', getRsPt(ele, 'sourceLabelX', 'sourceLabelY'), ele);
-  const getTargetLabelRotationPoint = ele => addTextMargin('target', getRsPt(ele, 'targetLabelX', 'targetLabelY'), ele);
+  const getLabelRotationPoint = (ele) =>
+    addTextMargin("", getRsPt(ele, "labelX", "labelY"), ele);
+  const getSourceLabelRotationPoint = (ele) =>
+    addTextMargin("source", getRsPt(ele, "sourceLabelX", "sourceLabelY"), ele);
+  const getTargetLabelRotationPoint = (ele) =>
+    addTextMargin("target", getRsPt(ele, "targetLabelX", "targetLabelY"), ele);
 
-  const getElementRotationOffset = ele => getCenterOffset( getElementBox(ele) );
-  const getSourceLabelRotationOffset = ele => getCenterOffset( getSourceLabelBox(ele) );
-  const getTargetLabelRotationOffset = ele => getCenterOffset( getTargetLabelBox(ele) );
+  const getElementRotationOffset = (ele) => getCenterOffset(getElementBox(ele));
+  const getSourceLabelRotationOffset = (ele) =>
+    getCenterOffset(getSourceLabelBox(ele));
+  const getTargetLabelRotationOffset = (ele) =>
+    getCenterOffset(getTargetLabelBox(ele));
 
-  const getLabelRotationOffset = ele => {
+  const getLabelRotationOffset = (ele) => {
     const bb = getLabelBox(ele);
-    const p = getCenterOffset( getLabelBox(ele) );
+    const p = getCenterOffset(getLabelBox(ele));
 
-    if( ele.isNode() ){
-      switch( ele.pstyle('text-halign').value ){
-        case 'left':
+    if (ele.isNode()) {
+      switch (ele.pstyle("text-halign").value) {
+        case "left":
           p.x = -bb.w - (bb.leftPad || 0);
           break;
-        case 'right':
+        case "right":
           p.x = -(bb.rightPad || 0);
           break;
       }
 
-      switch( ele.pstyle('text-valign').value ){
-        case 'top':
+      switch (ele.pstyle("text-valign").value) {
+        case "top":
           p.y = -bb.h - (bb.topPad || 0);
           break;
-        case 'bottom':
+        case "bottom":
           p.y = -(bb.botPad || 0);
           break;
       }
@@ -208,7 +265,7 @@ function CanvasRenderer( options ){
     return p;
   };
 
-  const eleTxrCache = r.data.eleTxrCache = new ElementTextureCache( r, {
+  const eleTxrCache = (r.data.eleTxrCache = new ElementTextureCache(r, {
     getKey: getStyleKey,
     doesEleInvalidateKey: backgroundTimestampHasChanged,
     drawElement: drawElement,
@@ -216,59 +273,59 @@ function CanvasRenderer( options ){
     getRotationPoint: getElementRotationPoint,
     getRotationOffset: getElementRotationOffset,
     allowEdgeTxrCaching: false,
-    allowParentTxrCaching: false
-  } );
+    allowParentTxrCaching: false,
+  }));
 
-  const lblTxrCache = r.data.lblTxrCache = new ElementTextureCache( r, {
+  const lblTxrCache = (r.data.lblTxrCache = new ElementTextureCache(r, {
     getKey: getLabelKey,
     drawElement: drawLabel,
     getBoundingBox: getLabelBox,
     getRotationPoint: getLabelRotationPoint,
     getRotationOffset: getLabelRotationOffset,
-    isVisible: isLabelVisibleAtScale
-  } );
+    isVisible: isLabelVisibleAtScale,
+  }));
 
-  const slbTxrCache = r.data.slbTxrCache = new ElementTextureCache( r, {
+  const slbTxrCache = (r.data.slbTxrCache = new ElementTextureCache(r, {
     getKey: getSourceLabelKey,
     drawElement: drawSourceLabel,
     getBoundingBox: getSourceLabelBox,
     getRotationPoint: getSourceLabelRotationPoint,
     getRotationOffset: getSourceLabelRotationOffset,
-    isVisible: isLabelVisibleAtScale
-  } );
+    isVisible: isLabelVisibleAtScale,
+  }));
 
-  const tlbTxrCache = r.data.tlbTxrCache = new ElementTextureCache( r, {
+  const tlbTxrCache = (r.data.tlbTxrCache = new ElementTextureCache(r, {
     getKey: getTargetLabelKey,
     drawElement: drawTargetLabel,
     getBoundingBox: getTargetLabelBox,
     getRotationPoint: getTargetLabelRotationPoint,
     getRotationOffset: getTargetLabelRotationOffset,
-    isVisible: isLabelVisibleAtScale
-  } );
+    isVisible: isLabelVisibleAtScale,
+  }));
 
-  const lyrTxrCache = r.data.lyrTxrCache = new LayeredTextureCache( r );
+  const lyrTxrCache = (r.data.lyrTxrCache = new LayeredTextureCache(r));
 
-  r.onUpdateEleCalcs(function invalidateTextureCaches( willDraw, eles ){
+  r.onUpdateEleCalcs(function invalidateTextureCaches(willDraw, eles) {
     // each cache should check for sub-key diff to see that the update affects that cache particularly
-    eleTxrCache.invalidateElements( eles );
-    lblTxrCache.invalidateElements( eles );
-    slbTxrCache.invalidateElements( eles );
-    tlbTxrCache.invalidateElements( eles );
+    eleTxrCache.invalidateElements(eles);
+    lblTxrCache.invalidateElements(eles);
+    slbTxrCache.invalidateElements(eles);
+    tlbTxrCache.invalidateElements(eles);
 
     // any change invalidates the layers
-    lyrTxrCache.invalidateElements( eles );
+    lyrTxrCache.invalidateElements(eles);
 
     // update the old bg timestamp so diffs can be done in the ele txr caches
-    for (let i = 0; i < eles.length; i++ ){
+    for (let i = 0; i < eles.length; i++) {
       const _p = eles[i]._private;
 
       _p.oldBackgroundTimestamp = _p.backgroundTimestamp;
     }
   });
 
-  const refineInLayers = reqs => {
-    for (let i = 0; i < reqs.length; i++ ){
-      lyrTxrCache.enqueueElementRefinement( reqs[i].ele );
+  const refineInLayers = (reqs) => {
+    for (let i = 0; i < reqs.length; i++) {
+      lyrTxrCache.enqueueElementRefinement(reqs[i].ele);
     }
   };
 
@@ -277,8 +334,8 @@ function CanvasRenderer( options ){
   slbTxrCache.onDequeue(refineInLayers);
   tlbTxrCache.onDequeue(refineInLayers);
 
-  if( options.webgl ) {
-    r.initWebgl( options, {
+  if (options.webgl) {
+    r.initWebgl(options, {
       getStyleKey,
       getLabelKey,
       getSourceLabelKey,
@@ -298,47 +355,47 @@ function CanvasRenderer( options ){
       getTargetLabelRotationPoint,
       getLabelRotationOffset,
       getSourceLabelRotationOffset,
-      getTargetLabelRotationOffset
-    } );
+      getTargetLabelRotationOffset,
+    });
   }
 }
 
-CRp.redrawHint = function( group, bool ){
+CRp.redrawHint = function (group, bool) {
   const r = this;
-  
-  switch( group ){
-    case 'eles':
-      r.data.canvasNeedsRedraw[ CRp.NODE ] = bool;
+
+  switch (group) {
+    case "eles":
+      r.data.canvasNeedsRedraw[CRp.NODE] = bool;
       break;
-    case 'drag':
-      r.data.canvasNeedsRedraw[ CRp.DRAG ] = bool;
+    case "drag":
+      r.data.canvasNeedsRedraw[CRp.DRAG] = bool;
       break;
-    case 'select':
-      r.data.canvasNeedsRedraw[ CRp.SELECT_BOX ] = bool;
+    case "select":
+      r.data.canvasNeedsRedraw[CRp.SELECT_BOX] = bool;
       break;
-    case 'gc':
+    case "gc":
       r.data.gc = true;
       break;
   }
 };
 
 // whether to use Path2D caching for drawing
-const pathsImpld = typeof Path2D !== 'undefined';
+const pathsImpld = typeof Path2D !== "undefined";
 
-CRp.path2dEnabled = function( on ){
-  if( on === undefined ){
+CRp.path2dEnabled = function (on) {
+  if (on === undefined) {
     return this.pathsEnabled;
   }
 
   this.pathsEnabled = on ? true : false;
 };
 
-CRp.usePaths = function(){
+CRp.usePaths = function () {
   return pathsImpld && this.pathsEnabled;
 };
 
-CRp.setImgSmoothing = function( context, bool ){
-  if( context.imageSmoothingEnabled != null ){
+CRp.setImgSmoothing = function (context, bool) {
+  if (context.imageSmoothingEnabled != null) {
     context.imageSmoothingEnabled = bool;
   } else {
     context.webkitImageSmoothingEnabled = bool;
@@ -347,23 +404,27 @@ CRp.setImgSmoothing = function( context, bool ){
   }
 };
 
-CRp.getImgSmoothing = function( context ){
-  if( context.imageSmoothingEnabled != null ){
+CRp.getImgSmoothing = function (context) {
+  if (context.imageSmoothingEnabled != null) {
     return context.imageSmoothingEnabled;
   } else {
-    return context.webkitImageSmoothingEnabled || context.mozImageSmoothingEnabled || context.msImageSmoothingEnabled;
+    return (
+      context.webkitImageSmoothingEnabled ||
+      context.mozImageSmoothingEnabled ||
+      context.msImageSmoothingEnabled
+    );
   }
 };
 
-CRp.makeOffscreenCanvas = function(width, height){
+CRp.makeOffscreenCanvas = function (width, height) {
   let canvas;
 
-  if( typeof OffscreenCanvas !== typeof undefined ){
+  if (typeof OffscreenCanvas !== typeof undefined) {
     canvas = new OffscreenCanvas(width, height);
   } else {
     const containerWindow = this.cy.window();
     const document = containerWindow.document;
-    canvas = document.createElement('canvas'); // eslint-disable-line no-undef
+    canvas = document.createElement("canvas"); // eslint-disable-line no-undef
     canvas.width = width;
     canvas.height = height;
   }
@@ -382,9 +443,9 @@ CRp.makeOffscreenCanvas = function(width, height){
   drawingRedrawWebGL,
   drawingShapes,
   exportImage,
-  nodeShapes
-].forEach( function( props ){
-  util.extend( CRp, props );
-} );
+  nodeShapes,
+].forEach(function (props) {
+  util.extend(CRp, props);
+});
 
 export default CR;

@@ -1,145 +1,138 @@
 /*global HTMLElement DocumentTouch */
 
-import window from './window.mjs';
+import window from "./window.mjs";
 
 const navigator = window ? window.navigator : null;
 const document = window ? window.document : null;
 
-const typeofstr = typeof '';
+const typeofstr = typeof "";
 const typeofobj = typeof {};
-const typeoffn = typeof function(){};
+const typeoffn = typeof function () {};
 const typeofhtmlele = typeof HTMLElement;
 
-const instanceStr = function( obj ){
-  return obj && obj.instanceString && fn( obj.instanceString ) ? obj.instanceString() : null;
+const instanceStr = function (obj) {
+  return obj && obj.instanceString && fn(obj.instanceString)
+    ? obj.instanceString()
+    : null;
 };
 
-export const defined = obj =>
-  obj != null; // not undefined or null
+export const defined = (obj) => obj != null; // not undefined or null
 
-export const string = obj =>
-  obj != null && typeof obj == typeofstr;
+export const string = (obj) => obj != null && typeof obj == typeofstr;
 
-export const fn = obj =>
-  obj != null && typeof obj === typeoffn;
+export const fn = (obj) => obj != null && typeof obj === typeoffn;
 
-export const array = obj =>
-  !(elementOrCollection(obj)) && (Array.isArray ? Array.isArray( obj ) : obj != null && obj instanceof Array);
+export const array = (obj) =>
+  !elementOrCollection(obj) &&
+  (Array.isArray ? Array.isArray(obj) : obj != null && obj instanceof Array);
 
-export const plainObject = obj =>
-  obj != null && typeof obj === typeofobj && !array( obj ) && obj.constructor === Object;
+export const plainObject = (obj) =>
+  obj != null &&
+  typeof obj === typeofobj &&
+  !array(obj) &&
+  obj.constructor === Object;
 
-export const object = obj =>
-  obj != null && typeof obj === typeofobj;
+export const object = (obj) => obj != null && typeof obj === typeofobj;
 
-export const number = obj =>
-  obj != null && typeof obj === typeof 1 && !isNaN( obj );
+export const number = (obj) =>
+  obj != null && typeof obj === typeof 1 && !isNaN(obj);
 
-export const integer = obj =>
-  number( obj ) && Math.floor( obj ) === obj;
+export const integer = (obj) => number(obj) && Math.floor(obj) === obj;
 
-export const bool = obj =>
-  obj != null && typeof obj === typeof true;
+export const bool = (obj) => obj != null && typeof obj === typeof true;
 
-export const htmlElement = obj => {
-  if( 'undefined' === typeofhtmlele ){
+export const htmlElement = (obj) => {
+  if ("undefined" === typeofhtmlele) {
     return undefined;
   } else {
     return null != obj && obj instanceof HTMLElement;
   }
 };
 
-export const elementOrCollection = obj =>
-  element( obj ) || collection( obj );
+export const elementOrCollection = (obj) => element(obj) || collection(obj);
 
-export const element = obj =>
-  instanceStr( obj ) === 'collection' && obj._private.single;
+export const element = (obj) =>
+  instanceStr(obj) === "collection" && obj._private.single;
 
-export const collection = obj =>
-  instanceStr( obj ) === 'collection' && !obj._private.single;
+export const collection = (obj) =>
+  instanceStr(obj) === "collection" && !obj._private.single;
 
-export const core = obj =>
-  instanceStr( obj ) === 'core';
+export const core = (obj) => instanceStr(obj) === "core";
 
-export const style = obj =>
-  instanceStr( obj ) === 'style';
+export const style = (obj) => instanceStr(obj) === "style";
 
-export const stylesheet = obj =>
-  instanceStr( obj ) === 'stylesheet';
+export const stylesheet = (obj) => instanceStr(obj) === "stylesheet";
 
-export const event = obj =>
-  instanceStr( obj ) === 'event';
+export const event = (obj) => instanceStr(obj) === "event";
 
-export const thread = obj =>
-  instanceStr( obj ) === 'thread';
+export const thread = (obj) => instanceStr(obj) === "thread";
 
-export const fabric = obj =>
-  instanceStr( obj ) === 'fabric';
+export const fabric = (obj) => instanceStr(obj) === "fabric";
 
-export const emptyString = obj => {
-  if( obj === undefined || obj === null ){ // null is empty
+export const emptyString = (obj) => {
+  if (obj === undefined || obj === null) {
+    // null is empty
     return true;
-  } else if( obj === '' || obj.match( /^\s+$/ ) ){
+  } else if (obj === "" || obj.match(/^\s+$/)) {
     return true; // empty string is empty
   }
 
   return false; // otherwise, we don't know what we've got
 };
 
-export const nonemptyString = obj => {
-  if( obj && string( obj ) && obj !== '' && !obj.match( /^\s+$/ ) ){
+export const nonemptyString = (obj) => {
+  if (obj && string(obj) && obj !== "" && !obj.match(/^\s+$/)) {
     return true;
   }
 
   return false;
 };
 
-export const domElement = obj => {
-  if( typeof HTMLElement === 'undefined' ){
+export const domElement = (obj) => {
+  if (typeof HTMLElement === "undefined") {
     return false; // we're not in a browser so it doesn't matter
   } else {
     return obj instanceof HTMLElement;
   }
 };
 
-export const boundingBox = obj =>
-  plainObject( obj ) &&
-    number( obj.x1 ) && number( obj.x2 ) &&
-    number( obj.y1 ) && number( obj.y2 )
-  ;
+export const boundingBox = (obj) =>
+  plainObject(obj) &&
+  number(obj.x1) &&
+  number(obj.x2) &&
+  number(obj.y1) &&
+  number(obj.y2);
 
-export const promise = obj =>
-  object( obj ) && fn( obj.then );
+export const promise = (obj) => object(obj) && fn(obj.then);
 
 export const touch = () =>
-  window && ( ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch );
+  window &&
+  ("ontouchstart" in window ||
+    (window.DocumentTouch && document instanceof DocumentTouch));
 
 export const gecko = () =>
-  window && ( typeof InstallTrigger !== 'undefined' || ('MozAppearance' in document.documentElement.style) );
+  window &&
+  (typeof InstallTrigger !== "undefined" ||
+    "MozAppearance" in document.documentElement.style);
 
 export const webkit = () =>
-  window && ( typeof webkitURL !== 'undefined' || ('WebkitAppearance' in document.documentElement.style) );
+  window &&
+  (typeof webkitURL !== "undefined" ||
+    "WebkitAppearance" in document.documentElement.style);
 
-export const chromium = () =>
-  window && ( typeof chrome !== 'undefined' );
+export const chromium = () => window && typeof chrome !== "undefined";
 
-export const khtml = () =>
-  navigator && navigator.vendor.match( /kde/i ); // probably a better way to detect this...
+export const khtml = () => navigator && navigator.vendor.match(/kde/i); // probably a better way to detect this...
 
-export const khtmlEtc = () =>
-  khtml() || webkit() || chromium();
+export const khtmlEtc = () => khtml() || webkit() || chromium();
 
 export const ms = () =>
-  navigator && navigator.userAgent.match( /msie|trident|edge/i ); // probably a better way to detect this...
+  navigator && navigator.userAgent.match(/msie|trident|edge/i); // probably a better way to detect this...
 
-export const windows = () =>
-  navigator && navigator.appVersion.match( /Win/i );
+export const windows = () => navigator && navigator.appVersion.match(/Win/i);
 
-export const mac = () =>
-  navigator && navigator.appVersion.match( /Mac/i );
+export const mac = () => navigator && navigator.appVersion.match(/Mac/i);
 
-export const linux = () =>
-  navigator && navigator.appVersion.match( /Linux/i );
+export const linux = () => navigator && navigator.appVersion.match(/Linux/i);
 
-export const unix = () =>
-  navigator && navigator.appVersion.match( /X11/i );
+export const unix = () => navigator && navigator.appVersion.match(/X11/i);

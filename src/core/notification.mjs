@@ -1,33 +1,38 @@
-const corefn = ({
-  notify: function( eventName, eventEles ){
+const corefn = {
+  notify: function (eventName, eventEles) {
     const _p = this._private;
 
-    if( this.batching() ){
+    if (this.batching()) {
       _p.batchNotifications = _p.batchNotifications || {};
 
-      const eles = _p.batchNotifications[ eventName ] = _p.batchNotifications[ eventName ] || this.collection();
+      const eles = (_p.batchNotifications[eventName] =
+        _p.batchNotifications[eventName] || this.collection());
 
-      if( eventEles != null ){
-        eles.merge( eventEles );
+      if (eventEles != null) {
+        eles.merge(eventEles);
       }
 
       return; // notifications are disabled during batching
     }
 
-    if( !_p.notificationsEnabled ){ return; } // exit on disabled
+    if (!_p.notificationsEnabled) {
+      return;
+    } // exit on disabled
 
     const renderer = this.renderer();
 
     // exit if destroy() called on core or renderer in between frames #1499 #1528
-    if( this.destroyed() || !renderer ){ return; }
+    if (this.destroyed() || !renderer) {
+      return;
+    }
 
-    renderer.notify( eventName, eventEles );
+    renderer.notify(eventName, eventEles);
   },
 
-  notifications: function( bool ){
+  notifications: function (bool) {
     const p = this._private;
 
-    if( bool === undefined ){
+    if (bool === undefined) {
       return p.notificationsEnabled;
     } else {
       p.notificationsEnabled = bool ? true : false;
@@ -36,24 +41,24 @@ const corefn = ({
     return this;
   },
 
-  noNotifications: function( callback ){
-    this.notifications( false );
+  noNotifications: function (callback) {
+    this.notifications(false);
     callback();
-    this.notifications( true );
+    this.notifications(true);
   },
 
-  batching: function(){
+  batching: function () {
     return this._private.batchCount > 0;
   },
 
-  startBatch: function(){
+  startBatch: function () {
     const _p = this._private;
 
-    if( _p.batchCount == null ){
+    if (_p.batchCount == null) {
       _p.batchCount = 0;
     }
 
-    if( _p.batchCount === 0 ){
+    if (_p.batchCount === 0) {
       _p.batchStyleEles = this.collection();
       _p.batchNotifications = {};
     }
@@ -63,35 +68,37 @@ const corefn = ({
     return this;
   },
 
-  endBatch: function(){
+  endBatch: function () {
     const _p = this._private;
 
-    if( _p.batchCount === 0 ){ return this; }
+    if (_p.batchCount === 0) {
+      return this;
+    }
 
     _p.batchCount--;
 
-    if( _p.batchCount === 0 ){
+    if (_p.batchCount === 0) {
       // update style for dirty eles
       _p.batchStyleEles.updateStyle();
 
       const renderer = this.renderer();
 
       // notify the renderer of queued eles and event types
-      Object.keys( _p.batchNotifications ).forEach( eventName => {
+      Object.keys(_p.batchNotifications).forEach((eventName) => {
         const eles = _p.batchNotifications[eventName];
 
-        if( eles.empty() ){
-          renderer.notify( eventName );
+        if (eles.empty()) {
+          renderer.notify(eventName);
         } else {
-          renderer.notify( eventName, eles );
+          renderer.notify(eventName, eles);
         }
-      } );
+      });
     }
 
     return this;
   },
 
-  batch: function( callback ){
+  batch: function (callback) {
     this.startBatch();
     callback();
     this.endBatch();
@@ -100,21 +107,21 @@ const corefn = ({
   },
 
   // for backwards compatibility
-  batchData: function( map ){
+  batchData: function (map) {
     const cy = this;
 
-    return this.batch( function(){
-      const ids = Object.keys( map );
+    return this.batch(function () {
+      const ids = Object.keys(map);
 
-      for (let i = 0; i < ids.length; i++ ){
+      for (let i = 0; i < ids.length; i++) {
         const id = ids[i];
-        const data = map[ id ];
-        const ele = cy.getElementById( id );
+        const data = map[id];
+        const ele = cy.getElementById(id);
 
-        ele.data( data );
+        ele.data(data);
       }
-    } );
-  }
-});
+    });
+  },
+};
 
 export default corefn;

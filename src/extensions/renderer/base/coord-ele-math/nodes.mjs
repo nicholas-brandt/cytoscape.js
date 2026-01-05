@@ -1,42 +1,49 @@
 const BRp = {};
 
-import { warn } from '../../../../util/index.mjs';
+import { warn } from "../../../../util/index.mjs";
 
 const TOO_SMALL_CUT_RECT = 28;
 
 const warnedCutRect = false;
 
-BRp.getNodeShape = function( node ){
+BRp.getNodeShape = function (node) {
   const r = this;
-  const shape = node.pstyle( 'shape' ).value;
+  const shape = node.pstyle("shape").value;
 
-  if( shape === 'cutrectangle' && (node.width() < TOO_SMALL_CUT_RECT || node.height() < TOO_SMALL_CUT_RECT) ){
-    if( !warnedCutRect ){
-      warn('The `cutrectangle` node shape can not be used at small sizes so `rectangle` is used instead');
+  if (
+    shape === "cutrectangle" &&
+    (node.width() < TOO_SMALL_CUT_RECT || node.height() < TOO_SMALL_CUT_RECT)
+  ) {
+    if (!warnedCutRect) {
+      warn(
+        "The `cutrectangle` node shape can not be used at small sizes so `rectangle` is used instead",
+      );
 
       warnedCutRect = true;
     }
 
-    return 'rectangle';
+    return "rectangle";
   }
 
-  if( node.isParent() ){
-    if( shape === 'rectangle'
-    || shape === 'roundrectangle'
-    || shape === 'round-rectangle'
-    || shape === 'cutrectangle'
-    || shape === 'cut-rectangle'
-    || shape === 'barrel' ){
+  if (node.isParent()) {
+    if (
+      shape === "rectangle" ||
+      shape === "roundrectangle" ||
+      shape === "round-rectangle" ||
+      shape === "cutrectangle" ||
+      shape === "cut-rectangle" ||
+      shape === "barrel"
+    ) {
       return shape;
     } else {
-      return 'rectangle';
+      return "rectangle";
     }
   }
 
-  if( shape === 'polygon' ){
-    const points = node.pstyle( 'shape-polygon-points' ).value;
+  if (shape === "polygon") {
+    const points = node.pstyle("shape-polygon-points").value;
 
-    return r.nodeShapes.makePolygon( points ).name;
+    return r.nodeShapes.makePolygon(points).name;
   }
 
   return shape;

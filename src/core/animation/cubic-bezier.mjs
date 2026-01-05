@@ -8,7 +8,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     SUBDIVISION_MAX_ITERATIONS = 10,
     kSplineTableSize = 11,
     kSampleStepSize = 1.0 / (kSplineTableSize - 1.0),
-    float32ArraySupported = typeof Float32Array !== 'undefined';
+    float32ArraySupported = typeof Float32Array !== "undefined";
 
   /* Must contain four arguments. */
   if (arguments.length !== 4) {
@@ -17,7 +17,11 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
 
   /* Arguments must be numbers. */
   for (let i = 0; i < 4; ++i) {
-    if (typeof arguments[i] !== "number" || isNaN(arguments[i]) || !isFinite(arguments[i])) {
+    if (
+      typeof arguments[i] !== "number" ||
+      isNaN(arguments[i]) ||
+      !isFinite(arguments[i])
+    ) {
       return false;
     }
   }
@@ -28,7 +32,9 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
   mX1 = Math.max(mX1, 0);
   mX2 = Math.max(mX2, 0);
 
-  const mSampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
+  const mSampleValues = float32ArraySupported
+    ? new Float32Array(kSplineTableSize)
+    : new Array(kSplineTableSize);
 
   function A(aA1, aA2) {
     return 1.0 - 3.0 * aA2 + 3.0 * aA1;
@@ -72,7 +78,9 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
   }
 
   function binarySubdivide(aX, aA, aB) {
-    let currentX, currentT, i = 0;
+    let currentX,
+      currentT,
+      i = 0;
 
     do {
       currentT = aA + (aB - aA) / 2.0;
@@ -82,7 +90,10 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
       } else {
         aA = currentT;
       }
-    } while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
+    } while (
+      Math.abs(currentX) > SUBDIVISION_PRECISION &&
+      ++i < SUBDIVISION_MAX_ITERATIONS
+    );
 
     return currentT;
   }
@@ -92,13 +103,19 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
       currentSample = 1,
       lastSample = kSplineTableSize - 1;
 
-    for (; currentSample !== lastSample && mSampleValues[currentSample] <= aX; ++currentSample) {
+    for (
+      ;
+      currentSample !== lastSample && mSampleValues[currentSample] <= aX;
+      ++currentSample
+    ) {
       intervalStart += kSampleStepSize;
     }
 
     --currentSample;
 
-    const dist = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample + 1] - mSampleValues[currentSample]),
+    const dist =
+        (aX - mSampleValues[currentSample]) /
+        (mSampleValues[currentSample + 1] - mSampleValues[currentSample]),
       guessForT = intervalStart + dist * kSampleStepSize,
       initialSlope = getSlope(guessForT, mX1, mX2);
 
@@ -107,7 +124,11 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     } else if (initialSlope === 0.0) {
       return guessForT;
     } else {
-      return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize);
+      return binarySubdivide(
+        aX,
+        intervalStart,
+        intervalStart + kSampleStepSize,
+      );
     }
   }
 
@@ -120,7 +141,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     }
   }
 
-  const f = function(aX) {
+  const f = function (aX) {
     if (!_precomputed) {
       precompute();
     }
@@ -137,18 +158,21 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     return calcBezier(getTForX(aX), mY1, mY2);
   };
 
-  f.getControlPoints = function() {
-    return [{
-      x: mX1,
-      y: mY1
-    }, {
-      x: mX2,
-      y: mY2
-    }];
+  f.getControlPoints = function () {
+    return [
+      {
+        x: mX1,
+        y: mY1,
+      },
+      {
+        x: mX2,
+        y: mY2,
+      },
+    ];
   };
 
   const str = "generateBezier(" + [mX1, mY1, mX2, mY2] + ")";
-  f.toString = function() {
+  f.toString = function () {
     return str;
   };
 

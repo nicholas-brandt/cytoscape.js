@@ -1,45 +1,50 @@
-import * as util from '../util/index.mjs';
-import Selector from '../selector/index.mjs';
+import * as util from "../util/index.mjs";
+import Selector from "../selector/index.mjs";
 
 const styfn = {};
 
-styfn.appendFromString = function( string ){
+styfn.appendFromString = function (string) {
   const self = this;
   const style = this;
-  let remaining = '' + string;
+  let remaining = "" + string;
   let selAndBlockStr;
   let blockRem;
   let propAndValStr;
 
   // remove comments from the style string
-  remaining = remaining.replace( /[/][*](\s|.)+?[*][/]/g, '' );
+  remaining = remaining.replace(/[/][*](\s|.)+?[*][/]/g, "");
 
-  function removeSelAndBlockFromRemaining(){
+  function removeSelAndBlockFromRemaining() {
     // remove the parsed selector and block from the remaining text to parse
-    if( remaining.length > selAndBlockStr.length ){
-      remaining = remaining.substr( selAndBlockStr.length );
+    if (remaining.length > selAndBlockStr.length) {
+      remaining = remaining.substr(selAndBlockStr.length);
     } else {
-      remaining = '';
+      remaining = "";
     }
   }
 
-  function removePropAndValFromRem(){
+  function removePropAndValFromRem() {
     // remove the parsed property and value from the remaining block text to parse
-    if( blockRem.length > propAndValStr.length ){
-      blockRem = blockRem.substr( propAndValStr.length );
+    if (blockRem.length > propAndValStr.length) {
+      blockRem = blockRem.substr(propAndValStr.length);
     } else {
-      blockRem = '';
+      blockRem = "";
     }
   }
 
-  for(;;){
-    const nothingLeftToParse = remaining.match( /^\s*$/ );
-    if( nothingLeftToParse ){ break; }
+  for (;;) {
+    const nothingLeftToParse = remaining.match(/^\s*$/);
+    if (nothingLeftToParse) {
+      break;
+    }
 
-    const selAndBlock = remaining.match( /^\s*((?:.|\s)+?)\s*\{((?:.|\s)+?)\}/ );
+    const selAndBlock = remaining.match(/^\s*((?:.|\s)+?)\s*\{((?:.|\s)+?)\}/);
 
-    if( !selAndBlock ){
-      util.warn( 'Halting stylesheet parsing: String stylesheet contains more to parse but no selector and block found in: ' + remaining );
+    if (!selAndBlock) {
+      util.warn(
+        "Halting stylesheet parsing: String stylesheet contains more to parse but no selector and block found in: " +
+          remaining,
+      );
       break;
     }
 
@@ -47,10 +52,13 @@ styfn.appendFromString = function( string ){
 
     // parse the selector
     const selectorStr = selAndBlock[1];
-    if( selectorStr !== 'core' ){
-      const selector = new Selector( selectorStr );
-      if( selector.invalid ){
-        util.warn( 'Skipping parsing of block: Invalid selector found in string stylesheet: ' + selectorStr );
+    if (selectorStr !== "core") {
+      const selector = new Selector(selectorStr);
+      if (selector.invalid) {
+        util.warn(
+          "Skipping parsing of block: Invalid selector found in string stylesheet: " +
+            selectorStr,
+        );
 
         // skip this selector and block
         removeSelAndBlockFromRemaining();
@@ -64,14 +72,19 @@ styfn.appendFromString = function( string ){
     blockRem = blockStr;
     const props = [];
 
-    for(;;){
-      const nothingLeftToParse = blockRem.match( /^\s*$/ );
-      if( nothingLeftToParse ){ break; }
+    for (;;) {
+      const nothingLeftToParse = blockRem.match(/^\s*$/);
+      if (nothingLeftToParse) {
+        break;
+      }
 
-      const propAndVal = blockRem.match( /^\s*(.+?)\s*:\s*(.+?)(?:\s*;|\s*$)/ );
+      const propAndVal = blockRem.match(/^\s*(.+?)\s*:\s*(.+?)(?:\s*;|\s*$)/);
 
-      if( !propAndVal ){
-        util.warn( 'Skipping parsing of block: Invalid formatting of style property and value definitions found in:' + blockStr );
+      if (!propAndVal) {
+        util.warn(
+          "Skipping parsing of block: Invalid formatting of style property and value definitions found in:" +
+            blockStr,
+        );
         invalidBlock = true;
         break;
       }
@@ -80,42 +93,46 @@ styfn.appendFromString = function( string ){
       const propStr = propAndVal[1];
       const valStr = propAndVal[2];
 
-      const prop = self.properties[ propStr ];
-      if( !prop ){
-        util.warn( 'Skipping property: Invalid property name in: ' + propAndValStr );
+      const prop = self.properties[propStr];
+      if (!prop) {
+        util.warn(
+          "Skipping property: Invalid property name in: " + propAndValStr,
+        );
 
         // skip this property in the block
         removePropAndValFromRem();
         continue;
       }
 
-      const parsedProp = style.parse( propStr, valStr );
+      const parsedProp = style.parse(propStr, valStr);
 
-      if( !parsedProp ){
-        util.warn( 'Skipping property: Invalid property definition in: ' + propAndValStr );
+      if (!parsedProp) {
+        util.warn(
+          "Skipping property: Invalid property definition in: " + propAndValStr,
+        );
 
         // skip this property in the block
         removePropAndValFromRem();
         continue;
       }
 
-      props.push( {
+      props.push({
         name: propStr,
-        val: valStr
-      } );
+        val: valStr,
+      });
       removePropAndValFromRem();
     }
 
-    if( invalidBlock ){
+    if (invalidBlock) {
       removeSelAndBlockFromRemaining();
       break;
     }
 
     // put the parsed block in the style
-    style.selector( selectorStr );
-    for (let i = 0; i < props.length; i++ ){
-      const prop = props[ i ];
-      style.css( prop.name, prop.val );
+    style.selector(selectorStr);
+    for (let i = 0; i < props.length; i++) {
+      const prop = props[i];
+      style.css(prop.name, prop.val);
     }
 
     removeSelAndBlockFromRemaining();
@@ -124,11 +141,11 @@ styfn.appendFromString = function( string ){
   return style;
 };
 
-styfn.fromString = function( string ){
+styfn.fromString = function (string) {
   const style = this;
 
   style.resetToDefault();
-  style.appendFromString( string );
+  style.appendFromString(string);
 
   return style;
 };

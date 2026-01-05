@@ -1,70 +1,65 @@
-import * as is from '../is.mjs';
-import Collection from '../collection/index.mjs';
+import * as is from "../is.mjs";
+import Collection from "../collection/index.mjs";
 
-const corefn = ({
-
+const corefn = {
   // get a collection
   // - empty collection on no args
   // - collection of elements in the graph on selector arg
   // - guarantee a returned collection when elements or collection specified
-  collection: function( eles, opts ){
-
-    if( is.string( eles ) ){
-      return this.$( eles );
-
-    } else if( is.elementOrCollection( eles ) ){
+  collection: function (eles, opts) {
+    if (is.string(eles)) {
+      return this.$(eles);
+    } else if (is.elementOrCollection(eles)) {
       return eles.collection();
-
-    } else if( is.array( eles ) ){
+    } else if (is.array(eles)) {
       if (!opts) {
         opts = {};
       }
-      return new Collection( this, eles, opts.unique, opts.removed );
+      return new Collection(this, eles, opts.unique, opts.removed);
     }
 
-    return new Collection( this );
+    return new Collection(this);
   },
 
-  nodes: function( selector ){
-    const nodes = this.$( function( ele ){
+  nodes: function (selector) {
+    const nodes = this.$(function (ele) {
       return ele.isNode();
-    } );
+    });
 
-    if( selector ){
-      return nodes.filter( selector );
+    if (selector) {
+      return nodes.filter(selector);
     }
 
     return nodes;
   },
 
-  edges: function( selector ){
-    const edges = this.$( function( ele ){
+  edges: function (selector) {
+    const edges = this.$(function (ele) {
       return ele.isEdge();
-    } );
+    });
 
-    if( selector ){
-      return edges.filter( selector );
+    if (selector) {
+      return edges.filter(selector);
     }
 
     return edges;
   },
 
   // search the graph like jQuery
-  $: function( selector ){
+  $: function (selector) {
     const eles = this._private.elements;
 
-    if( selector ){
-      return eles.filter( selector );
+    if (selector) {
+      return eles.filter(selector);
     } else {
       return eles.spawnSelf();
     }
   },
 
-  mutableElements: function(){
+  mutableElements: function () {
     return this._private.elements;
-  }
-
-});
+  },
+};
 
 // aliases
 corefn.elements = corefn.filter = corefn.$;

@@ -1,28 +1,27 @@
-const elesfn = ({
-  isNode: function(){
-    return this.group() === 'nodes';
+const elesfn = {
+  isNode: function () {
+    return this.group() === "nodes";
   },
 
-  isEdge: function(){
-    return this.group() === 'edges';
+  isEdge: function () {
+    return this.group() === "edges";
   },
 
-  isLoop: function(){
+  isLoop: function () {
     return this.isEdge() && this.source()[0] === this.target()[0];
   },
 
-  isSimple: function(){
+  isSimple: function () {
     return this.isEdge() && this.source()[0] !== this.target()[0];
   },
 
-  group: function(){
+  group: function () {
     const ele = this[0];
 
-    if( ele ){
+    if (ele) {
       return ele._private.group;
     }
-  }
-});
-
+  },
+};
 
 export default elesfn;

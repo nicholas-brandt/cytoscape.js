@@ -1,81 +1,98 @@
-import * as util from '../../../util/index.mjs';
-import * as is from '../../../is.mjs';
+import * as util from "../../../util/index.mjs";
+import * as is from "../../../is.mjs";
 
-import arrowShapes from './arrow-shapes.mjs';
-import coordEleMath from './coord-ele-math/index.mjs';
-import images from './images.mjs';
-import loadListeners from './load-listeners.mjs';
-import nodeShapes from './node-shapes.mjs';
-import redraw from './redraw.mjs';
+import arrowShapes from "./arrow-shapes.mjs";
+import coordEleMath from "./coord-ele-math/index.mjs";
+import images from "./images.mjs";
+import loadListeners from "./load-listeners.mjs";
+import nodeShapes from "./node-shapes.mjs";
+import redraw from "./redraw.mjs";
 
-const BaseRenderer = function( options ){ this.init( options ); };
+const BaseRenderer = function (options) {
+  this.init(options);
+};
 const BR = BaseRenderer;
 const BRp = BR.prototype;
 
-BRp.clientFunctions = [ 'redrawHint', 'render', 'renderTo', 'matchCanvasSize', 'nodeShapeImpl', 'arrowShapeImpl' ];
+BRp.clientFunctions = [
+  "redrawHint",
+  "render",
+  "renderTo",
+  "matchCanvasSize",
+  "nodeShapeImpl",
+  "arrowShapeImpl",
+];
 
-BRp.init = function( options ){
+BRp.init = function (options) {
   const r = this;
 
   r.options = options;
 
   r.cy = options.cy;
 
-  const ctr = r.container = options.cy.container();
+  const ctr = (r.container = options.cy.container());
   const containerWindow = r.cy.window();
 
-
   // prepend a stylesheet in the head such that
-  if( containerWindow ){
+  if (containerWindow) {
     const document = containerWindow.document;
     const head = document.head;
-    const stylesheetId = '__________cytoscape_stylesheet';
-    const className =    '__________cytoscape_container';
-    const stylesheetAlreadyExists = document.getElementById( stylesheetId ) != null;
+    const stylesheetId = "__________cytoscape_stylesheet";
+    const className = "__________cytoscape_container";
+    const stylesheetAlreadyExists =
+      document.getElementById(stylesheetId) != null;
 
-    if( ctr.className.indexOf( className ) < 0 ){
-      ctr.className = ( ctr.className || '' ) + ' ' + className;
+    if (ctr.className.indexOf(className) < 0) {
+      ctr.className = (ctr.className || "") + " " + className;
     }
 
-    if( !stylesheetAlreadyExists ){
-      const stylesheet = document.createElement('style');
+    if (!stylesheetAlreadyExists) {
+      const stylesheet = document.createElement("style");
 
       stylesheet.id = stylesheetId;
-      stylesheet.textContent = '.'+className+' { position: relative; }';
+      stylesheet.textContent = "." + className + " { position: relative; }";
 
-      head.insertBefore( stylesheet, head.children[0] ); // first so lowest priority
+      head.insertBefore(stylesheet, head.children[0]); // first so lowest priority
     }
 
-    const computedStyle = containerWindow.getComputedStyle( ctr );
-    const position = computedStyle.getPropertyValue('position');
+    const computedStyle = containerWindow.getComputedStyle(ctr);
+    const position = computedStyle.getPropertyValue("position");
 
-    if( position === 'static' ){
-      util.warn('A Cytoscape container has style position:static and so can not use UI extensions properly');
+    if (position === "static") {
+      util.warn(
+        "A Cytoscape container has style position:static and so can not use UI extensions properly",
+      );
     }
   }
 
-  r.selection = [ undefined, undefined, undefined, undefined, 0]; // Coordinates for selection box, plus enabled flag
+  r.selection = [undefined, undefined, undefined, undefined, 0]; // Coordinates for selection box, plus enabled flag
 
-  r.bezierProjPcts = [ 0.05, 0.225, 0.4, 0.5, 0.6, 0.775, 0.95 ];
+  r.bezierProjPcts = [0.05, 0.225, 0.4, 0.5, 0.6, 0.775, 0.95];
 
   //--Pointer-related data
-  r.hoverData = {down: null, last: null,
-      downTime: null, triggerMode: null,
-      dragging: false,
-      initialPan: [ null, null ], capture: false};
+  r.hoverData = {
+    down: null,
+    last: null,
+    downTime: null,
+    triggerMode: null,
+    dragging: false,
+    initialPan: [null, null],
+    capture: false,
+  };
 
-  r.dragData = {possibleDragElements: []};
+  r.dragData = { possibleDragElements: [] };
 
   r.touchData = {
-    start: null, capture: false,
+    start: null,
+    capture: false,
 
     // These 3 fields related to tap, taphold events
-    startPosition: [ null, null, null, null, null, null ],
+    startPosition: [null, null, null, null, null, null],
     singleTouchStartTime: null,
     singleTouchMoved: true,
 
-    now: [ null, null, null, null, null, null ],
-    earlier: [ null, null, null, null, null, null ]
+    now: [null, null, null, null, null, null],
+    earlier: [null, null, null, null, null, null],
   };
 
   r.redraws = 0;
@@ -87,7 +104,9 @@ BRp.init = function( options ){
   r.textureOnViewport = options.textureOnViewport;
   r.wheelSensitivity = options.wheelSensitivity;
   r.motionBlurEnabled = options.motionBlur; // on by default
-  r.forcedPixelRatio = is.number(options.pixelRatio) ? options.pixelRatio : null;
+  r.forcedPixelRatio = is.number(options.pixelRatio)
+    ? options.pixelRatio
+    : null;
   r.motionBlur = options.motionBlur; // for initial kick off
   r.motionBlurOpacity = options.motionBlurOpacity;
   r.motionBlurTransparency = 1 - r.motionBlurOpacity;
@@ -97,19 +116,21 @@ BRp.init = function( options ){
   r.fullQualityMb = false;
   r.clearedForMotionBlur = [];
   r.desktopTapThreshold = options.desktopTapThreshold;
-  r.desktopTapThreshold2 = options.desktopTapThreshold * options.desktopTapThreshold;
+  r.desktopTapThreshold2 =
+    options.desktopTapThreshold * options.desktopTapThreshold;
   r.touchTapThreshold = options.touchTapThreshold;
   r.touchTapThreshold2 = options.touchTapThreshold * options.touchTapThreshold;
   r.tapholdDuration = 500;
 
   r.bindings = [];
   r.beforeRenderCallbacks = [];
-  r.beforeRenderPriorities = { // higher priority execs before lower one
-    animations:   400,
-    eleCalcs:     300,
-    eleTxrDeq:    200,
-    lyrTxrDeq:    150,
-    lyrTxrSkip:   100,
+  r.beforeRenderPriorities = {
+    // higher priority execs before lower one
+    animations: 400,
+    eleCalcs: 300,
+    eleTxrDeq: 200,
+    lyrTxrDeq: 150,
+    lyrTxrSkip: 100,
   };
 
   r.registerNodeShapes();
@@ -117,108 +138,105 @@ BRp.init = function( options ){
   r.registerCalculationListeners();
 };
 
-BRp.notify = function( eventName, eles ) {
+BRp.notify = function (eventName, eles) {
   const r = this;
   const cy = r.cy;
 
   // the renderer can't be notified after it's destroyed
-  if( this.destroyed ){ return; }
+  if (this.destroyed) {
+    return;
+  }
 
-  if( eventName === 'init' ){
+  if (eventName === "init") {
     r.load();
     return;
   }
 
-  if( eventName === 'destroy' ){
+  if (eventName === "destroy") {
     r.destroy();
     return;
   }
 
-  if(
-    eventName === 'add' 
-    || eventName === 'remove'
-    || (eventName === 'move' && cy.hasCompoundNodes())
-    || eventName === 'load'
-    || eventName === 'zorder'
-    || eventName === 'mount'
-  ){
+  if (
+    eventName === "add" ||
+    eventName === "remove" ||
+    (eventName === "move" && cy.hasCompoundNodes()) ||
+    eventName === "load" ||
+    eventName === "zorder" ||
+    eventName === "mount"
+  ) {
     r.invalidateCachedZSortedEles();
   }
 
-  if( eventName === 'viewport' ){
-    r.redrawHint( 'select', true );
+  if (eventName === "viewport") {
+    r.redrawHint("select", true);
   }
 
-  if( eventName === 'gc' ){
-    r.redrawHint( 'gc', true );
+  if (eventName === "gc") {
+    r.redrawHint("gc", true);
   }
 
-  if( eventName === 'load' || eventName === 'resize' || eventName === 'mount' ){
+  if (eventName === "load" || eventName === "resize" || eventName === "mount") {
     r.invalidateContainerClientCoordsCache();
-    r.matchCanvasSize( r.container );
+    r.matchCanvasSize(r.container);
   }
 
-  r.redrawHint( 'eles', true );
-  r.redrawHint( 'drag', true );
+  r.redrawHint("eles", true);
+  r.redrawHint("drag", true);
 
   this.startRenderLoop();
 
   this.redraw();
 };
 
-BRp.destroy = function(){
+BRp.destroy = function () {
   const r = this;
 
   r.destroyed = true;
 
   r.cy.stopAnimationLoop();
 
-  for (let i = 0; i < r.bindings.length; i++ ){
-    const binding = r.bindings[ i ];
+  for (let i = 0; i < r.bindings.length; i++) {
+    const binding = r.bindings[i];
     const b = binding;
     const tgt = b.target;
 
-    ( tgt.off || tgt.removeEventListener ).apply( tgt, b.args );
+    (tgt.off || tgt.removeEventListener).apply(tgt, b.args);
   }
 
   r.bindings = [];
   r.beforeRenderCallbacks = [];
   r.onUpdateEleCalcsFns = [];
 
-  if( r.removeObserver ){
+  if (r.removeObserver) {
     r.removeObserver.disconnect();
   }
 
-  if( r.styleObserver ){
+  if (r.styleObserver) {
     r.styleObserver.disconnect();
   }
 
-  if( r.resizeObserver ){
+  if (r.resizeObserver) {
     r.resizeObserver.disconnect();
   }
 
-  if( r.labelCalcDiv ){
+  if (r.labelCalcDiv) {
     try {
-      document.body.removeChild( r.labelCalcDiv ); // eslint-disable-line no-undef
-    } catch( e ){
+      document.body.removeChild(r.labelCalcDiv); // eslint-disable-line no-undef
+    } catch (e) {
       // ie10 issue #1014
     }
   }
 };
 
-BRp.isHeadless = function(){
+BRp.isHeadless = function () {
   return false;
 };
 
-[
-  arrowShapes,
-  coordEleMath,
-  images,
-  loadListeners,
-  nodeShapes,
-  redraw
-].forEach( function( props ){
-  util.extend( BRp, props );
-} );
+[arrowShapes, coordEleMath, images, loadListeners, nodeShapes, redraw].forEach(
+  function (props) {
+    util.extend(BRp, props);
+  },
+);
 
 export default BR;

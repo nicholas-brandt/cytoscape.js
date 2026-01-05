@@ -1,5 +1,5 @@
-import * as util from '../../util/index.mjs';
-import * as math from '../../math.mjs';
+import * as util from "../../util/index.mjs";
+import * as math from "../../math.mjs";
 
 const defaults = {
   fit: true, // whether to fit the viewport to the graph
@@ -12,56 +12,65 @@ const defaults = {
   condense: false, // uses all available space on false, uses minimal space on true
   rows: undefined, // force num of rows in the grid
   cols: undefined, // force num of columns in the grid
-  position: function( node ){}, // returns { row, col } for element
+  position: function (node) {}, // returns { row, col } for element
   sort: undefined, // a sorting function to order the nodes; e.g. function(a, b){ return a.data('weight') - b.data('weight') }
   animate: false, // whether to transition the node positions
   animationDuration: 500, // duration of animation in ms if enabled
   animationEasing: undefined, // easing of animation if enabled
-  animateFilter: function ( node, i ){ return true; }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
+  animateFilter: function (node, i) {
+    return true;
+  }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
   ready: undefined, // callback on layoutready
   stop: undefined, // callback on layoutstop
-  transform: function (node, position ){ return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
+  transform: function (node, position) {
+    return position;
+  }, // transform a given node position. Useful for changing flow direction in discrete layouts
 };
 
-function GridLayout( options ){
-  this.options = util.extend( {}, defaults, options );
+function GridLayout(options) {
+  this.options = util.extend({}, defaults, options);
 }
 
-GridLayout.prototype.run = function(){
+GridLayout.prototype.run = function () {
   const params = this.options;
   const options = params;
 
   const cy = params.cy;
   const eles = options.eles;
-  const nodes = eles.nodes().not( ':parent' );
+  const nodes = eles.nodes().not(":parent");
 
-  if( options.sort ){
-    nodes = nodes.sort( options.sort );
+  if (options.sort) {
+    nodes = nodes.sort(options.sort);
   }
 
-  const bb = math.makeBoundingBox( options.boundingBox ? options.boundingBox : {
-    x1: 0, y1: 0, w: cy.width(), h: cy.height()
-  } );
+  const bb = math.makeBoundingBox(
+    options.boundingBox
+      ? options.boundingBox
+      : {
+          x1: 0,
+          y1: 0,
+          w: cy.width(),
+          h: cy.height(),
+        },
+  );
 
-  if( bb.h === 0 || bb.w === 0 ){
-    eles.nodes().layoutPositions( this, options, function( ele ){
+  if (bb.h === 0 || bb.w === 0) {
+    eles.nodes().layoutPositions(this, options, function (ele) {
       return { x: bb.x1, y: bb.y1 };
-    } );
-
+    });
   } else {
-
     // width/height * splits^2 = cells where splits is number of times to split width
     const cells = nodes.size();
-    const splits = Math.sqrt( cells * bb.h / bb.w );
-    const rows = Math.round( splits );
-    const cols = Math.round( bb.w / bb.h * splits );
+    const splits = Math.sqrt((cells * bb.h) / bb.w);
+    const rows = Math.round(splits);
+    const cols = Math.round((bb.w / bb.h) * splits);
 
-    const small = function( val ){
-      if( val == null ){
-        return Math.min( rows, cols );
+    const small = function (val) {
+      if (val == null) {
+        return Math.min(rows, cols);
       } else {
-        const min = Math.min( rows, cols );
-        if( min == rows ){
+        const min = Math.min(rows, cols);
+        if (min == rows) {
           rows = val;
         } else {
           cols = val;
@@ -69,12 +78,12 @@ GridLayout.prototype.run = function(){
       }
     };
 
-    const large = function( val ){
-      if( val == null ){
-        return Math.max( rows, cols );
+    const large = function (val) {
+      if (val == null) {
+        return Math.max(rows, cols);
       } else {
-        const max = Math.max( rows, cols );
-        if( max == rows ){
+        const max = Math.max(rows, cols);
+        if (max == rows) {
           rows = val;
         } else {
           cols = val;
@@ -86,42 +95,41 @@ GridLayout.prototype.run = function(){
     const oCols = options.cols != null ? options.cols : options.columns;
 
     // if rows or columns were set in options, use those values
-    if( oRows != null && oCols != null ){
+    if (oRows != null && oCols != null) {
       rows = oRows;
       cols = oCols;
-    } else if( oRows != null && oCols == null ){
+    } else if (oRows != null && oCols == null) {
       rows = oRows;
-      cols = Math.ceil( cells / rows );
-    } else if( oRows == null && oCols != null ){
+      cols = Math.ceil(cells / rows);
+    } else if (oRows == null && oCols != null) {
       cols = oCols;
-      rows = Math.ceil( cells / cols );
+      rows = Math.ceil(cells / cols);
     }
 
     // otherwise use the automatic values and adjust accordingly
 
     // if rounding was up, see if we can reduce rows or columns
-    else if( cols * rows > cells ){
+    else if (cols * rows > cells) {
       const sm = small();
       const lg = large();
 
       // reducing the small side takes away the most cells, so try it first
-      if( (sm - 1) * lg >= cells ){
-        small( sm - 1 );
-      } else if( (lg - 1) * sm >= cells ){
-        large( lg - 1 );
+      if ((sm - 1) * lg >= cells) {
+        small(sm - 1);
+      } else if ((lg - 1) * sm >= cells) {
+        large(lg - 1);
       }
     } else {
-
       // if rounding was too low, add rows or columns
-      while( cols * rows < cells ){
+      while (cols * rows < cells) {
         const sm = small();
         const lg = large();
 
         // try to add to larger side first (adds less in multiplication)
-        if( (lg + 1) * sm >= cells ){
-          large( lg + 1 );
+        if ((lg + 1) * sm >= cells) {
+          large(lg + 1);
         } else {
-          small( sm + 1 );
+          small(sm + 1);
         }
       }
     }
@@ -129,48 +137,49 @@ GridLayout.prototype.run = function(){
     const cellWidth = bb.w / cols;
     const cellHeight = bb.h / rows;
 
-    if( options.condense ){
+    if (options.condense) {
       cellWidth = 0;
       cellHeight = 0;
     }
 
-    if( options.avoidOverlap ){
-      for (let i = 0; i < nodes.length; i++ ){
-        const node = nodes[ i ];
+    if (options.avoidOverlap) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         const pos = node._private.position;
 
-        if( pos.x == null || pos.y == null ){ // for bb
+        if (pos.x == null || pos.y == null) {
+          // for bb
           pos.x = 0;
           pos.y = 0;
         }
 
-        const nbb = node.layoutDimensions( options );
+        const nbb = node.layoutDimensions(options);
         const p = options.avoidOverlapPadding;
 
         const w = nbb.w + p;
         const h = nbb.h + p;
 
-        cellWidth = Math.max( cellWidth, w );
-        cellHeight = Math.max( cellHeight, h );
+        cellWidth = Math.max(cellWidth, w);
+        cellHeight = Math.max(cellHeight, h);
       }
     }
 
     const cellUsed = {}; // e.g. 'c-0-2' => true
 
-    const used = function( row, col ){
-      return cellUsed[ 'c-' + row + '-' + col ] ? true : false;
+    const used = function (row, col) {
+      return cellUsed["c-" + row + "-" + col] ? true : false;
     };
 
-    const use = function( row, col ){
-      cellUsed[ 'c-' + row + '-' + col ] = true;
+    const use = function (row, col) {
+      cellUsed["c-" + row + "-" + col] = true;
     };
 
     // to keep track of current cell position
     const row = 0;
     const col = 0;
-    const moveToNextCell = function(){
+    const moveToNextCell = function () {
       col++;
-      if( col >= cols ){
+      if (col >= cols) {
         col = 0;
         row++;
       }
@@ -178,70 +187,71 @@ GridLayout.prototype.run = function(){
 
     // get a cache of all the manual positions
     const id2manPos = {};
-    for (let i = 0; i < nodes.length; i++ ){
-      const node = nodes[ i ];
-      const rcPos = options.position( node );
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const rcPos = options.position(node);
 
-      if( rcPos && (rcPos.row !== undefined || rcPos.col !== undefined) ){ // must have at least row or col def'd
+      if (rcPos && (rcPos.row !== undefined || rcPos.col !== undefined)) {
+        // must have at least row or col def'd
         const pos = {
           row: rcPos.row,
-          col: rcPos.col
+          col: rcPos.col,
         };
 
-        if( pos.col === undefined ){ // find unused col
+        if (pos.col === undefined) {
+          // find unused col
           pos.col = 0;
 
-          while( used( pos.row, pos.col ) ){
+          while (used(pos.row, pos.col)) {
             pos.col++;
           }
-        } else if( pos.row === undefined ){ // find unused row
+        } else if (pos.row === undefined) {
+          // find unused row
           pos.row = 0;
 
-          while( used( pos.row, pos.col ) ){
+          while (used(pos.row, pos.col)) {
             pos.row++;
           }
         }
 
-        id2manPos[ node.id() ] = pos;
-        use( pos.row, pos.col );
+        id2manPos[node.id()] = pos;
+        use(pos.row, pos.col);
       }
     }
 
-    const getPos = function( element, i ){
+    const getPos = function (element, i) {
       let x, y;
 
-      if( element.locked() || element.isParent() ){
+      if (element.locked() || element.isParent()) {
         return false;
       }
 
       // see if we have a manual position set
-      const rcPos = id2manPos[ element.id() ];
-      if( rcPos ){
+      const rcPos = id2manPos[element.id()];
+      if (rcPos) {
         x = rcPos.col * cellWidth + cellWidth / 2 + bb.x1;
         y = rcPos.row * cellHeight + cellHeight / 2 + bb.y1;
+      } else {
+        // otherwise set automatically
 
-      } else { // otherwise set automatically
-
-        while( used( row, col ) ){
+        while (used(row, col)) {
           moveToNextCell();
         }
 
         x = col * cellWidth + cellWidth / 2 + bb.x1;
         y = row * cellHeight + cellHeight / 2 + bb.y1;
-        use( row, col );
+        use(row, col);
 
         moveToNextCell();
       }
 
       return { x: x, y: y };
-
     };
 
-    nodes.layoutPositions( this, options, getPos );
+    nodes.layoutPositions(this, options, getPos);
   }
 
   return this; // chaining
-
 };
 
 export default GridLayout;

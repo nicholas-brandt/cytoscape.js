@@ -1,70 +1,79 @@
-import window from '../window.mjs';
-import * as util from '../util/index.mjs';
-import Collection from '../collection/index.mjs';
-import * as is from '../is.mjs';
-import Promise from '../promise.mjs';
+import window from "../window.mjs";
+import * as util from "../util/index.mjs";
+import Collection from "../collection/index.mjs";
+import * as is from "../is.mjs";
+import Promise from "../promise.mjs";
 
-import addRemove from './add-remove.mjs';
-import animation from './animation/index.mjs';
-import events from './events.mjs';
-import exportFormat from './export.mjs';
-import layout from './layout.mjs';
-import notification from './notification.mjs';
-import renderer from './renderer.mjs';
-import search from './search.mjs';
-import style from './style.mjs';
-import viewport from './viewport.mjs';
-import data from './data.mjs';
+import addRemove from "./add-remove.mjs";
+import animation from "./animation/index.mjs";
+import events from "./events.mjs";
+import exportFormat from "./export.mjs";
+import layout from "./layout.mjs";
+import notification from "./notification.mjs";
+import renderer from "./renderer.mjs";
+import search from "./search.mjs";
+import style from "./style.mjs";
+import viewport from "./viewport.mjs";
+import data from "./data.mjs";
 
-const Core = function( opts ){
+const Core = function (opts) {
   const cy = this;
 
-  opts = util.extend( {}, opts );
+  opts = util.extend({}, opts);
 
   const container = opts.container;
 
   // allow for passing a wrapped jquery object
   // e.g. cytoscape({ container: $('#cy') })
-  if( container && !is.htmlElement( container ) && is.htmlElement( container[0] ) ){
+  if (container && !is.htmlElement(container) && is.htmlElement(container[0])) {
     container = container[0];
   }
 
   let reg = container ? container._cyreg : null; // e.g. already registered some info (e.g. readies) via jquery
   reg = reg || {};
 
-  if( reg && reg.cy ){
+  if (reg && reg.cy) {
     reg.cy.destroy();
 
     reg = {}; // old instance => replace reg completely
   }
 
-  const readies = reg.readies = reg.readies || [];
+  const readies = (reg.readies = reg.readies || []);
 
-  if( container ){ container._cyreg = reg; } // make sure container assoc'd reg points to this cy
+  if (container) {
+    container._cyreg = reg;
+  } // make sure container assoc'd reg points to this cy
   reg.cy = cy;
 
-  const head = window !== undefined && container !== undefined && !opts.headless;
+  const head =
+    window !== undefined && container !== undefined && !opts.headless;
   const options = opts;
-  options.layout = util.extend( { name: head ? 'grid' : 'null' }, options.layout );
-  options.renderer = util.extend( { name: head ? 'canvas' : 'null' }, options.renderer );
+  options.layout = util.extend(
+    { name: head ? "grid" : "null" },
+    options.layout,
+  );
+  options.renderer = util.extend(
+    { name: head ? "canvas" : "null" },
+    options.renderer,
+  );
 
-  const defVal = function( def, val, altVal ){
-    if( val !== undefined ){
+  const defVal = function (def, val, altVal) {
+    if (val !== undefined) {
       return val;
-    } else if( altVal !== undefined ){
+    } else if (altVal !== undefined) {
       return altVal;
     } else {
       return def;
     }
   };
 
-  const _p = this._private = {
+  const _p = (this._private = {
     container: container, // html dom ele container
     ready: false, // whether ready has been triggered
     options: options, // cached options
-    elements: new Collection( this ), // elements in the graph
+    elements: new Collection(this), // elements in the graph
     listeners: [], // list of listeners
-    aniEles: new Collection( this ), // elements being animated
+    aniEles: new Collection(this), // elements being animated
     data: options.data || {}, // data for the core
     scratch: {}, // scratch object for core
     layout: null,
@@ -73,196 +82,214 @@ const Core = function( opts ){
     notificationsEnabled: true, // whether notifications are sent to the renderer
     minZoom: 1e-50,
     maxZoom: 1e50,
-    zoomingEnabled: defVal( true, options.zoomingEnabled ),
-    userZoomingEnabled: defVal( true, options.userZoomingEnabled ),
-    panningEnabled: defVal( true, options.panningEnabled ),
-    userPanningEnabled: defVal( true, options.userPanningEnabled ),
-    boxSelectionEnabled: defVal( true, options.boxSelectionEnabled ),
-    autolock: defVal( false, options.autolock, options.autolockNodes ),
-    autoungrabify: defVal( false, options.autoungrabify, options.autoungrabifyNodes ),
-    autounselectify: defVal( false, options.autounselectify ),
-    styleEnabled: options.styleEnabled === undefined ? head : options.styleEnabled,
-    zoom: is.number( options.zoom ) ? options.zoom : 1,
+    zoomingEnabled: defVal(true, options.zoomingEnabled),
+    userZoomingEnabled: defVal(true, options.userZoomingEnabled),
+    panningEnabled: defVal(true, options.panningEnabled),
+    userPanningEnabled: defVal(true, options.userPanningEnabled),
+    boxSelectionEnabled: defVal(true, options.boxSelectionEnabled),
+    autolock: defVal(false, options.autolock, options.autolockNodes),
+    autoungrabify: defVal(
+      false,
+      options.autoungrabify,
+      options.autoungrabifyNodes,
+    ),
+    autounselectify: defVal(false, options.autounselectify),
+    styleEnabled:
+      options.styleEnabled === undefined ? head : options.styleEnabled,
+    zoom: is.number(options.zoom) ? options.zoom : 1,
     pan: {
-      x: is.plainObject( options.pan ) && is.number( options.pan.x ) ? options.pan.x : 0,
-      y: is.plainObject( options.pan ) && is.number( options.pan.y ) ? options.pan.y : 0
+      x:
+        is.plainObject(options.pan) && is.number(options.pan.x)
+          ? options.pan.x
+          : 0,
+      y:
+        is.plainObject(options.pan) && is.number(options.pan.y)
+          ? options.pan.y
+          : 0,
     },
-    animation: { // object for currently-running animations
+    animation: {
+      // object for currently-running animations
       current: [],
-      queue: []
+      queue: [],
     },
     hasCompoundNodes: false,
-    multiClickDebounceTime: defVal(250, options.multiClickDebounceTime)
-  };
+    multiClickDebounceTime: defVal(250, options.multiClickDebounceTime),
+  });
 
   this.createEmitter();
 
   // set selection type
-  this.selectionType( options.selectionType );
+  this.selectionType(options.selectionType);
 
   // init zoom bounds
   this.zoomRange({ min: options.minZoom, max: options.maxZoom });
 
-  const loadExtData = function( extData, next ){
-    const anyIsPromise = extData.some( is.promise );
+  const loadExtData = function (extData, next) {
+    const anyIsPromise = extData.some(is.promise);
 
-    if( anyIsPromise ){
-      return Promise.all( extData ).then( next ); // load all data asynchronously, then exec rest of init
+    if (anyIsPromise) {
+      return Promise.all(extData).then(next); // load all data asynchronously, then exec rest of init
     } else {
-      next( extData ); // exec synchronously for convenience
+      next(extData); // exec synchronously for convenience
     }
   };
 
   // start with the default stylesheet so we have something before loading an external stylesheet
-  if( _p.styleEnabled ){
+  if (_p.styleEnabled) {
     cy.setStyle([]);
   }
 
   // create the renderer
   const rendererOptions = util.assign({}, options, options.renderer); // allow rendering hints in top level options
-  cy.initRenderer( rendererOptions );
+  cy.initRenderer(rendererOptions);
 
-  const setElesAndLayout = function( elements, onload, ondone ){
-    cy.notifications( false );
+  const setElesAndLayout = function (elements, onload, ondone) {
+    cy.notifications(false);
 
     // remove old elements
     const oldEles = cy.mutableElements();
-    if( oldEles.length > 0 ){
+    if (oldEles.length > 0) {
       oldEles.remove();
     }
 
-    if( elements != null ){
-      if( is.plainObject( elements ) || is.array( elements ) ){
-        cy.add( elements );
+    if (elements != null) {
+      if (is.plainObject(elements) || is.array(elements)) {
+        cy.add(elements);
       }
     }
 
-    cy.one( 'layoutready', function( e ){
-      cy.notifications( true );
-      cy.emit( e ); // we missed this event by turning notifications off, so pass it on
+    cy.one("layoutready", function (e) {
+      cy.notifications(true);
+      cy.emit(e); // we missed this event by turning notifications off, so pass it on
 
-      cy.one( 'load', onload );
-      cy.emitAndNotify( 'load' );
-    } ).one( 'layoutstop', function(){
-      cy.one( 'done', ondone );
-      cy.emit( 'done' );
-    } );
+      cy.one("load", onload);
+      cy.emitAndNotify("load");
+    }).one("layoutstop", function () {
+      cy.one("done", ondone);
+      cy.emit("done");
+    });
 
-    const layoutOpts = util.extend( {}, cy._private.options.layout );
+    const layoutOpts = util.extend({}, cy._private.options.layout);
     layoutOpts.eles = cy.elements();
 
-    cy.layout( layoutOpts ).run();
+    cy.layout(layoutOpts).run();
   };
 
-  loadExtData([ options.style, options.elements ], function( thens ){
+  loadExtData([options.style, options.elements], function (thens) {
     const initStyle = thens[0];
     const initEles = thens[1];
 
     // init style
-    if( _p.styleEnabled ){
-      cy.style().append( initStyle );
+    if (_p.styleEnabled) {
+      cy.style().append(initStyle);
     }
 
     // initial load
-    setElesAndLayout( initEles, function(){ // onready
-      cy.startAnimationLoop();
-      _p.ready = true;
+    setElesAndLayout(
+      initEles,
+      function () {
+        // onready
+        cy.startAnimationLoop();
+        _p.ready = true;
 
-      // if a ready callback is specified as an option, the bind it
-      if( is.fn( options.ready ) ){
-        cy.on( 'ready', options.ready );
-      }
+        // if a ready callback is specified as an option, the bind it
+        if (is.fn(options.ready)) {
+          cy.on("ready", options.ready);
+        }
 
-      // bind all the ready handlers registered before creating this instance
-      for (let i = 0; i < readies.length; i++ ){
-        const fn = readies[ i ];
-        cy.on( 'ready', fn );
-      }
-      if( reg ){ reg.readies = []; } // clear b/c we've bound them all and don't want to keep it around in case a new core uses the same div etc
+        // bind all the ready handlers registered before creating this instance
+        for (let i = 0; i < readies.length; i++) {
+          const fn = readies[i];
+          cy.on("ready", fn);
+        }
+        if (reg) {
+          reg.readies = [];
+        } // clear b/c we've bound them all and don't want to keep it around in case a new core uses the same div etc
 
-      cy.emit( 'ready' );
-    }, options.done );
-
-  } );
+        cy.emit("ready");
+      },
+      options.done,
+    );
+  });
 };
 
 const corefn = Core.prototype; // short alias
 
-util.extend( corefn, {
-  instanceString: function(){
-    return 'core';
+util.extend(corefn, {
+  instanceString: function () {
+    return "core";
   },
 
-  isReady: function(){
+  isReady: function () {
     return this._private.ready;
   },
 
-  destroyed: function(){
+  destroyed: function () {
     return this._private.destroyed;
   },
 
-  ready: function( fn ){
-    if( this.isReady() ){
-      this.emitter().emit( 'ready', [], fn ); // just calls fn as though triggered via ready event
+  ready: function (fn) {
+    if (this.isReady()) {
+      this.emitter().emit("ready", [], fn); // just calls fn as though triggered via ready event
     } else {
-      this.on( 'ready', fn );
+      this.on("ready", fn);
     }
 
     return this;
   },
 
-  destroy: function(){
+  destroy: function () {
     const cy = this;
-    if( cy.destroyed() ) return;
+    if (cy.destroyed()) return;
 
     cy.stopAnimationLoop();
 
     cy.destroyRenderer();
 
-    this.emit( 'destroy' );
+    this.emit("destroy");
 
     cy._private.destroyed = true;
 
     return cy;
   },
 
-  hasElementWithId: function( id ){
-    return this._private.elements.hasElementWithId( id );
+  hasElementWithId: function (id) {
+    return this._private.elements.hasElementWithId(id);
   },
 
-  getElementById: function( id ){
-    return this._private.elements.getElementById( id );
+  getElementById: function (id) {
+    return this._private.elements.getElementById(id);
   },
 
-  hasCompoundNodes: function(){
+  hasCompoundNodes: function () {
     return this._private.hasCompoundNodes;
   },
 
-  headless: function(){
+  headless: function () {
     return this._private.renderer.isHeadless();
   },
 
-  styleEnabled: function(){
+  styleEnabled: function () {
     return this._private.styleEnabled;
   },
 
-  addToPool: function( eles ){
-    this._private.elements.merge( eles );
+  addToPool: function (eles) {
+    this._private.elements.merge(eles);
 
     return this; // chaining
   },
 
-  removeFromPool: function( eles ){
-    this._private.elements.unmerge( eles );
+  removeFromPool: function (eles) {
+    this._private.elements.unmerge(eles);
 
     return this;
   },
 
-  container: function(){
+  container: function () {
     return this._private.container || null;
   },
 
-  window: function() {
+  window: function () {
     const container = this._private.container;
     if (container == null) return window;
 
@@ -275,14 +302,16 @@ util.extend( corefn, {
     return ownerDocument.defaultView || window;
   },
 
-  mount: function( container ){
-    if( container == null ){ return; }
+  mount: function (container) {
+    if (container == null) {
+      return;
+    }
 
     const cy = this;
     const _p = cy._private;
     const options = _p.options;
 
-    if( !is.htmlElement( container ) && is.htmlElement( container[0] ) ){
+    if (!is.htmlElement(container) && is.htmlElement(container[0])) {
       container = container[0];
     }
 
@@ -295,187 +324,202 @@ util.extend( corefn, {
 
     cy.invalidateSize();
 
-    cy.initRenderer( util.assign({}, options, options.renderer, {
-      // allow custom renderer name to be re-used, otherwise use canvas
-      name: options.renderer.name === 'null' ? 'canvas' : options.renderer.name
-    }) );
+    cy.initRenderer(
+      util.assign({}, options, options.renderer, {
+        // allow custom renderer name to be re-used, otherwise use canvas
+        name:
+          options.renderer.name === "null" ? "canvas" : options.renderer.name,
+      }),
+    );
 
     cy.startAnimationLoop();
 
-    cy.style( options.style );
+    cy.style(options.style);
 
-    cy.emit( 'mount' );
+    cy.emit("mount");
 
     return cy;
   },
 
-  unmount: function(){
+  unmount: function () {
     const cy = this;
 
     cy.stopAnimationLoop();
 
     cy.destroyRenderer();
 
-    cy.initRenderer( { name: 'null' } );
+    cy.initRenderer({ name: "null" });
 
-    cy.emit( 'unmount' );
+    cy.emit("unmount");
 
     return cy;
   },
 
-  options: function(){
-    return util.copy( this._private.options );
+  options: function () {
+    return util.copy(this._private.options);
   },
 
-  json: function( obj ){
+  json: function (obj) {
     const cy = this;
     const _p = cy._private;
     const eles = cy.mutableElements();
-    const getFreshRef = ele => cy.getElementById(ele.id());
+    const getFreshRef = (ele) => cy.getElementById(ele.id());
 
-    if( is.plainObject( obj ) ){ // set
+    if (is.plainObject(obj)) {
+      // set
 
       cy.startBatch();
 
-      if( obj.elements ){
+      if (obj.elements) {
         const idInJson = {};
 
-        const updateEles = function( jsons, gr ){
+        const updateEles = function (jsons, gr) {
           const toAdd = [];
           const toMod = [];
 
-          for (let i = 0; i < jsons.length; i++ ){
-            const json = jsons[ i ];
+          for (let i = 0; i < jsons.length; i++) {
+            const json = jsons[i];
 
-            if( !json.data.id ){
-              util.warn( 'cy.json() cannot handle elements without an ID attribute' );
+            if (!json.data.id) {
+              util.warn(
+                "cy.json() cannot handle elements without an ID attribute",
+              );
               continue;
             }
 
-            const id = '' + json.data.id; // id must be string
-            const ele = cy.getElementById( id );
+            const id = "" + json.data.id; // id must be string
+            const ele = cy.getElementById(id);
 
-            idInJson[ id ] = true;
+            idInJson[id] = true;
 
-            if( ele.length !== 0 ){ // existing element should be updated
+            if (ele.length !== 0) {
+              // existing element should be updated
               toMod.push({ ele, json });
-            } else { // otherwise should be added
-              if( gr ){
+            } else {
+              // otherwise should be added
+              if (gr) {
                 json.group = gr;
 
-                toAdd.push( json );
+                toAdd.push(json);
               } else {
-                toAdd.push( json );
+                toAdd.push(json);
               }
             }
           }
 
-          cy.add( toAdd );
+          cy.add(toAdd);
 
-          for (let i = 0; i < toMod.length; i++ ){
+          for (let i = 0; i < toMod.length; i++) {
             let { ele, json } = toMod[i];
 
             ele.json(json);
           }
         };
 
-        if( is.array( obj.elements ) ){ // elements: []
-          updateEles( obj.elements );
+        if (is.array(obj.elements)) {
+          // elements: []
+          updateEles(obj.elements);
+        } else {
+          // elements: { nodes: [], edges: [] }
+          const grs = ["nodes", "edges"];
+          for (let i = 0; i < grs.length; i++) {
+            const gr = grs[i];
+            const elements = obj.elements[gr];
 
-        } else { // elements: { nodes: [], edges: [] }
-          const grs = [ 'nodes', 'edges' ];
-          for (let i = 0; i < grs.length; i++ ){
-            const gr = grs[ i ];
-            const elements = obj.elements[ gr ];
-
-            if( is.array( elements ) ){
-              updateEles( elements, gr );
+            if (is.array(elements)) {
+              updateEles(elements, gr);
             }
           }
         }
 
         const parentsToRemove = cy.collection();
 
-        (eles
-          .filter(ele => !idInJson[ ele.id() ])
-          .forEach(ele => {
-            if ( ele.isParent() ) {
+        eles
+          .filter((ele) => !idInJson[ele.id()])
+          .forEach((ele) => {
+            if (ele.isParent()) {
               parentsToRemove.merge(ele);
             } else {
               ele.remove();
             }
-          })
-        );
+          });
 
         // so that children are not removed w/parent
-        parentsToRemove.forEach(ele => ele.children().move({ parent: null }));
+        parentsToRemove.forEach((ele) => ele.children().move({ parent: null }));
 
         // intermediate parents may be moved by prior line, so make sure we remove by fresh refs
-        parentsToRemove.forEach(ele => getFreshRef(ele).remove());
+        parentsToRemove.forEach((ele) => getFreshRef(ele).remove());
       }
 
-      if( obj.style ){
-        cy.style( obj.style );
+      if (obj.style) {
+        cy.style(obj.style);
       }
 
-      if( obj.zoom != null && obj.zoom !== _p.zoom ){
-        cy.zoom( obj.zoom );
+      if (obj.zoom != null && obj.zoom !== _p.zoom) {
+        cy.zoom(obj.zoom);
       }
 
-      if( obj.pan ){
-        if( obj.pan.x !== _p.pan.x || obj.pan.y !== _p.pan.y ){
-          cy.pan( obj.pan );
+      if (obj.pan) {
+        if (obj.pan.x !== _p.pan.x || obj.pan.y !== _p.pan.y) {
+          cy.pan(obj.pan);
         }
       }
 
-      if( obj.data ){
-        cy.data( obj.data );
+      if (obj.data) {
+        cy.data(obj.data);
       }
 
       const fields = [
-        'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled',
-        'panningEnabled', 'userPanningEnabled',
-        'boxSelectionEnabled',
-        'autolock', 'autoungrabify', 'autounselectify',
-        'multiClickDebounceTime'
+        "minZoom",
+        "maxZoom",
+        "zoomingEnabled",
+        "userZoomingEnabled",
+        "panningEnabled",
+        "userPanningEnabled",
+        "boxSelectionEnabled",
+        "autolock",
+        "autoungrabify",
+        "autounselectify",
+        "multiClickDebounceTime",
       ];
 
-      for (let i = 0; i < fields.length; i++ ){
-        const f = fields[ i ];
+      for (let i = 0; i < fields.length; i++) {
+        const f = fields[i];
 
-        if( obj[ f ] != null ){
-          cy[ f ]( obj[ f ] );
+        if (obj[f] != null) {
+          cy[f](obj[f]);
         }
       }
 
       cy.endBatch();
 
       return this; // chaining
-    } else { // get
+    } else {
+      // get
       const flat = !!obj;
       const json = {};
 
-      if( flat ){
-        json.elements = this.elements().map( ele => ele.json() );
+      if (flat) {
+        json.elements = this.elements().map((ele) => ele.json());
       } else {
         json.elements = {};
 
-        eles.forEach( function( ele ){
+        eles.forEach(function (ele) {
           const group = ele.group();
 
-          if( !json.elements[ group ] ){
-            json.elements[ group ] = [];
+          if (!json.elements[group]) {
+            json.elements[group] = [];
           }
 
-          json.elements[ group ].push( ele.json() );
-        } );
+          json.elements[group].push(ele.json());
+        });
       }
 
-      if( this._private.styleEnabled ){
+      if (this._private.styleEnabled) {
         json.style = cy.style().json();
       }
 
-      json.data =  util.copy( cy.data() );
+      json.data = util.copy(cy.data());
 
       const options = _p.options;
 
@@ -486,9 +530,9 @@ util.extend( corefn, {
       json.maxZoom = _p.maxZoom;
       json.panningEnabled = _p.panningEnabled;
       json.userPanningEnabled = _p.userPanningEnabled;
-      json.pan = util.copy( _p.pan );
+      json.pan = util.copy(_p.pan);
       json.boxSelectionEnabled = _p.boxSelectionEnabled;
-      json.renderer = util.copy( options.renderer );
+      json.renderer = util.copy(options.renderer);
       json.hideEdgesOnViewport = options.hideEdgesOnViewport;
       json.textureOnViewport = options.textureOnViewport;
       json.wheelSensitivity = options.wheelSensitivity;
@@ -497,9 +541,8 @@ util.extend( corefn, {
 
       return json;
     }
-  }
-
-} );
+  },
+});
 
 corefn.$id = corefn.getElementById;
 
@@ -514,9 +557,9 @@ corefn.$id = corefn.getElementById;
   search,
   style,
   viewport,
-  data
-].forEach( function( props ){
-  util.extend( corefn, props );
-} );
+  data,
+].forEach(function (props) {
+  util.extend(corefn, props);
+});
 
 export default Core;

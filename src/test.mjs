@@ -8,10 +8,10 @@ let cytoscape;
 
 if (process.env.TEST_BUILD) {
   // Dynamically import the ESM build
-  cytoscape = await import('../build/cytoscape.esm.mjs'); // Assuming the ESM build uses `.esm.js`
+  cytoscape = await import("../build/cytoscape.esm.mjs"); // Assuming the ESM build uses `.esm.js`
 } else {
   // Dynamically import the unbundled, unbabelified raw source
-  cytoscape = await import('./index.mjs');
+  cytoscape = await import("./index.mjs");
 }
 
 // Export the module (adjust based on whether you need default or named exports)

@@ -1,24 +1,24 @@
-import * as is from '../is.mjs';
-import Selector from '../selector/index.mjs';
+import * as is from "../is.mjs";
+import Selector from "../selector/index.mjs";
 
-const elesfn = ({
-  nodes: function( selector ){
-    return this.filter( ele => ele.isNode() ).filter( selector );
+const elesfn = {
+  nodes: function (selector) {
+    return this.filter((ele) => ele.isNode()).filter(selector);
   },
 
-  edges: function( selector ){
-    return this.filter( ele => ele.isEdge() ).filter( selector );
+  edges: function (selector) {
+    return this.filter((ele) => ele.isEdge()).filter(selector);
   },
 
   // internal helper to get nodes and edges as separate collections with single iteration over elements
-  byGroup: function(){
+  byGroup: function () {
     const nodes = this.spawn();
     const edges = this.spawn();
 
-    for (let i = 0; i < this.length; i++ ){
+    for (let i = 0; i < this.length; i++) {
       const ele = this[i];
 
-      if( ele.isNode() ){
+      if (ele.isNode()) {
         nodes.push(ele);
       } else {
         edges.push(ele);
@@ -28,21 +28,24 @@ const elesfn = ({
     return { nodes, edges };
   },
 
-  filter: function( filter, thisArg ){
-    if( filter === undefined ){ // check this first b/c it's the most common/performant case
+  filter: function (filter, thisArg) {
+    if (filter === undefined) {
+      // check this first b/c it's the most common/performant case
       return this;
-    } else if( is.string( filter ) || is.elementOrCollection( filter ) ){
-      return new Selector( filter ).filter( this );
-    } else if( is.fn( filter ) ){
+    } else if (is.string(filter) || is.elementOrCollection(filter)) {
+      return new Selector(filter).filter(this);
+    } else if (is.fn(filter)) {
       const filterEles = this.spawn();
       const eles = this;
 
-      for (let i = 0; i < eles.length; i++ ){
-        const ele = eles[ i ];
-        const include = thisArg ? filter.apply( thisArg, [ ele, i, eles ] ) : filter( ele, i, eles );
+      for (let i = 0; i < eles.length; i++) {
+        const ele = eles[i];
+        const include = thisArg
+          ? filter.apply(thisArg, [ele, i, eles])
+          : filter(ele, i, eles);
 
-        if( include ){
-          filterEles.push( ele );
+        if (include) {
+          filterEles.push(ele);
         }
       }
 
@@ -52,42 +55,40 @@ const elesfn = ({
     return this.spawn(); // if not handled by above, give 'em an empty collection
   },
 
-  not: function( toRemove ){
-    if( !toRemove ){
+  not: function (toRemove) {
+    if (!toRemove) {
       return this;
     } else {
-
-      if( is.string( toRemove ) ){
-        toRemove = this.filter( toRemove );
+      if (is.string(toRemove)) {
+        toRemove = this.filter(toRemove);
       }
 
       const elements = this.spawn();
 
-      for (let i = 0; i < this.length; i++ ){
-        const element = this[ i ];
+      for (let i = 0; i < this.length; i++) {
+        const element = this[i];
 
         const remove = toRemove.has(element);
-        if( !remove ){
-          elements.push( element );
+        if (!remove) {
+          elements.push(element);
         }
       }
 
       return elements;
     }
-
   },
 
-  absoluteComplement: function(){
+  absoluteComplement: function () {
     const cy = this.cy();
 
-    return cy.mutableElements().not( this );
+    return cy.mutableElements().not(this);
   },
 
-  intersect: function( other ){
+  intersect: function (other) {
     // if a selector is specified, then filter by it instead
-    if( is.string( other ) ){
+    if (is.string(other)) {
       const selector = other;
-      return this.filter( selector );
+      return this.filter(selector);
     }
 
     const elements = this.spawn();
@@ -97,10 +98,10 @@ const elesfn = ({
     const colS = col1Smaller ? col1 : col2;
     const colL = col1Smaller ? col2 : col1;
 
-    for (let i = 0; i < colS.length; i++ ){
+    for (let i = 0; i < colS.length; i++) {
       const ele = colS[i];
 
-      if( colL.has(ele) ){
+      if (colL.has(ele)) {
         elements.push(ele);
       }
     }
@@ -108,41 +109,40 @@ const elesfn = ({
     return elements;
   },
 
-  xor: function( other ){
+  xor: function (other) {
     const cy = this._private.cy;
 
-    if( is.string( other ) ){
-      other = cy.$( other );
+    if (is.string(other)) {
+      other = cy.$(other);
     }
 
     const elements = this.spawn();
     const col1 = this;
     const col2 = other;
 
-    const add = function( col, other ){
-      for (let i = 0; i < col.length; i++ ){
-        const ele = col[ i ];
+    const add = function (col, other) {
+      for (let i = 0; i < col.length; i++) {
+        const ele = col[i];
         const id = ele._private.data.id;
-        const inOther = other.hasElementWithId( id );
+        const inOther = other.hasElementWithId(id);
 
-        if( !inOther ){
-          elements.push( ele );
+        if (!inOther) {
+          elements.push(ele);
         }
       }
-
     };
 
-    add( col1, col2 );
-    add( col2, col1 );
+    add(col1, col2);
+    add(col2, col1);
 
     return elements;
   },
 
-  diff: function( other ){
+  diff: function (other) {
     const cy = this._private.cy;
 
-    if( is.string( other ) ){
-      other = cy.$( other );
+    if (is.string(other)) {
+      other = cy.$(other);
     }
 
     const left = this.spawn();
@@ -151,47 +151,45 @@ const elesfn = ({
     const col1 = this;
     const col2 = other;
 
-    const add = function( col, other, retEles ){
-
-      for (let i = 0; i < col.length; i++ ){
-        const ele = col[ i ];
+    const add = function (col, other, retEles) {
+      for (let i = 0; i < col.length; i++) {
+        const ele = col[i];
         const id = ele._private.data.id;
-        const inOther = other.hasElementWithId( id );
+        const inOther = other.hasElementWithId(id);
 
-        if( inOther ){
-          both.merge( ele );
+        if (inOther) {
+          both.merge(ele);
         } else {
-          retEles.push( ele );
+          retEles.push(ele);
         }
       }
-
     };
 
-    add( col1, col2, left );
-    add( col2, col1, right );
+    add(col1, col2, left);
+    add(col2, col1, right);
 
     return { left, right, both };
   },
 
-  add: function( toAdd ){
+  add: function (toAdd) {
     const cy = this._private.cy;
 
-    if( !toAdd ){
+    if (!toAdd) {
       return this;
     }
 
-    if( is.string( toAdd ) ){
+    if (is.string(toAdd)) {
       const selector = toAdd;
-      toAdd = cy.mutableElements().filter( selector );
+      toAdd = cy.mutableElements().filter(selector);
     }
 
     const elements = this.spawnSelf();
 
-    for (let i = 0; i < toAdd.length; i++ ){
+    for (let i = 0; i < toAdd.length; i++) {
       const ele = toAdd[i];
 
       const add = !this.has(ele);
-      if( add ){
+      if (add) {
         elements.push(ele);
       }
     }
@@ -200,59 +198,59 @@ const elesfn = ({
   },
 
   // in place merge on calling collection
-  merge: function( toAdd ){
+  merge: function (toAdd) {
     const _p = this._private;
     const cy = _p.cy;
 
-    if( !toAdd ){
+    if (!toAdd) {
       return this;
     }
 
-    if( toAdd && is.string( toAdd ) ){
+    if (toAdd && is.string(toAdd)) {
       const selector = toAdd;
-      toAdd = cy.mutableElements().filter( selector );
+      toAdd = cy.mutableElements().filter(selector);
     }
 
     const map = _p.map;
 
-    for (let i = 0; i < toAdd.length; i++ ){
-      const toAddEle = toAdd[ i ];
+    for (let i = 0; i < toAdd.length; i++) {
+      const toAddEle = toAdd[i];
       const id = toAddEle._private.data.id;
-      const add = !map.has( id );
+      const add = !map.has(id);
 
-      if( add ){
+      if (add) {
         const index = this.length++;
 
-        this[ index ] = toAddEle;
+        this[index] = toAddEle;
 
-        map.set( id, { ele: toAddEle, index: index } );
+        map.set(id, { ele: toAddEle, index: index });
       }
     }
 
     return this; // chaining
   },
 
-  unmergeAt: function( i ){
+  unmergeAt: function (i) {
     const ele = this[i];
     const id = ele.id();
     const _p = this._private;
     const map = _p.map;
 
     // remove ele
-    this[ i ] = undefined;
-    map.delete( id );
+    this[i] = undefined;
+    map.delete(id);
 
     const unmergedLastEle = i === this.length - 1;
 
     // replace empty spot with last ele in collection
-    if( this.length > 1 && !unmergedLastEle ){
+    if (this.length > 1 && !unmergedLastEle) {
       const lastEleI = this.length - 1;
-      const lastEle = this[ lastEleI ];
+      const lastEle = this[lastEleI];
       const lastEleId = lastEle._private.data.id;
 
-      this[ lastEleI ] = undefined;
-      this[ i ] = lastEle;
-      map.set( lastEleId, { ele: lastEle, index: i } );
+      this[lastEleI] = undefined;
+      this[i] = lastEle;
+      map.set(lastEleId, { ele: lastEle, index: i });
     }
 
     // the collection is now 1 ele smaller
@@ -262,15 +260,15 @@ const elesfn = ({
   },
 
   // remove single ele in place in calling collection
-  unmergeOne: function( ele ){
+  unmergeOne: function (ele) {
     ele = ele[0];
 
     const _p = this._private;
     const id = ele._private.data.id;
     const map = _p.map;
-    const entry =  map.get( id );
+    const entry = map.get(id);
 
-    if( !entry ){
+    if (!entry) {
       return this; // no need to remove
     }
 
@@ -282,30 +280,30 @@ const elesfn = ({
   },
 
   // remove eles in place on calling collection
-  unmerge: function( toRemove ){
+  unmerge: function (toRemove) {
     const cy = this._private.cy;
 
-    if( !toRemove ){
+    if (!toRemove) {
       return this;
     }
 
-    if( toRemove && is.string( toRemove ) ){
+    if (toRemove && is.string(toRemove)) {
       const selector = toRemove;
-      toRemove = cy.mutableElements().filter( selector );
+      toRemove = cy.mutableElements().filter(selector);
     }
 
-    for (let i = 0; i < toRemove.length; i++ ){
-      this.unmergeOne( toRemove[ i ] );
+    for (let i = 0; i < toRemove.length; i++) {
+      this.unmergeOne(toRemove[i]);
     }
 
     return this; // chaining
   },
 
-  unmergeBy: function( toRmFn ){
-    for (let i = this.length - 1; i >= 0; i-- ){
+  unmergeBy: function (toRmFn) {
+    for (let i = this.length - 1; i >= 0; i--) {
       const ele = this[i];
 
-      if( toRmFn(ele) ){
+      if (toRmFn(ele)) {
         this.unmergeAt(i);
       }
     }
@@ -313,41 +311,45 @@ const elesfn = ({
     return this;
   },
 
-  map: function( mapFn, thisArg ){
+  map: function (mapFn, thisArg) {
     const arr = [];
     const eles = this;
 
-    for (let i = 0; i < eles.length; i++ ){
-      const ele = eles[ i ];
-      const ret = thisArg ? mapFn.apply( thisArg, [ ele, i, eles ] ) : mapFn( ele, i, eles );
+    for (let i = 0; i < eles.length; i++) {
+      const ele = eles[i];
+      const ret = thisArg
+        ? mapFn.apply(thisArg, [ele, i, eles])
+        : mapFn(ele, i, eles);
 
-      arr.push( ret );
+      arr.push(ret);
     }
 
     return arr;
   },
 
-  reduce: function( fn, initialValue ){
+  reduce: function (fn, initialValue) {
     const val = initialValue;
     const eles = this;
 
-    for (let i = 0; i < eles.length; i++ ){
-      val = fn( val, eles[i], i, eles );
+    for (let i = 0; i < eles.length; i++) {
+      val = fn(val, eles[i], i, eles);
     }
 
     return val;
   },
 
-  max: function( valFn, thisArg ){
+  max: function (valFn, thisArg) {
     const max = -Infinity;
     let maxEle;
     const eles = this;
 
-    for (let i = 0; i < eles.length; i++ ){
-      const ele = eles[ i ];
-      const val = thisArg ? valFn.apply( thisArg, [ ele, i, eles ] ) : valFn( ele, i, eles );
+    for (let i = 0; i < eles.length; i++) {
+      const ele = eles[i];
+      const val = thisArg
+        ? valFn.apply(thisArg, [ele, i, eles])
+        : valFn(ele, i, eles);
 
-      if( val > max ){
+      if (val > max) {
         max = val;
         maxEle = ele;
       }
@@ -355,20 +357,22 @@ const elesfn = ({
 
     return {
       value: max,
-      ele: maxEle
+      ele: maxEle,
     };
   },
 
-  min: function( valFn, thisArg ){
+  min: function (valFn, thisArg) {
     const min = Infinity;
     let minEle;
     const eles = this;
 
-    for (let i = 0; i < eles.length; i++ ){
-      const ele = eles[ i ];
-      const val = thisArg ? valFn.apply( thisArg, [ ele, i, eles ] ) : valFn( ele, i, eles );
+    for (let i = 0; i < eles.length; i++) {
+      const ele = eles[i];
+      const val = thisArg
+        ? valFn.apply(thisArg, [ele, i, eles])
+        : valFn(ele, i, eles);
 
-      if( val < min ){
+      if (val < min) {
         min = val;
         minEle = ele;
       }
@@ -376,17 +380,23 @@ const elesfn = ({
 
     return {
       value: min,
-      ele: minEle
+      ele: minEle,
     };
-  }
-});
+  },
+};
 
 // aliases
 const fn = elesfn;
-fn[ 'u' ] = fn[ '|' ] = fn[ '+' ] = fn.union = fn.or = fn.add;
-fn[ '\\' ] = fn[ '!' ] = fn[ '-' ] = fn.difference = fn.relativeComplement = fn.subtract = fn.not;
-fn[ 'n' ] = fn[ '&' ] = fn[ '.' ] = fn.and = fn.intersection = fn.intersect;
-fn[ '^' ] = fn[ '(+)' ] = fn[ '(-)' ] = fn.symmetricDifference = fn.symdiff = fn.xor;
+fn["u"] = fn["|"] = fn["+"] = fn.union = fn.or = fn.add;
+fn["\\"] =
+  fn["!"] =
+  fn["-"] =
+  fn.difference =
+  fn.relativeComplement =
+  fn.subtract =
+    fn.not;
+fn["n"] = fn["&"] = fn["."] = fn.and = fn.intersection = fn.intersect;
+fn["^"] = fn["(+)"] = fn["(-)"] = fn.symmetricDifference = fn.symdiff = fn.xor;
 fn.fnFilter = fn.filterFn = fn.stdFilter = fn.filter;
 fn.complement = fn.abscomp = fn.absoluteComplement;
 

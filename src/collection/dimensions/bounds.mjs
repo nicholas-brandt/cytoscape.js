@@ -1,13 +1,28 @@
-import * as is from '../../is.mjs';
-import { assignBoundingBox, expandBoundingBoxSides,  clearBoundingBox, expandBoundingBox, makeBoundingBox, copyBoundingBox, shiftBoundingBox, updateBoundingBox } from '../../math.mjs';
-import {defaults, endsWith, getPrefixedProperty, hashIntsArray, memoize} from '../../util/index.mjs';
+import * as is from "../../is.mjs";
+import {
+  assignBoundingBox,
+  expandBoundingBoxSides,
+  clearBoundingBox,
+  expandBoundingBox,
+  makeBoundingBox,
+  copyBoundingBox,
+  shiftBoundingBox,
+  updateBoundingBox,
+} from "../../math.mjs";
+import {
+  defaults,
+  endsWith,
+  getPrefixedProperty,
+  hashIntsArray,
+  memoize,
+} from "../../util/index.mjs";
 
 let fn, elesfn;
 
 fn = elesfn = {};
 
-elesfn.renderedBoundingBox = function( options ){
-  const bb = this.boundingBox( options );
+elesfn.renderedBoundingBox = function (options) {
+  const bb = this.boundingBox(options);
   const cy = this.cy();
   const zoom = cy.zoom();
   const pan = cy.pan();
@@ -23,116 +38,135 @@ elesfn.renderedBoundingBox = function( options ){
     y1: y1,
     y2: y2,
     w: x2 - x1,
-    h: y2 - y1
+    h: y2 - y1,
   };
 };
 
-elesfn.dirtyCompoundBoundsCache = function(silent = false){
+elesfn.dirtyCompoundBoundsCache = function (silent = false) {
   const cy = this.cy();
 
-  if( !cy.styleEnabled() || !cy.hasCompoundNodes() ){ return this; }
+  if (!cy.styleEnabled() || !cy.hasCompoundNodes()) {
+    return this;
+  }
 
-  this.forEachUp( ele => {
-    if( ele.isParent() ){
+  this.forEachUp((ele) => {
+    if (ele.isParent()) {
       const _p = ele._private;
 
       _p.compoundBoundsClean = false;
       _p.bbCache = null;
 
-      if(!silent){
-        ele.emitAndNotify('bounds');
+      if (!silent) {
+        ele.emitAndNotify("bounds");
       }
     }
-  } );
+  });
 
   return this;
 };
 
-elesfn.updateCompoundBounds = function(force = false){
+elesfn.updateCompoundBounds = function (force = false) {
   const cy = this.cy();
 
   // not possible to do on non-compound graphs or with the style disabled
-  if( !cy.styleEnabled() || !cy.hasCompoundNodes() ){ return this; }
+  if (!cy.styleEnabled() || !cy.hasCompoundNodes()) {
+    return this;
+  }
 
   // save cycles when batching -- but bounds will be stale (or not exist yet)
-  if( !force && cy.batching() ){ return this; }
+  if (!force && cy.batching()) {
+    return this;
+  }
 
-  function update( parent ){
-    if( !parent.isParent() ){ return; }
+  function update(parent) {
+    if (!parent.isParent()) {
+      return;
+    }
 
     const _p = parent._private;
     const children = parent.children();
-    const includeLabels = parent.pstyle( 'compound-sizing-wrt-labels' ).value === 'include';
+    const includeLabels =
+      parent.pstyle("compound-sizing-wrt-labels").value === "include";
 
     const min = {
       width: {
-        val: parent.pstyle( 'min-width' ).pfValue,
-        left: parent.pstyle( 'min-width-bias-left' ),
-        right: parent.pstyle( 'min-width-bias-right' )
+        val: parent.pstyle("min-width").pfValue,
+        left: parent.pstyle("min-width-bias-left"),
+        right: parent.pstyle("min-width-bias-right"),
       },
       height: {
-        val: parent.pstyle( 'min-height' ).pfValue,
-        top: parent.pstyle( 'min-height-bias-top' ),
-        bottom: parent.pstyle( 'min-height-bias-bottom' )
-      }
+        val: parent.pstyle("min-height").pfValue,
+        top: parent.pstyle("min-height-bias-top"),
+        bottom: parent.pstyle("min-height-bias-bottom"),
+      },
     };
 
-    const bb = children.boundingBox( {
+    const bb = children.boundingBox({
       includeLabels: includeLabels,
       includeOverlays: false,
 
       // updating the compound bounds happens outside of the regular
       // cache cycle (i.e. before fired events)
-      useCache: false
-    } );
+      useCache: false,
+    });
     const pos = _p.position;
 
     // if children take up zero area then keep position and fall back on stylesheet w/h
-    if( bb.w === 0 || bb.h === 0 ){
+    if (bb.w === 0 || bb.h === 0) {
       bb = {
-        w: parent.pstyle('width').pfValue,
-        h: parent.pstyle('height').pfValue
+        w: parent.pstyle("width").pfValue,
+        h: parent.pstyle("height").pfValue,
       };
 
-      bb.x1 = pos.x - bb.w/2;
-      bb.x2 = pos.x + bb.w/2;
-      bb.y1 = pos.y - bb.h/2;
-      bb.y2 = pos.y + bb.h/2;
+      bb.x1 = pos.x - bb.w / 2;
+      bb.x2 = pos.x + bb.w / 2;
+      bb.y1 = pos.y - bb.h / 2;
+      bb.y2 = pos.y + bb.h / 2;
     }
 
-    function computeBiasValues( propDiff, propBias, propBiasComplement ){
+    function computeBiasValues(propDiff, propBias, propBiasComplement) {
       const biasDiff = 0;
       const biasComplementDiff = 0;
       const biasTotal = propBias + propBiasComplement;
 
-      if( propDiff > 0 && biasTotal > 0 ){
-        biasDiff = ( propBias / biasTotal ) * propDiff;
-        biasComplementDiff = ( propBiasComplement / biasTotal ) * propDiff;
+      if (propDiff > 0 && biasTotal > 0) {
+        biasDiff = (propBias / biasTotal) * propDiff;
+        biasComplementDiff = (propBiasComplement / biasTotal) * propDiff;
       }
       return {
         biasDiff: biasDiff,
-        biasComplementDiff: biasComplementDiff
+        biasComplementDiff: biasComplementDiff,
       };
     }
 
-    function computePaddingValues( width, height, paddingObject, relativeTo ) {
+    function computePaddingValues(width, height, paddingObject, relativeTo) {
       // Assuming percentage is number from 0 to 1
-      if(paddingObject.units === '%') {
-        switch(relativeTo) {
-          case 'width':
+      if (paddingObject.units === "%") {
+        switch (relativeTo) {
+          case "width":
             return width > 0 ? paddingObject.pfValue * width : 0;
-          case 'height':
+          case "height":
             return height > 0 ? paddingObject.pfValue * height : 0;
-          case 'average':
-            return ( width > 0 ) && ( height > 0 ) ? paddingObject.pfValue * ( width + height ) / 2 : 0;
-          case 'min':
-            return ( width > 0 ) && ( height > 0 ) ? ( ( width > height ) ? paddingObject.pfValue * height : paddingObject.pfValue * width ) : 0;
-          case 'max':
-            return ( width > 0 ) && ( height > 0 ) ? ( ( width > height ) ? paddingObject.pfValue * width : paddingObject.pfValue * height ) : 0;
+          case "average":
+            return width > 0 && height > 0
+              ? (paddingObject.pfValue * (width + height)) / 2
+              : 0;
+          case "min":
+            return width > 0 && height > 0
+              ? width > height
+                ? paddingObject.pfValue * height
+                : paddingObject.pfValue * width
+              : 0;
+          case "max":
+            return width > 0 && height > 0
+              ? width > height
+                ? paddingObject.pfValue * width
+                : paddingObject.pfValue * height
+              : 0;
           default:
             return 0;
         }
-      } else if(paddingObject.units === 'px') {
+      } else if (paddingObject.units === "px") {
         return paddingObject.pfValue;
       } else {
         return 0;
@@ -140,49 +174,62 @@ elesfn.updateCompoundBounds = function(force = false){
     }
 
     const leftVal = min.width.left.value;
-    if( min.width.left.units === 'px' && min.width.val > 0 ){
-      leftVal = ( leftVal * 100 ) / min.width.val;
+    if (min.width.left.units === "px" && min.width.val > 0) {
+      leftVal = (leftVal * 100) / min.width.val;
     }
     const rightVal = min.width.right.value;
-    if( min.width.right.units === 'px' && min.width.val > 0 ){
-      rightVal = ( rightVal * 100 ) / min.width.val;
+    if (min.width.right.units === "px" && min.width.val > 0) {
+      rightVal = (rightVal * 100) / min.width.val;
     }
 
     const topVal = min.height.top.value;
-    if( min.height.top.units === 'px' && min.height.val > 0 ){
-      topVal = ( topVal * 100 ) / min.height.val;
+    if (min.height.top.units === "px" && min.height.val > 0) {
+      topVal = (topVal * 100) / min.height.val;
     }
 
     const bottomVal = min.height.bottom.value;
-    if( min.height.bottom.units === 'px' && min.height.val > 0 ){
-      bottomVal = ( bottomVal * 100 ) / min.height.val;
+    if (min.height.bottom.units === "px" && min.height.val > 0) {
+      bottomVal = (bottomVal * 100) / min.height.val;
     }
 
-    const widthBiasDiffs = computeBiasValues( min.width.val - bb.w, leftVal, rightVal );
+    const widthBiasDiffs = computeBiasValues(
+      min.width.val - bb.w,
+      leftVal,
+      rightVal,
+    );
     const diffLeft = widthBiasDiffs.biasDiff;
     const diffRight = widthBiasDiffs.biasComplementDiff;
 
-    const heightBiasDiffs = computeBiasValues( min.height.val - bb.h, topVal, bottomVal );
+    const heightBiasDiffs = computeBiasValues(
+      min.height.val - bb.h,
+      topVal,
+      bottomVal,
+    );
     const diffTop = heightBiasDiffs.biasDiff;
     const diffBottom = heightBiasDiffs.biasComplementDiff;
 
-    _p.autoPadding = computePaddingValues( bb.w, bb.h, parent.pstyle( 'padding' ), parent.pstyle( 'padding-relative-to' ).value );
+    _p.autoPadding = computePaddingValues(
+      bb.w,
+      bb.h,
+      parent.pstyle("padding"),
+      parent.pstyle("padding-relative-to").value,
+    );
 
     _p.autoWidth = Math.max(bb.w, min.width.val);
-    pos.x = (- diffLeft + bb.x1 + bb.x2 + diffRight) / 2;
+    pos.x = (-diffLeft + bb.x1 + bb.x2 + diffRight) / 2;
 
     _p.autoHeight = Math.max(bb.h, min.height.val);
-    pos.y = (- diffTop + bb.y1 + bb.y2 + diffBottom) / 2;
+    pos.y = (-diffTop + bb.y1 + bb.y2 + diffBottom) / 2;
   }
 
-  for (let i = 0; i < this.length; i++ ){
+  for (let i = 0; i < this.length; i++) {
     const ele = this[i];
     const _p = ele._private;
 
-    if( !_p.compoundBoundsClean || force ){
-      update( ele );
+    if (!_p.compoundBoundsClean || force) {
+      update(ele);
 
-      if( !cy.batching() ){
+      if (!cy.batching()) {
         _p.compoundBoundsClean = true;
       }
     }
@@ -191,20 +238,24 @@ elesfn.updateCompoundBounds = function(force = false){
   return this;
 };
 
-const noninf = function( x ){
-  if( x === Infinity || x === -Infinity ){
+const noninf = function (x) {
+  if (x === Infinity || x === -Infinity) {
     return 0;
   }
 
   return x;
 };
 
-const updateBounds = function( b, x1, y1, x2, y2 ){
+const updateBounds = function (b, x1, y1, x2, y2) {
   // don't update with zero area boxes
-  if( x2 - x1 === 0 || y2 - y1 === 0 ){ return; }
+  if (x2 - x1 === 0 || y2 - y1 === 0) {
+    return;
+  }
 
   // don't update with null dim
-  if( x1 == null || y1 == null || x2 == null || y2 == null ){ return; }
+  if (x1 == null || y1 == null || x2 == null || y2 == null) {
+    return;
+  }
 
   b.x1 = x1 < b.x1 ? x1 : b.x1;
   b.x2 = x2 > b.x2 ? x2 : b.x2;
@@ -214,31 +265,35 @@ const updateBounds = function( b, x1, y1, x2, y2 ){
   b.h = b.y2 - b.y1;
 };
 
-const updateBoundsFromBox = function( b, b2 ){
-  if( b2 == null ){ return b; }
+const updateBoundsFromBox = function (b, b2) {
+  if (b2 == null) {
+    return b;
+  }
 
-  return updateBounds( b, b2.x1, b2.y1, b2.x2, b2.y2 );
+  return updateBounds(b, b2.x1, b2.y1, b2.x2, b2.y2);
 };
 
-const prefixedProperty = function( obj, field, prefix ){
-  return getPrefixedProperty( obj, field, prefix );
+const prefixedProperty = function (obj, field, prefix) {
+  return getPrefixedProperty(obj, field, prefix);
 };
 
-const updateBoundsFromArrow = function( bounds, ele, prefix ){
-  if( ele.cy().headless() ){ return; }
+const updateBoundsFromArrow = function (bounds, ele, prefix) {
+  if (ele.cy().headless()) {
+    return;
+  }
 
   const _p = ele._private;
   const rstyle = _p.rstyle;
   const halfArW = rstyle.arrowWidth / 2;
-  const arrowType = ele.pstyle( prefix + '-arrow-shape' ).value;
+  const arrowType = ele.pstyle(prefix + "-arrow-shape").value;
   let x;
   let y;
 
-  if( arrowType !== 'none' ){
-    if( prefix === 'source' ){
+  if (arrowType !== "none") {
+    if (prefix === "source") {
       x = rstyle.srcX;
       y = rstyle.srcY;
-    } else if( prefix === 'target' ){
+    } else if (prefix === "target") {
       x = rstyle.tgtX;
       y = rstyle.tgtY;
     } else {
@@ -247,8 +302,8 @@ const updateBoundsFromArrow = function( bounds, ele, prefix ){
     }
 
     // always store the individual arrow bounds
-    const bbs = _p.arrowBounds = _p.arrowBounds || {};
-    const bb = bbs[prefix] = bbs[prefix] || {};
+    const bbs = (_p.arrowBounds = _p.arrowBounds || {});
+    const bb = (bbs[prefix] = bbs[prefix] || {});
     bb.x1 = x - halfArW;
     bb.y1 = y - halfArW;
     bb.x2 = x + halfArW;
@@ -257,40 +312,42 @@ const updateBoundsFromArrow = function( bounds, ele, prefix ){
     bb.h = bb.y2 - bb.y1;
     expandBoundingBox(bb, 1);
 
-    updateBounds( bounds, bb.x1, bb.y1, bb.x2, bb.y2 );
+    updateBounds(bounds, bb.x1, bb.y1, bb.x2, bb.y2);
   }
 };
 
-const updateBoundsFromLabel = function( bounds, ele, prefix ){
-  if( ele.cy().headless() ){ return; }
+const updateBoundsFromLabel = function (bounds, ele, prefix) {
+  if (ele.cy().headless()) {
+    return;
+  }
 
   let prefixDash;
 
-  if( prefix ){
-    prefixDash = prefix + '-';
+  if (prefix) {
+    prefixDash = prefix + "-";
   } else {
-    prefixDash = '';
+    prefixDash = "";
   }
 
   const _p = ele._private;
   const rstyle = _p.rstyle;
-  const label = ele.pstyle( prefixDash + 'label' ).strValue;
+  const label = ele.pstyle(prefixDash + "label").strValue;
 
-  if( label ){
-    const halign = ele.pstyle( 'text-halign' );
-    const valign = ele.pstyle( 'text-valign' );
-    const labelWidth = prefixedProperty( rstyle, 'labelWidth', prefix );
-    const labelHeight = prefixedProperty( rstyle, 'labelHeight', prefix );
-    const labelX = prefixedProperty( rstyle, 'labelX', prefix );
-    const labelY = prefixedProperty( rstyle, 'labelY', prefix );
-    const marginX = ele.pstyle( prefixDash + 'text-margin-x' ).pfValue;
-    const marginY = ele.pstyle( prefixDash + 'text-margin-y' ).pfValue;
+  if (label) {
+    const halign = ele.pstyle("text-halign");
+    const valign = ele.pstyle("text-valign");
+    const labelWidth = prefixedProperty(rstyle, "labelWidth", prefix);
+    const labelHeight = prefixedProperty(rstyle, "labelHeight", prefix);
+    const labelX = prefixedProperty(rstyle, "labelX", prefix);
+    const labelY = prefixedProperty(rstyle, "labelY", prefix);
+    const marginX = ele.pstyle(prefixDash + "text-margin-x").pfValue;
+    const marginY = ele.pstyle(prefixDash + "text-margin-y").pfValue;
     const isEdge = ele.isEdge();
-    const rotation = ele.pstyle( prefixDash + 'text-rotation' );
-    const outlineWidth = ele.pstyle( 'text-outline-width' ).pfValue;
-    const borderWidth = ele.pstyle( 'text-border-width' ).pfValue;
+    const rotation = ele.pstyle(prefixDash + "text-rotation");
+    const outlineWidth = ele.pstyle("text-outline-width").pfValue;
+    const borderWidth = ele.pstyle("text-border-width").pfValue;
     const halfBorderWidth = borderWidth / 2;
-    const padding = ele.pstyle( 'text-background-padding' ).pfValue;
+    const padding = ele.pstyle("text-background-padding").pfValue;
     const marginOfError = 2; // expand to work around browser dimension inaccuracies
 
     const lh = labelHeight;
@@ -299,41 +356,41 @@ const updateBoundsFromLabel = function( bounds, ele, prefix ){
     const lh_2 = lh / 2;
     let lx1, lx2, ly1, ly2;
 
-    if( isEdge ){
+    if (isEdge) {
       lx1 = labelX - lw_2;
       lx2 = labelX + lw_2;
       ly1 = labelY - lh_2;
       ly2 = labelY + lh_2;
     } else {
-      switch( halign.value ){
-        case 'left':
+      switch (halign.value) {
+        case "left":
           lx1 = labelX - lw;
           lx2 = labelX;
           break;
 
-        case 'center':
+        case "center":
           lx1 = labelX - lw_2;
           lx2 = labelX + lw_2;
           break;
 
-        case 'right':
+        case "right":
           lx1 = labelX;
           lx2 = labelX + lw;
           break;
       }
 
-      switch( valign.value ){
-        case 'top':
+      switch (valign.value) {
+        case "top":
           ly1 = labelY - lh;
           ly2 = labelY;
           break;
 
-        case 'center':
+        case "center":
           ly1 = labelY - lh_2;
           ly2 = labelY + lh_2;
           break;
 
-        case 'bottom':
+        case "bottom":
           ly1 = labelY;
           ly2 = labelY + lh;
           break;
@@ -341,10 +398,26 @@ const updateBoundsFromLabel = function( bounds, ele, prefix ){
     }
 
     // shift by margin and expand by outline and border
-    const leftPad  = marginX - Math.max( outlineWidth, halfBorderWidth ) - padding - marginOfError;
-    const rightPad = marginX + Math.max( outlineWidth, halfBorderWidth ) + padding + marginOfError;
-    const topPad   = marginY - Math.max( outlineWidth, halfBorderWidth ) - padding - marginOfError;
-    const botPad   = marginY + Math.max( outlineWidth, halfBorderWidth ) + padding + marginOfError;
+    const leftPad =
+      marginX -
+      Math.max(outlineWidth, halfBorderWidth) -
+      padding -
+      marginOfError;
+    const rightPad =
+      marginX +
+      Math.max(outlineWidth, halfBorderWidth) +
+      padding +
+      marginOfError;
+    const topPad =
+      marginY -
+      Math.max(outlineWidth, halfBorderWidth) -
+      padding -
+      marginOfError;
+    const botPad =
+      marginY +
+      Math.max(outlineWidth, halfBorderWidth) +
+      padding +
+      marginOfError;
 
     lx1 += leftPad;
     lx2 += rightPad;
@@ -352,9 +425,9 @@ const updateBoundsFromLabel = function( bounds, ele, prefix ){
     ly2 += botPad;
 
     // always store the unrotated label bounds separately
-    const bbPrefix = prefix || 'main';
+    const bbPrefix = prefix || "main";
     const bbs = _p.labelBounds;
-    const bb = bbs[bbPrefix] = bbs[bbPrefix] || {};
+    const bb = (bbs[bbPrefix] = bbs[bbPrefix] || {});
     bb.x1 = lx1;
     bb.y1 = ly1;
     bb.x2 = lx2;
@@ -366,63 +439,65 @@ const updateBoundsFromLabel = function( bounds, ele, prefix ){
     bb.topPad = topPad;
     bb.botPad = botPad;
 
-    const isAutorotate = ( isEdge && rotation.strValue === 'autorotate' );
-    const isPfValue = ( rotation.pfValue != null && rotation.pfValue !== 0 );
+    const isAutorotate = isEdge && rotation.strValue === "autorotate";
+    const isPfValue = rotation.pfValue != null && rotation.pfValue !== 0;
 
-    if( isAutorotate || isPfValue ){
-      const theta = isAutorotate ? prefixedProperty( _p.rstyle, 'labelAngle', prefix ) : rotation.pfValue;
-      const cos = Math.cos( theta );
-      const sin = Math.sin( theta );
+    if (isAutorotate || isPfValue) {
+      const theta = isAutorotate
+        ? prefixedProperty(_p.rstyle, "labelAngle", prefix)
+        : rotation.pfValue;
+      const cos = Math.cos(theta);
+      const sin = Math.sin(theta);
 
       // rotation point (default value for center-center)
-      const xo = (lx1 + lx2)/2;
-      const yo = (ly1 + ly2)/2;
+      const xo = (lx1 + lx2) / 2;
+      const yo = (ly1 + ly2) / 2;
 
-      if( !isEdge ){
-        switch( halign.value ){
-          case 'left':
+      if (!isEdge) {
+        switch (halign.value) {
+          case "left":
             xo = lx2;
             break;
 
-          case 'right':
+          case "right":
             xo = lx1;
             break;
         }
 
-        switch( valign.value ){
-          case 'top':
+        switch (valign.value) {
+          case "top":
             yo = ly2;
             break;
 
-          case 'bottom':
+          case "bottom":
             yo = ly1;
             break;
         }
       }
 
-      const rotate = function( x, y ){
+      const rotate = function (x, y) {
         x = x - xo;
         y = y - yo;
 
         return {
           x: x * cos - y * sin + xo,
-          y: x * sin + y * cos + yo
+          y: x * sin + y * cos + yo,
         };
       };
 
-      const px1y1 = rotate( lx1, ly1 );
-      const px1y2 = rotate( lx1, ly2 );
-      const px2y1 = rotate( lx2, ly1 );
-      const px2y2 = rotate( lx2, ly2 );
+      const px1y1 = rotate(lx1, ly1);
+      const px1y2 = rotate(lx1, ly2);
+      const px2y1 = rotate(lx2, ly1);
+      const px2y2 = rotate(lx2, ly2);
 
-      lx1 = Math.min( px1y1.x, px1y2.x, px2y1.x, px2y2.x );
-      lx2 = Math.max( px1y1.x, px1y2.x, px2y1.x, px2y2.x );
-      ly1 = Math.min( px1y1.y, px1y2.y, px2y1.y, px2y2.y );
-      ly2 = Math.max( px1y1.y, px1y2.y, px2y1.y, px2y2.y );
+      lx1 = Math.min(px1y1.x, px1y2.x, px2y1.x, px2y2.x);
+      lx2 = Math.max(px1y1.x, px1y2.x, px2y1.x, px2y2.x);
+      ly1 = Math.min(px1y1.y, px1y2.y, px2y1.y, px2y2.y);
+      ly2 = Math.max(px1y1.y, px1y2.y, px2y1.y, px2y2.y);
     }
 
-    const bbPrefixRot = bbPrefix + 'Rot';
-    const bbRot = bbs[bbPrefixRot] = bbs[bbPrefixRot] || {};
+    const bbPrefixRot = bbPrefix + "Rot";
+    const bbRot = (bbs[bbPrefixRot] = bbs[bbPrefixRot] || {});
     bbRot.x1 = lx1;
     bbRot.y1 = ly1;
     bbRot.x2 = lx2;
@@ -430,38 +505,54 @@ const updateBoundsFromLabel = function( bounds, ele, prefix ){
     bbRot.w = lx2 - lx1;
     bbRot.h = ly2 - ly1;
 
-    updateBounds( bounds, lx1, ly1, lx2, ly2 );
-    updateBounds( _p.labelBounds.all, lx1, ly1, lx2, ly2 );
+    updateBounds(bounds, lx1, ly1, lx2, ly2);
+    updateBounds(_p.labelBounds.all, lx1, ly1, lx2, ly2);
   }
 
   return bounds;
 };
 
 const updateBoundsFromOutline = function (bounds, ele) {
-  if (ele.cy().headless()) { return; }
-  
-  const outlineOpacity = ele.pstyle('outline-opacity').value;
-  const outlineWidth = ele.pstyle('outline-width').value;
-  const outlineOffset = ele.pstyle('outline-offset').value;
-  const expansion = outlineWidth + outlineOffset;
-
-  updateBoundsFromMiter( bounds, ele, outlineOpacity, expansion, 'outside', expansion/2 );
-};
-
-const updateBoundsFromMiter = function( bounds, ele, opacity, expansionSize, expansionPosition, useFallbackValue){
-  if (opacity === 0 || expansionSize <= 0 || expansionPosition === 'inside') {
+  if (ele.cy().headless()) {
     return;
   }
-  
+
+  const outlineOpacity = ele.pstyle("outline-opacity").value;
+  const outlineWidth = ele.pstyle("outline-width").value;
+  const outlineOffset = ele.pstyle("outline-offset").value;
+  const expansion = outlineWidth + outlineOffset;
+
+  updateBoundsFromMiter(
+    bounds,
+    ele,
+    outlineOpacity,
+    expansion,
+    "outside",
+    expansion / 2,
+  );
+};
+
+const updateBoundsFromMiter = function (
+  bounds,
+  ele,
+  opacity,
+  expansionSize,
+  expansionPosition,
+  useFallbackValue,
+) {
+  if (opacity === 0 || expansionSize <= 0 || expansionPosition === "inside") {
+    return;
+  }
+
   const cy = ele.cy();
-  const shape = ele.pstyle('shape').value
+  const shape = ele.pstyle("shape").value;
   const rshape = cy.renderer().nodeShapes[shape];
   let { x, y } = ele.position();
   const w = ele.width();
   const h = ele.height();
 
   if (rshape.hasMiterBounds) {
-    if (expansionPosition === 'center') {
+    if (expansionPosition === "center") {
       expansionSize /= 2;
     }
 
@@ -469,22 +560,35 @@ const updateBoundsFromMiter = function( bounds, ele, opacity, expansionSize, exp
 
     updateBoundsFromBox(bounds, mbb);
   } else if (useFallbackValue != null && useFallbackValue > 0) {
-    expandBoundingBoxSides(bounds, [useFallbackValue, useFallbackValue, useFallbackValue, useFallbackValue]);
+    expandBoundingBoxSides(bounds, [
+      useFallbackValue,
+      useFallbackValue,
+      useFallbackValue,
+      useFallbackValue,
+    ]);
   }
 };
 
-const updateBoundsFromMiterBorder = function( bounds, ele ){
-  if (ele.cy().headless()) { return; }
+const updateBoundsFromMiterBorder = function (bounds, ele) {
+  if (ele.cy().headless()) {
+    return;
+  }
 
-  const borderOpacity = ele.pstyle('border-opacity').value;
-  const borderWidth = ele.pstyle('border-width').pfValue;
-  const borderPosition = ele.pstyle('border-position').value;
+  const borderOpacity = ele.pstyle("border-opacity").value;
+  const borderWidth = ele.pstyle("border-width").pfValue;
+  const borderPosition = ele.pstyle("border-position").value;
 
-  updateBoundsFromMiter(bounds, ele, borderOpacity, borderWidth, borderPosition);
+  updateBoundsFromMiter(
+    bounds,
+    ele,
+    borderOpacity,
+    borderWidth,
+    borderPosition,
+  );
 };
 
 // get the bounding box of the elements (in raw model position)
-const boundingBoxImpl = function( ele, options ){
+const boundingBoxImpl = function (ele, options) {
   const cy = ele._private.cy;
   const styleEnabled = cy.styleEnabled();
   const headless = cy.headless();
@@ -497,42 +601,40 @@ const boundingBoxImpl = function( ele, options ){
   let ex1, ex2, ey1, ey2; // extrema of body / lines
   let x, y; // node pos
   const rstyle = _p.rstyle;
-  const manualExpansion = isNode && styleEnabled ? ele.pstyle('bounds-expansion').pfValue : [0];
+  const manualExpansion =
+    isNode && styleEnabled ? ele.pstyle("bounds-expansion").pfValue : [0];
 
   // must use `display` prop only, as reading `compound.width()` causes recursion
   // (other factors like width values will be considered later in this function anyway)
-  const isDisplayed = ele => ele.pstyle('display').value !== 'none';
+  const isDisplayed = (ele) => ele.pstyle("display").value !== "none";
 
-  const displayed = (
-    !styleEnabled
-    || (
-      isDisplayed(ele)
-
+  const displayed =
+    !styleEnabled ||
+    (isDisplayed(ele) &&
       // must take into account connected nodes b/c of implicit edge hiding on display:none node
-      && ( !isEdge || ( isDisplayed(ele.source()) && isDisplayed(ele.target()) ) )
-    )
-  );
+      (!isEdge || (isDisplayed(ele.source()) && isDisplayed(ele.target()))));
 
-  if( displayed ){ // displayed suffices, since we will find zero area eles anyway
+  if (displayed) {
+    // displayed suffices, since we will find zero area eles anyway
     const overlayOpacity = 0;
     const overlayPadding = 0;
 
-    if( styleEnabled && options.includeOverlays ){
-      overlayOpacity = ele.pstyle( 'overlay-opacity' ).value;
+    if (styleEnabled && options.includeOverlays) {
+      overlayOpacity = ele.pstyle("overlay-opacity").value;
 
-      if( overlayOpacity !== 0 ){
-        overlayPadding = ele.pstyle( 'overlay-padding' ).value;
+      if (overlayOpacity !== 0) {
+        overlayPadding = ele.pstyle("overlay-padding").value;
       }
     }
 
     const underlayOpacity = 0;
     const underlayPadding = 0;
 
-    if( styleEnabled && options.includeUnderlays ){
-      underlayOpacity = ele.pstyle( 'underlay-opacity' ).value;
+    if (styleEnabled && options.includeUnderlays) {
+      underlayOpacity = ele.pstyle("underlay-opacity").value;
 
-      if( underlayOpacity !== 0 ){
-        underlayPadding = ele.pstyle( 'underlay-padding' ).value;
+      if (underlayOpacity !== 0) {
+        underlayPadding = ele.pstyle("underlay-padding").value;
       }
     }
 
@@ -541,12 +643,12 @@ const boundingBoxImpl = function( ele, options ){
     const w = 0;
     const wHalf = 0;
 
-    if( styleEnabled ){
-      w = ele.pstyle( 'width' ).pfValue;
+    if (styleEnabled) {
+      w = ele.pstyle("width").pfValue;
       wHalf = w / 2;
     }
 
-    if( isNode && options.includeNodes ){
+    if (isNode && options.includeNodes) {
       const pos = ele.position();
       x = pos.x;
       y = pos.y;
@@ -563,32 +665,30 @@ const boundingBoxImpl = function( ele, options ){
       ey1 = y - halfH;
       ey2 = y + halfH;
 
-      updateBounds( bounds, ex1, ey1, ex2, ey2 );
+      updateBounds(bounds, ex1, ey1, ex2, ey2);
 
-      if( styleEnabled ){
-        updateBoundsFromOutline(bounds, ele)
+      if (styleEnabled) {
+        updateBoundsFromOutline(bounds, ele);
       }
 
-      if( styleEnabled && options.includeOutlines && !headless ){
-        updateBoundsFromOutline( bounds, ele );
+      if (styleEnabled && options.includeOutlines && !headless) {
+        updateBoundsFromOutline(bounds, ele);
       }
 
       if (styleEnabled) {
         updateBoundsFromMiterBorder(bounds, ele);
       }
-    } else if( isEdge && options.includeEdges ){
-
-      if( styleEnabled && !headless ){
-        const curveStyle = ele.pstyle( 'curve-style').strValue;
-
+    } else if (isEdge && options.includeEdges) {
+      if (styleEnabled && !headless) {
+        const curveStyle = ele.pstyle("curve-style").strValue;
 
         // handle edge dimensions (rough box estimate)
         //////////////////////////////////////////////
 
-        ex1 = Math.min( rstyle.srcX, rstyle.midX, rstyle.tgtX );
-        ex2 = Math.max( rstyle.srcX, rstyle.midX, rstyle.tgtX );
-        ey1 = Math.min( rstyle.srcY, rstyle.midY, rstyle.tgtY );
-        ey2 = Math.max( rstyle.srcY, rstyle.midY, rstyle.tgtY );
+        ex1 = Math.min(rstyle.srcX, rstyle.midX, rstyle.tgtX);
+        ex2 = Math.max(rstyle.srcX, rstyle.midX, rstyle.tgtX);
+        ey1 = Math.min(rstyle.srcY, rstyle.midY, rstyle.tgtY);
+        ey2 = Math.max(rstyle.srcY, rstyle.midY, rstyle.tgtY);
 
         // take into account edge width
         ex1 -= wHalf;
@@ -596,69 +696,76 @@ const boundingBoxImpl = function( ele, options ){
         ey1 -= wHalf;
         ey2 += wHalf;
 
-        updateBounds( bounds, ex1, ey1, ex2, ey2 );
-
+        updateBounds(bounds, ex1, ey1, ex2, ey2);
 
         // precise edges
         ////////////////
 
-        if( curveStyle === 'haystack' ){
+        if (curveStyle === "haystack") {
           const hpts = rstyle.haystackPts;
 
-          if( hpts && hpts.length === 2 ){
+          if (hpts && hpts.length === 2) {
             ex1 = hpts[0].x;
             ey1 = hpts[0].y;
             ex2 = hpts[1].x;
             ey2 = hpts[1].y;
 
-            if( ex1 > ex2 ){
+            if (ex1 > ex2) {
               const temp = ex1;
               ex1 = ex2;
               ex2 = temp;
             }
 
-            if( ey1 > ey2 ){
+            if (ey1 > ey2) {
               const temp = ey1;
               ey1 = ey2;
               ey2 = temp;
             }
 
-            updateBounds( bounds, ex1 - wHalf, ey1 - wHalf, ex2 + wHalf, ey2 + wHalf );
+            updateBounds(
+              bounds,
+              ex1 - wHalf,
+              ey1 - wHalf,
+              ex2 + wHalf,
+              ey2 + wHalf,
+            );
           }
-
-        } else if(
-          curveStyle === 'bezier' || curveStyle === 'unbundled-bezier'
-          || endsWith(curveStyle, 'segments') || endsWith(curveStyle, 'taxi')
-        ){
+        } else if (
+          curveStyle === "bezier" ||
+          curveStyle === "unbundled-bezier" ||
+          endsWith(curveStyle, "segments") ||
+          endsWith(curveStyle, "taxi")
+        ) {
           let pts;
 
-          switch( curveStyle ){
-            case 'bezier':
-            case 'unbundled-bezier':
+          switch (curveStyle) {
+            case "bezier":
+            case "unbundled-bezier":
               pts = rstyle.bezierPts;
               break;
-            case 'segments':
-            case 'taxi':
-            case 'round-segments':
-            case 'round-taxi':
+            case "segments":
+            case "taxi":
+            case "round-segments":
+            case "round-taxi":
               pts = rstyle.linePts;
               break;
           }
 
-          if( pts != null ){
-            for (let j = 0; j < pts.length; j++ ){
-              const pt = pts[ j ];
+          if (pts != null) {
+            for (let j = 0; j < pts.length; j++) {
+              const pt = pts[j];
 
               ex1 = pt.x - wHalf;
               ex2 = pt.x + wHalf;
               ey1 = pt.y - wHalf;
               ey2 = pt.y + wHalf;
 
-              updateBounds( bounds, ex1, ey1, ex2, ey2 );
+              updateBounds(bounds, ex1, ey1, ex2, ey2);
             }
           }
         } // bezier-like or segment-like edge
-      } else { // headless or style disabled
+      } else {
+        // headless or style disabled
 
         // fallback on source and target positions
         //////////////////////////////////////////
@@ -674,13 +781,13 @@ const boundingBoxImpl = function( ele, options ){
         ey1 = n1pos.y;
         ey2 = n2pos.y;
 
-        if( ex1 > ex2 ){
+        if (ex1 > ex2) {
           const temp = ex1;
           ex1 = ex2;
           ex2 = temp;
         }
 
-        if( ey1 > ey2 ){
+        if (ey1 > ey2) {
           const temp = ey1;
           ey1 = ey2;
           ey2 = temp;
@@ -692,37 +799,42 @@ const boundingBoxImpl = function( ele, options ){
         ey1 -= wHalf;
         ey2 += wHalf;
 
-        updateBounds( bounds, ex1, ey1, ex2, ey2 );
+        updateBounds(bounds, ex1, ey1, ex2, ey2);
       } // headless or style disabled
-
     } // edges
 
     // handle edge arrow size
     /////////////////////////
 
-    if( styleEnabled && options.includeEdges && isEdge ){
-      updateBoundsFromArrow( bounds, ele, 'mid-source', options );
-      updateBoundsFromArrow( bounds, ele, 'mid-target', options );
-      updateBoundsFromArrow( bounds, ele, 'source', options );
-      updateBoundsFromArrow( bounds, ele, 'target', options );
+    if (styleEnabled && options.includeEdges && isEdge) {
+      updateBoundsFromArrow(bounds, ele, "mid-source", options);
+      updateBoundsFromArrow(bounds, ele, "mid-target", options);
+      updateBoundsFromArrow(bounds, ele, "source", options);
+      updateBoundsFromArrow(bounds, ele, "target", options);
     }
 
     // ghost
     ////////
 
-    if( styleEnabled ){
-      const ghost = ele.pstyle('ghost').value === 'yes';
+    if (styleEnabled) {
+      const ghost = ele.pstyle("ghost").value === "yes";
 
-      if( ghost ){
-        const gx = ele.pstyle('ghost-offset-x').pfValue;
-        const gy = ele.pstyle('ghost-offset-y').pfValue;
+      if (ghost) {
+        const gx = ele.pstyle("ghost-offset-x").pfValue;
+        const gy = ele.pstyle("ghost-offset-y").pfValue;
 
-        updateBounds( bounds, bounds.x1 + gx, bounds.y1 + gy, bounds.x2 + gx, bounds.y2 + gy );
+        updateBounds(
+          bounds,
+          bounds.x1 + gx,
+          bounds.y1 + gy,
+          bounds.x2 + gx,
+          bounds.y2 + gy,
+        );
       }
     }
 
     // always store the body bounds separately from the labels
-    const bbBody = _p.bodyBounds = _p.bodyBounds || {};
+    const bbBody = (_p.bodyBounds = _p.bodyBounds || {});
     assignBoundingBox(bbBody, bounds);
     expandBoundingBoxSides(bbBody, manualExpansion);
     expandBoundingBox(bbBody, 1); // expand to work around browser dimension inaccuracies
@@ -730,17 +842,23 @@ const boundingBoxImpl = function( ele, options ){
     // overlay
     //////////
 
-    if( styleEnabled ){
+    if (styleEnabled) {
       ex1 = bounds.x1;
       ex2 = bounds.x2;
       ey1 = bounds.y1;
       ey2 = bounds.y2;
 
-      updateBounds( bounds, ex1 - padding, ey1 - padding, ex2 + padding, ey2 + padding );
+      updateBounds(
+        bounds,
+        ex1 - padding,
+        ey1 - padding,
+        ex2 + padding,
+        ey2 + padding,
+      );
     }
 
     // always store the body bounds separately from the labels
-    const bbOverlay = _p.overlayBounds = _p.overlayBounds || {};
+    const bbOverlay = (_p.overlayBounds = _p.overlayBounds || {});
     assignBoundingBox(bbOverlay, bounds);
     expandBoundingBoxSides(bbOverlay, manualExpansion);
     expandBoundingBox(bbOverlay, 1); // expand to work around browser dimension inaccuracies
@@ -748,124 +866,126 @@ const boundingBoxImpl = function( ele, options ){
     // handle label dimensions
     //////////////////////////
 
-    const bbLabels = _p.labelBounds = _p.labelBounds || {};
+    const bbLabels = (_p.labelBounds = _p.labelBounds || {});
 
-    if( bbLabels.all != null ){
+    if (bbLabels.all != null) {
       clearBoundingBox(bbLabels.all);
     } else {
       bbLabels.all = makeBoundingBox();
     }
 
-    if( styleEnabled && options.includeLabels ){
-      if( options.includeMainLabels ){
-        updateBoundsFromLabel( bounds, ele, null, options );
+    if (styleEnabled && options.includeLabels) {
+      if (options.includeMainLabels) {
+        updateBoundsFromLabel(bounds, ele, null, options);
       }
 
-      if( isEdge ){
-        if( options.includeSourceLabels ){
-          updateBoundsFromLabel( bounds, ele, 'source', options );
+      if (isEdge) {
+        if (options.includeSourceLabels) {
+          updateBoundsFromLabel(bounds, ele, "source", options);
         }
 
-        if( options.includeTargetLabels ){
-          updateBoundsFromLabel( bounds, ele, 'target', options );
+        if (options.includeTargetLabels) {
+          updateBoundsFromLabel(bounds, ele, "target", options);
         }
       }
     } // style enabled for labels
   } // if displayed
 
+  bounds.x1 = noninf(bounds.x1);
+  bounds.y1 = noninf(bounds.y1);
+  bounds.x2 = noninf(bounds.x2);
+  bounds.y2 = noninf(bounds.y2);
+  bounds.w = noninf(bounds.x2 - bounds.x1);
+  bounds.h = noninf(bounds.y2 - bounds.y1);
 
-  bounds.x1 = noninf( bounds.x1 );
-  bounds.y1 = noninf( bounds.y1 );
-  bounds.x2 = noninf( bounds.x2 );
-  bounds.y2 = noninf( bounds.y2 );
-  bounds.w = noninf( bounds.x2 - bounds.x1 );
-  bounds.h = noninf( bounds.y2 - bounds.y1 );
-
-  if( bounds.w > 0 && bounds.h > 0 && displayed ){
-    expandBoundingBoxSides( bounds, manualExpansion );
+  if (bounds.w > 0 && bounds.h > 0 && displayed) {
+    expandBoundingBoxSides(bounds, manualExpansion);
 
     // expand bounds by 1 because antialiasing can increase the visual/effective size by 1 on all sides
-    expandBoundingBox( bounds, 1 );
+    expandBoundingBox(bounds, 1);
   }
 
   return bounds;
 };
 
-const getKey = function( opts ){
+const getKey = function (opts) {
   let i = 0;
-  const tf = val => (val ? 1 : 0) << i++;
+  const tf = (val) => (val ? 1 : 0) << i++;
   let key = 0;
 
-  key += tf( opts.incudeNodes );
-  key += tf( opts.includeEdges );
-  key += tf( opts.includeLabels );
-  key += tf( opts.includeMainLabels );
-  key += tf( opts.includeSourceLabels );
-  key += tf( opts.includeTargetLabels );
-  key += tf( opts.includeOverlays );
-  key += tf( opts.includeOutlines );
+  key += tf(opts.incudeNodes);
+  key += tf(opts.includeEdges);
+  key += tf(opts.includeLabels);
+  key += tf(opts.includeMainLabels);
+  key += tf(opts.includeSourceLabels);
+  key += tf(opts.includeTargetLabels);
+  key += tf(opts.includeOverlays);
+  key += tf(opts.includeOutlines);
 
   return key;
 };
 
-const getBoundingBoxPosKey = ele => {
-  const r = x => Math.round(x);
+const getBoundingBoxPosKey = (ele) => {
+  const r = (x) => Math.round(x);
 
-  if( ele.isEdge() ){
+  if (ele.isEdge()) {
     const p1 = ele.source().position();
     const p2 = ele.target().position();
 
-    return hashIntsArray([ r(p1.x), r(p1.y), r(p2.x), r(p2.y) ]);
+    return hashIntsArray([r(p1.x), r(p1.y), r(p2.x), r(p2.y)]);
   } else {
     const p = ele.position();
 
-    return hashIntsArray([ r(p.x), r(p.y) ]);
+    return hashIntsArray([r(p.x), r(p.y)]);
   }
 };
 
-const cachedBoundingBoxImpl = function( ele, opts ){
+const cachedBoundingBoxImpl = function (ele, opts) {
   const _p = ele._private;
   let bb;
   const isEdge = ele.isEdge();
-  const key = opts == null ? defBbOptsKey : getKey( opts );
+  const key = opts == null ? defBbOptsKey : getKey(opts);
   const usingDefOpts = key === defBbOptsKey;
 
-  if( _p.bbCache == null ){
-    bb = boundingBoxImpl( ele, defBbOpts );
+  if (_p.bbCache == null) {
+    bb = boundingBoxImpl(ele, defBbOpts);
 
     _p.bbCache = bb;
-    _p.bbCachePosKey = getBoundingBoxPosKey( ele );
+    _p.bbCachePosKey = getBoundingBoxPosKey(ele);
   } else {
     bb = _p.bbCache;
   }
 
   // not using def opts => need to build up bb from combination of sub bbs
-  if( !usingDefOpts ){
+  if (!usingDefOpts) {
     const isNode = ele.isNode();
 
     bb = makeBoundingBox();
 
-    if( (opts.includeNodes && isNode) || (opts.includeEdges && !isNode) ){
-      if( opts.includeOverlays ){
+    if ((opts.includeNodes && isNode) || (opts.includeEdges && !isNode)) {
+      if (opts.includeOverlays) {
         updateBoundsFromBox(bb, _p.overlayBounds);
       } else {
         updateBoundsFromBox(bb, _p.bodyBounds);
       }
     }
 
-    if( opts.includeLabels ){
-      if( opts.includeMainLabels && (!isEdge || (opts.includeSourceLabels && opts.includeTargetLabels)) ){
+    if (opts.includeLabels) {
+      if (
+        opts.includeMainLabels &&
+        (!isEdge || (opts.includeSourceLabels && opts.includeTargetLabels))
+      ) {
         updateBoundsFromBox(bb, _p.labelBounds.all);
       } else {
-        if( opts.includeMainLabels ){
+        if (opts.includeMainLabels) {
           updateBoundsFromBox(bb, _p.labelBounds.mainRot);
         }
 
-        if( opts.includeSourceLabels ){
+        if (opts.includeSourceLabels) {
           updateBoundsFromBox(bb, _p.labelBounds.sourceRot);
         }
 
-        if( opts.includeTargetLabels ){
+        if (opts.includeTargetLabels) {
           updateBoundsFromBox(bb, _p.labelBounds.targetRot);
         }
       }
@@ -888,23 +1008,33 @@ const defBbOpts = {
   includeOverlays: true,
   includeUnderlays: true,
   includeOutlines: true,
-  useCache: true
+  useCache: true,
 };
 
-const defBbOptsKey = getKey( defBbOpts );
+const defBbOptsKey = getKey(defBbOpts);
 
-const filledBbOpts = defaults( defBbOpts );
+const filledBbOpts = defaults(defBbOpts);
 
-elesfn.boundingBox = function( options ){
+elesfn.boundingBox = function (options) {
   let bounds;
 
-  const useCache = (options === undefined || options.useCache === undefined || options.useCache === true);
+  const useCache =
+    options === undefined ||
+    options.useCache === undefined ||
+    options.useCache === true;
 
-  const isDirty = memoize(ele => {
-    const _p = ele._private;
+  const isDirty = memoize(
+    (ele) => {
+      const _p = ele._private;
 
-    return _p.bbCache == null || _p.styleDirty || _p.bbCachePosKey !== getBoundingBoxPosKey(ele);
-  }, ele => ele.id());
+      return (
+        _p.bbCache == null ||
+        _p.styleDirty ||
+        _p.bbCachePosKey !== getBoundingBoxPosKey(ele)
+      );
+    },
+    (ele) => ele.id(),
+  );
 
   // the main usecase is ele.boundingBox() for a single element with no/def options
   // specified s.t. the cache is used, so check for this case to make it faster by
@@ -913,7 +1043,7 @@ elesfn.boundingBox = function( options ){
     if (options === undefined) {
       options = defBbOpts;
     } else {
-      options = filledBbOpts( options );
+      options = filledBbOpts(options);
     }
 
     bounds = cachedBoundingBoxImpl(this[0], options);
@@ -932,7 +1062,7 @@ elesfn.boundingBox = function( options ){
     this.edges().forEach(isDirty);
     this.nodes().forEach(isDirty);
 
-    if(styleEnabled) {
+    if (styleEnabled) {
       this.recalculateRenderedStyle(useCache);
     }
 
@@ -949,18 +1079,18 @@ elesfn.boundingBox = function( options ){
     }
   }
 
-  bounds.x1 = noninf( bounds.x1 );
-  bounds.y1 = noninf( bounds.y1 );
-  bounds.x2 = noninf( bounds.x2 );
-  bounds.y2 = noninf( bounds.y2 );
-  bounds.w = noninf( bounds.x2 - bounds.x1 );
-  bounds.h = noninf( bounds.y2 - bounds.y1 );
+  bounds.x1 = noninf(bounds.x1);
+  bounds.y1 = noninf(bounds.y1);
+  bounds.x2 = noninf(bounds.x2);
+  bounds.y2 = noninf(bounds.y2);
+  bounds.w = noninf(bounds.x2 - bounds.x1);
+  bounds.h = noninf(bounds.y2 - bounds.y1);
 
   return bounds;
 };
 
-elesfn.dirtyBoundingBoxCache = function(){
-  for (let i = 0; i < this.length; i++ ){
+elesfn.dirtyBoundingBoxCache = function () {
+  for (let i = 0; i < this.length; i++) {
     const _p = this[i]._private;
 
     _p.bbCache = null;
@@ -976,11 +1106,11 @@ elesfn.dirtyBoundingBoxCache = function(){
     _p.labelBounds.mainRot = null;
     _p.arrowBounds.source = null;
     _p.arrowBounds.target = null;
-    _p.arrowBounds['mid-source'] = null;
-    _p.arrowBounds['mid-target'] = null;
+    _p.arrowBounds["mid-source"] = null;
+    _p.arrowBounds["mid-target"] = null;
   }
 
-  this.emitAndNotify('bounds');
+  this.emitAndNotify("bounds");
 
   return this;
 };
@@ -989,45 +1119,43 @@ elesfn.dirtyBoundingBoxCache = function(){
 // - good for perf in certain cases but currently requires dirtying the rendered style
 // - would be better to not modify the nodes but the nodes are read directly everywhere in the renderer...
 // - try to use for only things like discrete layouts where the node position would change anyway
-elesfn.boundingBoxAt = function( fn ){
+elesfn.boundingBoxAt = function (fn) {
   const nodes = this.nodes();
   const cy = this.cy();
   const hasCompoundNodes = cy.hasCompoundNodes();
   const parents = cy.collection();
 
-  if( hasCompoundNodes ){
-    parents = nodes.filter(node => node.isParent());
+  if (hasCompoundNodes) {
+    parents = nodes.filter((node) => node.isParent());
     nodes = nodes.not(parents);
   }
 
-  if( is.plainObject( fn ) ){
+  if (is.plainObject(fn)) {
     const obj = fn;
 
-    fn = function(){ return obj; };
+    fn = function () {
+      return obj;
+    };
   }
 
-  const storeOldPos = (node, i) => node._private.bbAtOldPos = fn(node, i);
+  const storeOldPos = (node, i) => (node._private.bbAtOldPos = fn(node, i));
   const getOldPos = (node) => node._private.bbAtOldPos;
 
   cy.startBatch();
 
-  (
-    nodes
-    .forEach(storeOldPos)
-    .silentPositions(fn)
-  );
+  nodes.forEach(storeOldPos).silentPositions(fn);
 
-  if( hasCompoundNodes ){
+  if (hasCompoundNodes) {
     parents.dirtyCompoundBoundsCache();
     parents.dirtyBoundingBoxCache();
     parents.updateCompoundBounds(true); // force update b/c we're inside a batch cycle
   }
 
-  const bb = copyBoundingBox( this.boundingBox({ useCache: false }) );
+  const bb = copyBoundingBox(this.boundingBox({ useCache: false }));
 
   nodes.silentPositions(getOldPos);
 
-  if( hasCompoundNodes ){
+  if (hasCompoundNodes) {
     parents.dirtyCompoundBoundsCache();
     parents.dirtyBoundingBoxCache();
     parents.updateCompoundBounds(true); // force update b/c we're inside a batch cycle

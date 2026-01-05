@@ -139,5 +139,8 @@
     "rimraf": "^3.0.0",
     "rollup": "^4.31.0",
     "rollup-plugin-license": "^3.5.3"
+  },
+  "dependencies": {
+    "prettier": "^3.7.4"
   }
 }

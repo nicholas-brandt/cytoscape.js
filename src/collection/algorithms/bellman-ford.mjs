@@ -1,17 +1,16 @@
-import * as is from '../../is.mjs';
-import { warn, defaults } from '../../util/index.mjs';
-import Map from '../../map.mjs';
+import * as is from "../../is.mjs";
+import { warn, defaults } from "../../util/index.mjs";
+import Map from "../../map.mjs";
 
 const bellmanFordDefaults = defaults({
-  weight: edge => 1,
+  weight: (edge) => 1,
   directed: false,
-  root: null
+  root: null,
 });
 
-const elesfn = ({
-
+const elesfn = {
   // Implemented from pseudocode from wikipedia
-  bellmanFord: function( options ){
+  bellmanFord: function (options) {
     let { weight, directed, root } = bellmanFordDefaults(options);
     const weightFn = weight;
     const eles = this;
@@ -24,56 +23,60 @@ const elesfn = ({
 
     root = cy.collection(root)[0]; // in case selector passed
 
-    edges.unmergeBy( edge => edge.isLoop() );
+    edges.unmergeBy((edge) => edge.isLoop());
 
     const numEdges = edges.length;
 
-    const getInfo = node => {
-      const obj = infoMap.get( node.id() );
+    const getInfo = (node) => {
+      const obj = infoMap.get(node.id());
 
-      if( !obj ){
+      if (!obj) {
         obj = {};
 
-        infoMap.set( node.id(), obj );
+        infoMap.set(node.id(), obj);
       }
 
       return obj;
     };
 
-    const getNodeFromTo = to => (is.string(to) ? cy.$(to) : to)[0];
+    const getNodeFromTo = (to) => (is.string(to) ? cy.$(to) : to)[0];
 
-    const distanceTo = to => getInfo( getNodeFromTo(to) ).dist;
+    const distanceTo = (to) => getInfo(getNodeFromTo(to)).dist;
 
     const pathTo = (to, thisStart = root) => {
       const end = getNodeFromTo(to);
       const path = [];
       const node = end;
 
-      for( ;; ){
-        if( node == null ){ return this.spawn(); }
+      for (;;) {
+        if (node == null) {
+          return this.spawn();
+        }
 
-        let { edge, pred } = getInfo( node );
+        let { edge, pred } = getInfo(node);
 
-        path.unshift( node[0] );
+        path.unshift(node[0]);
 
-        if( node.same(thisStart) && path.length > 0 ){ break; }
+        if (node.same(thisStart) && path.length > 0) {
+          break;
+        }
 
-        if( edge != null ){
-          path.unshift( edge );
+        if (edge != null) {
+          path.unshift(edge);
         }
 
         node = pred;
       }
 
-      return eles.spawn( path );
+      return eles.spawn(path);
     };
 
     // Initializations { dist, pred, edge }
-    for (let i = 0; i < numNodes; i++ ){
+    for (let i = 0; i < numNodes; i++) {
       const node = nodes[i];
-      const info = getInfo( node );
+      const info = getInfo(node);
 
-      if( node.same(root) ){
+      if (node.same(root)) {
         info.dist = 0;
       } else {
         info.dist = Infinity;
@@ -86,10 +89,17 @@ const elesfn = ({
     // Edges relaxation
     const replacedEdge = false;
 
-    const checkForEdgeReplacement = (node1, node2, edge, info1, info2, weight) => {
+    const checkForEdgeReplacement = (
+      node1,
+      node2,
+      edge,
+      info1,
+      info2,
+      weight,
+    ) => {
       const dist = info1.dist + weight;
 
-      if( dist < info2.dist && !edge.same(info1.edge) ){
+      if (dist < info2.dist && !edge.same(info1.edge)) {
         info2.dist = dist;
         info2.pred = node1;
         info2.edge = edge;
@@ -97,10 +107,10 @@ const elesfn = ({
       }
     };
 
-    for (let i = 1; i < numNodes; i++ ){
+    for (let i = 1; i < numNodes; i++) {
       replacedEdge = false;
 
-      for (let e = 0; e < numEdges; e++ ){
+      for (let e = 0; e < numEdges; e++) {
         const edge = edges[e];
         const src = edge.source();
         const tgt = edge.target();
@@ -111,18 +121,20 @@ const elesfn = ({
         checkForEdgeReplacement(src, tgt, edge, srcInfo, tgtInfo, weight);
 
         // If undirected graph, we need to take into account the 'reverse' edge
-        if( !directed ){
+        if (!directed) {
           checkForEdgeReplacement(tgt, src, edge, tgtInfo, srcInfo, weight);
         }
       }
 
-      if( !replacedEdge ){ break; }
+      if (!replacedEdge) {
+        break;
+      }
     }
 
-    if( replacedEdge ){
+    if (replacedEdge) {
       // Check for negative weight cycles
       const negativeWeightCycleIds = [];
-      for (let e = 0; e < numEdges; e++ ){
+      for (let e = 0; e < numEdges; e++) {
         const edge = edges[e];
         const src = edge.source();
         const tgt = edge.target();
@@ -130,33 +142,36 @@ const elesfn = ({
         const srcDist = getInfo(src).dist;
         const tgtDist = getInfo(tgt).dist;
 
-        if( srcDist + weight < tgtDist || (!directed && tgtDist + weight < srcDist) ){
-          if( !hasNegativeWeightCycle ){
-            warn('Graph contains a negative weight cycle for Bellman-Ford');
+        if (
+          srcDist + weight < tgtDist ||
+          (!directed && tgtDist + weight < srcDist)
+        ) {
+          if (!hasNegativeWeightCycle) {
+            warn("Graph contains a negative weight cycle for Bellman-Ford");
 
             hasNegativeWeightCycle = true;
           }
 
-          if( options.findNegativeWeightCycles !== false ){
+          if (options.findNegativeWeightCycles !== false) {
             const negativeNodes = [];
 
-            if( srcDist + weight < tgtDist ){
+            if (srcDist + weight < tgtDist) {
               negativeNodes.push(src);
             }
 
-            if( !directed && tgtDist + weight < srcDist ) {
+            if (!directed && tgtDist + weight < srcDist) {
               negativeNodes.push(tgt);
             }
 
             const numNegativeNodes = negativeNodes.length;
-            for (let n = 0; n < numNegativeNodes; n++ ){
+            for (let n = 0; n < numNegativeNodes; n++) {
               const start = negativeNodes[n];
               let cycle = [start];
-              
+
               cycle.push(getInfo(start).edge);
 
               const node = getInfo(start).pred;
-              while( cycle.indexOf(node) === -1 ){
+              while (cycle.indexOf(node) === -1) {
                 cycle.push(node);
                 cycle.push(getInfo(node).edge);
                 node = getInfo(node).pred;
@@ -165,18 +180,19 @@ const elesfn = ({
 
               const smallestId = cycle[0].id();
               const smallestIndex = 0;
-              for (let c = 2; c < cycle.length; c+=2 ){
-                if( cycle[c].id() < smallestId ){
+              for (let c = 2; c < cycle.length; c += 2) {
+                if (cycle[c].id() < smallestId) {
                   smallestId = cycle[c].id();
                   smallestIndex = c;
                 }
               }
-              cycle = cycle.slice(smallestIndex)
+              cycle = cycle
+                .slice(smallestIndex)
                 .concat(cycle.slice(0, smallestIndex));
               cycle.push(cycle[0]);
 
-              const cycleId = cycle.map(el => el.id()).join(",");
-              if( negativeWeightCycleIds.indexOf(cycleId) === -1 ){
+              const cycleId = cycle.map((el) => el.id()).join(",");
+              if (negativeWeightCycleIds.indexOf(cycleId) === -1) {
                 negativeWeightCycles.push(eles.spawn(cycle));
                 negativeWeightCycleIds.push(cycleId);
               }
@@ -192,11 +208,9 @@ const elesfn = ({
       distanceTo,
       pathTo,
       hasNegativeWeightCycle,
-      negativeWeightCycles
+      negativeWeightCycles,
     };
-
-  } // bellmanFord
-
-}); // elesfn
+  }, // bellmanFord
+}; // elesfn
 
 export default elesfn;

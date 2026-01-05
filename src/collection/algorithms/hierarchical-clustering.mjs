@@ -3,57 +3,67 @@
 
 // Implemented from the reference library: https://harthur.github.io/clusterfck/
 
-import * as util from '../../util/index.mjs';
-import clusteringDistance from './clustering-distances.mjs';
+import * as util from "../../util/index.mjs";
+import clusteringDistance from "./clustering-distances.mjs";
 
 const defaults = util.defaults({
-  distance: 'euclidean', // distance metric to compare nodes
-  linkage: 'min', // linkage criterion : how to determine the distance between clusters of nodes
-  mode: 'threshold',
+  distance: "euclidean", // distance metric to compare nodes
+  linkage: "min", // linkage criterion : how to determine the distance between clusters of nodes
+  mode: "threshold",
   // mode:'threshold' => clusters must be threshold distance apart
-    threshold: Infinity, // the distance threshold
+  threshold: Infinity, // the distance threshold
   // mode:'dendrogram' => the nodes are organised as leaves in a tree (siblings are close), merging makes clusters
-    addDendrogram: false, // whether to add the dendrogram to the graph for viz
-    dendrogramDepth: 0, // depth at which dendrogram branches are merged into the returned clusters
-  attributes: [] // array of attr functions
+  addDendrogram: false, // whether to add the dendrogram to the graph for viz
+  dendrogramDepth: 0, // depth at which dendrogram branches are merged into the returned clusters
+  attributes: [], // array of attr functions
 });
 
 const linkageAliases = {
-  'single': 'min',
-  'complete': 'max'
+  single: "min",
+  complete: "max",
 };
 
-const setOptions = ( options ) => {
-  const opts = defaults( options );
+const setOptions = (options) => {
+  const opts = defaults(options);
 
-  const preferredAlias = linkageAliases[ opts.linkage ];
+  const preferredAlias = linkageAliases[opts.linkage];
 
-  if( preferredAlias != null ){
+  if (preferredAlias != null) {
     opts.linkage = preferredAlias;
   }
 
   return opts;
 };
 
-const mergeClosest = function( clusters, index, dists, mins, opts ) {
+const mergeClosest = function (clusters, index, dists, mins, opts) {
   // Find two closest clusters from cached mins
   const minKey = 0;
   const min = Infinity;
   let dist;
   const attrs = opts.attributes;
 
-  const getDist = (n1, n2) => clusteringDistance( opts.distance, attrs.length, i => attrs[i](n1), i => attrs[i](n2), n1, n2 );
+  const getDist = (n1, n2) =>
+    clusteringDistance(
+      opts.distance,
+      attrs.length,
+      (i) => attrs[i](n1),
+      (i) => attrs[i](n2),
+      n1,
+      n2,
+    );
 
-  for ( const i = 0; i < clusters.length; i++ ) {
-    const key  = clusters[i].key;
+  for (const i = 0; i < clusters.length; i++) {
+    const key = clusters[i].key;
     const dist = dists[key][mins[key]];
-    if ( dist < min ) {
+    if (dist < min) {
       minKey = key;
       min = dist;
     }
   }
-  if ( (opts.mode === 'threshold'  && min >= opts.threshold) ||
-       (opts.mode === 'dendrogram' && clusters.length === 1) ) {
+  if (
+    (opts.mode === "threshold" && min >= opts.threshold) ||
+    (opts.mode === "dendrogram" && clusters.length === 1)
+  ) {
     return false;
   }
 
@@ -62,17 +72,16 @@ const mergeClosest = function( clusters, index, dists, mins, opts ) {
   let merged;
 
   // Merge two closest clusters
-  if ( opts.mode === 'dendrogram' ) {
+  if (opts.mode === "dendrogram") {
     merged = {
       left: c1,
       right: c2,
-      key: c1.key
+      key: c1.key,
     };
-  }
-  else {
+  } else {
     merged = {
       value: c1.value.concat(c2.value),
-      key: c1.key
+      key: c1.key,
     };
   }
 
@@ -82,45 +91,41 @@ const mergeClosest = function( clusters, index, dists, mins, opts ) {
   index[c1.key] = merged;
 
   // Update distances with new merged cluster
-  for ( const i = 0; i < clusters.length; i++ ) {
+  for (const i = 0; i < clusters.length; i++) {
     const cur = clusters[i];
 
-    if ( c1.key === cur.key ) {
+    if (c1.key === cur.key) {
       dist = Infinity;
-    }
-    else if ( opts.linkage === 'min' ) {
+    } else if (opts.linkage === "min") {
       dist = dists[c1.key][cur.key];
-      if ( dists[c1.key][cur.key] > dists[c2.key][cur.key] ) {
+      if (dists[c1.key][cur.key] > dists[c2.key][cur.key]) {
         dist = dists[c2.key][cur.key];
       }
-    }
-    else if ( opts.linkage === 'max' ) {
+    } else if (opts.linkage === "max") {
       dist = dists[c1.key][cur.key];
-      if ( dists[c1.key][cur.key] < dists[c2.key][cur.key] ) {
+      if (dists[c1.key][cur.key] < dists[c2.key][cur.key]) {
         dist = dists[c2.key][cur.key];
       }
-    }
-    else if ( opts.linkage === 'mean' ) {
-      dist = (dists[c1.key][cur.key] * c1.size + dists[c2.key][cur.key] * c2.size) / (c1.size + c2.size);
-    }
-    else {
-      if ( opts.mode === 'dendrogram' )
-        dist = getDist( cur.value, c1.value );
-      else
-        dist = getDist( cur.value[0], c1.value[0] );
+    } else if (opts.linkage === "mean") {
+      dist =
+        (dists[c1.key][cur.key] * c1.size + dists[c2.key][cur.key] * c2.size) /
+        (c1.size + c2.size);
+    } else {
+      if (opts.mode === "dendrogram") dist = getDist(cur.value, c1.value);
+      else dist = getDist(cur.value[0], c1.value[0]);
     }
 
     dists[c1.key][cur.key] = dists[cur.key][c1.key] = dist; // distance matrix is symmetric
   }
 
   // Update cached mins
-  for ( const i = 0; i < clusters.length; i++ ) {
+  for (const i = 0; i < clusters.length; i++) {
     const key1 = clusters[i].key;
-    if ( mins[key1] === c1.key || mins[key1] === c2.key ) {
+    if (mins[key1] === c1.key || mins[key1] === c2.key) {
       const min = key1;
-      for ( const j = 0; j < clusters.length; j++ ) {
+      for (const j = 0; j < clusters.length; j++) {
         const key2 = clusters[j].key;
-        if ( dists[key1][key2] < dists[key1][min] ) {
+        if (dists[key1][key2] < dists[key1][min]) {
           min = key2;
         }
       }
@@ -135,178 +140,178 @@ const mergeClosest = function( clusters, index, dists, mins, opts ) {
   return true;
 };
 
-const getAllChildren = function( root, arr, cy ) {
+const getAllChildren = function (root, arr, cy) {
+  if (!root) return;
 
-  if ( !root )
-      return;
-
-  if ( root.value ) {
-    arr.push( root.value );
-  }
-  else {
-    if ( root.left )
-      getAllChildren( root.left, arr, cy );
-    if ( root.right )
-      getAllChildren( root.right, arr, cy );
+  if (root.value) {
+    arr.push(root.value);
+  } else {
+    if (root.left) getAllChildren(root.left, arr, cy);
+    if (root.right) getAllChildren(root.right, arr, cy);
   }
 };
 
-const buildDendrogram = function ( root, cy ) {
+const buildDendrogram = function (root, cy) {
+  if (!root) return "";
 
-  if ( !root )
-      return '';
+  if (root.left && root.right) {
+    const leftStr = buildDendrogram(root.left, cy);
+    const rightStr = buildDendrogram(root.right, cy);
 
-  if ( root.left && root.right ) {
+    const node = cy.add({
+      group: "nodes",
+      data: { id: leftStr + "," + rightStr },
+    });
 
-    const leftStr = buildDendrogram( root.left, cy );
-    const rightStr = buildDendrogram( root.right, cy );
-
-    const node = cy.add({group:'nodes', data: {id: leftStr + ',' + rightStr}});
-
-    cy.add({group:'edges', data: { source: leftStr, target: node.id() }});
-    cy.add({group:'edges', data: { source: rightStr, target: node.id() }});
+    cy.add({ group: "edges", data: { source: leftStr, target: node.id() } });
+    cy.add({ group: "edges", data: { source: rightStr, target: node.id() } });
 
     return node.id();
-  }
-  else if ( root.value ) {
+  } else if (root.value) {
     return root.value.id();
   }
-
 };
 
-const buildClustersFromTree = function( root, k, cy ) {
+const buildClustersFromTree = function (root, k, cy) {
+  if (!root) return [];
 
-  if ( !root )
-      return [];
+  const left = [],
+    right = [],
+    leaves = [];
 
-  const left = [], right = [], leaves = [];
-
-  if ( k === 0 ) { // don't cut tree, simply return all nodes as 1 single cluster
-    if ( root.left )
-      getAllChildren( root.left, left, cy );
-    if ( root.right )
-      getAllChildren( root.right, right, cy );
+  if (k === 0) {
+    // don't cut tree, simply return all nodes as 1 single cluster
+    if (root.left) getAllChildren(root.left, left, cy);
+    if (root.right) getAllChildren(root.right, right, cy);
 
     leaves = left.concat(right);
-    return [ cy.collection(leaves) ];
-  }
-  else if ( k === 1 ) { // cut at root
+    return [cy.collection(leaves)];
+  } else if (k === 1) {
+    // cut at root
 
-    if ( root.value ) { // leaf node
-      return [ cy.collection( root.value ) ];
-    }
-    else {
-      if ( root.left )
-        getAllChildren( root.left, left, cy );
-      if ( root.right )
-        getAllChildren( root.right, right, cy );
+    if (root.value) {
+      // leaf node
+      return [cy.collection(root.value)];
+    } else {
+      if (root.left) getAllChildren(root.left, left, cy);
+      if (root.right) getAllChildren(root.right, right, cy);
 
-      return [ cy.collection(left), cy.collection(right) ];
+      return [cy.collection(left), cy.collection(right)];
     }
-  }
-  else {
-    if ( root.value ) {
-      return [ cy.collection(root.value) ];
-    }
-    else {
-      if ( root.left )
-        left  = buildClustersFromTree( root.left, k - 1, cy );
-      if ( root.right )
-        right = buildClustersFromTree( root.right, k - 1, cy );
+  } else {
+    if (root.value) {
+      return [cy.collection(root.value)];
+    } else {
+      if (root.left) left = buildClustersFromTree(root.left, k - 1, cy);
+      if (root.right) right = buildClustersFromTree(root.right, k - 1, cy);
 
       return left.concat(right);
     }
   }
 };
 
-if( process.env.NODE_ENV !== 'production' ){ /* eslint-disable no-console, no-unused-vars */
-  const printMatrix = function( M ) { // used for debugging purposes only
+if (process.env.NODE_ENV !== "production") {
+  /* eslint-disable no-console, no-unused-vars */
+  const printMatrix = function (M) {
+    // used for debugging purposes only
     const n = M.length;
-    for (let i = 0; i < n; i++ ) {
-      const row = '';
-      for ( const j = 0; j < n; j++ ) {
-        row += Math.round(M[i][j]*100)/100 + ' ';
+    for (let i = 0; i < n; i++) {
+      const row = "";
+      for (const j = 0; j < n; j++) {
+        row += Math.round(M[i][j] * 100) / 100 + " ";
       }
       console.log(row);
     }
-    console.log('');
+    console.log("");
   };
 } /* eslint-enable */
 
-const hierarchicalClustering = function( options ){
-  const cy    = this.cy();
+const hierarchicalClustering = function (options) {
+  const cy = this.cy();
   const nodes = this.nodes();
 
   // Set parameters of algorithm: linkage type, distance metric, etc.
-  const opts = setOptions( options );
+  const opts = setOptions(options);
 
   const attrs = opts.attributes;
-  const getDist = (n1, n2) => clusteringDistance( opts.distance, attrs.length, i => attrs[i](n1), i => attrs[i](n2), n1, n2 );
+  const getDist = (n1, n2) =>
+    clusteringDistance(
+      opts.distance,
+      attrs.length,
+      (i) => attrs[i](n1),
+      (i) => attrs[i](n2),
+      n1,
+      n2,
+    );
 
   // Begin hierarchical algorithm
   const clusters = [];
-  const dists    = [];  // distances between each pair of clusters
-  const mins     = [];  // closest cluster for each cluster
-  const index    = [];  // hash of all clusters by key
+  const dists = []; // distances between each pair of clusters
+  const mins = []; // closest cluster for each cluster
+  const index = []; // hash of all clusters by key
 
   // In agglomerative (bottom-up) clustering, each node starts as its own cluster
-  for ( const n = 0; n < nodes.length; n++ ) {
+  for (const n = 0; n < nodes.length; n++) {
     const cluster = {
-      value: (opts.mode === 'dendrogram') ? nodes[n] : [ nodes[n] ],
-      key:   n,
-      index: n
+      value: opts.mode === "dendrogram" ? nodes[n] : [nodes[n]],
+      key: n,
+      index: n,
     };
     clusters[n] = cluster;
-    index[n]    = cluster;
-    dists[n]    = [];
-    mins[n]     = 0;
+    index[n] = cluster;
+    dists[n] = [];
+    mins[n] = 0;
   }
 
   // Calculate the distance between each pair of clusters
-  for ( const i = 0; i < clusters.length; i++ ) {
-    for ( const j = 0; j <= i; j++ ) {
+  for (const i = 0; i < clusters.length; i++) {
+    for (const j = 0; j <= i; j++) {
       let dist;
 
-      if ( opts.mode === 'dendrogram' ){ // modes store cluster values differently
-        dist = (i === j) ? Infinity : getDist( clusters[i].value, clusters[j].value );
+      if (opts.mode === "dendrogram") {
+        // modes store cluster values differently
+        dist =
+          i === j ? Infinity : getDist(clusters[i].value, clusters[j].value);
       } else {
-        dist = (i === j) ? Infinity : getDist( clusters[i].value[0], clusters[j].value[0] );
+        dist =
+          i === j
+            ? Infinity
+            : getDist(clusters[i].value[0], clusters[j].value[0]);
       }
 
       dists[i][j] = dist;
       dists[j][i] = dist;
 
-      if ( dist < dists[i][mins[i]] ) {
-        mins[i] = j;  // Cache mins: closest cluster to cluster i is cluster j
+      if (dist < dists[i][mins[i]]) {
+        mins[i] = j; // Cache mins: closest cluster to cluster i is cluster j
       }
     }
   }
 
   // Find the closest pair of clusters and merge them into a single cluster.
   // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
-  const merged = mergeClosest( clusters, index, dists, mins, opts );
-  while ( merged ) {
-    merged = mergeClosest( clusters, index, dists, mins, opts );
+  const merged = mergeClosest(clusters, index, dists, mins, opts);
+  while (merged) {
+    merged = mergeClosest(clusters, index, dists, mins, opts);
   }
 
   let retClusters;
 
   // Dendrogram mode builds the hierarchy and adds intermediary nodes + edges
   // in addition to returning the clusters.
-  if ( opts.mode === 'dendrogram') {
-    retClusters = buildClustersFromTree( clusters[0], opts.dendrogramDepth, cy );
+  if (opts.mode === "dendrogram") {
+    retClusters = buildClustersFromTree(clusters[0], opts.dendrogramDepth, cy);
 
-    if ( opts.addDendrogram )
-      buildDendrogram( clusters[0], cy );
-  }
-  else { // Regular mode simply returns the clusters
+    if (opts.addDendrogram) buildDendrogram(clusters[0], cy);
+  } else {
+    // Regular mode simply returns the clusters
 
     retClusters = new Array(clusters.length);
-    clusters.forEach( function( cluster, i ) {
+    clusters.forEach(function (cluster, i) {
       // Clean up meta data used for clustering
       cluster.key = cluster.index = null;
 
-      retClusters[i] = cy.collection( cluster.value );
+      retClusters[i] = cy.collection(cluster.value);
     });
   }
 

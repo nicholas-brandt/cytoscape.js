@@ -1,83 +1,81 @@
-import define from '../define/index.mjs';
+import define from "../define/index.mjs";
 
 let fn, elesfn;
 
-fn = elesfn = ({
-
-  data: define.data( {
-    field: 'data',
-    bindingEvent: 'data',
+fn = elesfn = {
+  data: define.data({
+    field: "data",
+    bindingEvent: "data",
     allowBinding: true,
     allowSetting: true,
-    settingEvent: 'data',
+    settingEvent: "data",
     settingTriggersEvent: true,
-    triggerFnName: 'trigger',
+    triggerFnName: "trigger",
     allowGetting: true,
     immutableKeys: {
-      'id': true,
-      'source': true,
-      'target': true,
-      'parent': true
+      id: true,
+      source: true,
+      target: true,
+      parent: true,
     },
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  removeData: define.removeData( {
-    field: 'data',
-    event: 'data',
-    triggerFnName: 'trigger',
+  removeData: define.removeData({
+    field: "data",
+    event: "data",
+    triggerFnName: "trigger",
     triggerEvent: true,
     immutableKeys: {
-      'id': true,
-      'source': true,
-      'target': true,
-      'parent': true
+      id: true,
+      source: true,
+      target: true,
+      parent: true,
     },
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  scratch: define.data( {
-    field: 'scratch',
-    bindingEvent: 'scratch',
+  scratch: define.data({
+    field: "scratch",
+    bindingEvent: "scratch",
     allowBinding: true,
     allowSetting: true,
-    settingEvent: 'scratch',
+    settingEvent: "scratch",
     settingTriggersEvent: true,
-    triggerFnName: 'trigger',
+    triggerFnName: "trigger",
     allowGetting: true,
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  removeScratch: define.removeData( {
-    field: 'scratch',
-    event: 'scratch',
-    triggerFnName: 'trigger',
+  removeScratch: define.removeData({
+    field: "scratch",
+    event: "scratch",
+    triggerFnName: "trigger",
     triggerEvent: true,
-    updateStyle: true
-  } ),
+    updateStyle: true,
+  }),
 
-  rscratch: define.data( {
-    field: 'rscratch',
+  rscratch: define.data({
+    field: "rscratch",
     allowBinding: false,
     allowSetting: true,
     settingTriggersEvent: false,
-    allowGetting: true
-  } ),
+    allowGetting: true,
+  }),
 
-  removeRscratch: define.removeData( {
-    field: 'rscratch',
-    triggerEvent: false
-  } ),
+  removeRscratch: define.removeData({
+    field: "rscratch",
+    triggerEvent: false,
+  }),
 
-  id: function(){
+  id: function () {
     const ele = this[0];
 
-    if( ele ){
+    if (ele) {
       return ele._private.data.id;
     }
-  }
-
-});
+  },
+};
 
 // aliases
 fn.attr = fn.data;

@@ -1,6 +1,6 @@
-import * as util from '../../util/index.mjs';
-import * as is from '../../is.mjs';
-import { copyPosition } from '../../math.mjs';
+import * as util from "../../util/index.mjs";
+import * as is from "../../is.mjs";
+import { copyPosition } from "../../math.mjs";
 
 const defaults = {
   positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
@@ -12,50 +12,54 @@ const defaults = {
   animate: false, // whether to transition the node positions
   animationDuration: 500, // duration of animation in ms if enabled
   animationEasing: undefined, // easing of animation if enabled
-  animateFilter: function ( node, i ){ return true; }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
+  animateFilter: function (node, i) {
+    return true;
+  }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
   ready: undefined, // callback on layoutready
   stop: undefined, // callback on layoutstop
-  transform: function (node, position ){ return position; } // transform a given node position. Useful for changing flow direction in discrete layouts
+  transform: function (node, position) {
+    return position;
+  }, // transform a given node position. Useful for changing flow direction in discrete layouts
 };
 
-function PresetLayout( options ){
-  this.options = util.extend( {}, defaults, options );
+function PresetLayout(options) {
+  this.options = util.extend({}, defaults, options);
 }
 
-PresetLayout.prototype.run = function(){
+PresetLayout.prototype.run = function () {
   const options = this.options;
   const eles = options.eles;
 
   const nodes = eles.nodes();
-  const posIsFn = is.fn( options.positions );
+  const posIsFn = is.fn(options.positions);
 
-  function getPosition( node ){
-    if( options.positions == null ){
-      return copyPosition( node.position() );
+  function getPosition(node) {
+    if (options.positions == null) {
+      return copyPosition(node.position());
     }
 
-    if( posIsFn ){
-      return options.positions( node );
+    if (posIsFn) {
+      return options.positions(node);
     }
 
-    const pos = options.positions[ node._private.data.id ];
+    const pos = options.positions[node._private.data.id];
 
-    if( pos == null ){
+    if (pos == null) {
       return null;
     }
 
     return pos;
   }
 
-  nodes.layoutPositions( this, options, function( node, i ){
-    const position = getPosition( node );
+  nodes.layoutPositions(this, options, function (node, i) {
+    const position = getPosition(node);
 
-    if( node.locked() || position == null ){
+    if (node.locked() || position == null) {
       return false;
     }
 
     return position;
-  } );
+  });
 
   return this; // chaining
 };

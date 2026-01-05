@@ -1,4 +1,4 @@
-function startAnimation( self, ani, now, isCore ){
+function startAnimation(self, ani, now, isCore) {
   const ani_p = ani._private;
 
   ani_p.started = true;

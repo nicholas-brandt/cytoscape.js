@@ -6,43 +6,47 @@ https://tldrlegal.com/license/mit-license
 https://github.com/jquery/jquery/blob/master/src/event.js
 */
 
-const Event = function( src, props ){
-  this.recycle( src, props );
+const Event = function (src, props) {
+  this.recycle(src, props);
 };
 
-function returnFalse(){
+function returnFalse() {
   return false;
 }
 
-function returnTrue(){
+function returnTrue() {
   return true;
 }
 
 // http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
 Event.prototype = {
-  instanceString: function(){
-    return 'event';
+  instanceString: function () {
+    return "event";
   },
 
-  recycle: function( src, props ){
-    this.isImmediatePropagationStopped = this.isPropagationStopped = this.isDefaultPrevented = returnFalse;
+  recycle: function (src, props) {
+    this.isImmediatePropagationStopped =
+      this.isPropagationStopped =
+      this.isDefaultPrevented =
+        returnFalse;
 
-    if( src != null && src.preventDefault ){ // Browser Event object
+    if (src != null && src.preventDefault) {
+      // Browser Event object
       this.type = src.type;
 
       // Events bubbling up the document may have been marked as prevented
       // by a handler lower down the tree; reflect the correct value.
-      this.isDefaultPrevented = ( src.defaultPrevented ) ? returnTrue : returnFalse;
-
-    } else if( src != null && src.type ){ // Plain object containing all event details
+      this.isDefaultPrevented = src.defaultPrevented ? returnTrue : returnFalse;
+    } else if (src != null && src.type) {
+      // Plain object containing all event details
       props = src;
-
-    } else { // Event string
+    } else {
+      // Event string
       this.type = src;
     }
 
     // Put explicitly provided properties onto the event object
-    if( props != null ){
+    if (props != null) {
       // more efficient to manually copy fields we use
       this.originalEvent = props.originalEvent;
       this.type = props.type != null ? props.type : this.type;
@@ -54,7 +58,11 @@ Event.prototype = {
       this.layout = props.layout;
     }
 
-    if( this.cy != null && this.position != null && this.renderedPosition == null ){
+    if (
+      this.cy != null &&
+      this.position != null &&
+      this.renderedPosition == null
+    ) {
       // create a rendered position based on the passed position
       const pos = this.position;
       const zoom = this.cy.zoom();
@@ -62,50 +70,50 @@ Event.prototype = {
 
       this.renderedPosition = {
         x: pos.x * zoom + pan.x,
-        y: pos.y * zoom + pan.y
+        y: pos.y * zoom + pan.y,
       };
     }
 
     // Create a timestamp if incoming event doesn't have one
-    this.timeStamp = src && src.timeStamp || Date.now();
+    this.timeStamp = (src && src.timeStamp) || Date.now();
   },
 
-  preventDefault: function(){
+  preventDefault: function () {
     this.isDefaultPrevented = returnTrue;
 
     const e = this.originalEvent;
-    if( !e ){
+    if (!e) {
       return;
     }
 
     // if preventDefault exists run it on the original event
-    if( e.preventDefault ){
+    if (e.preventDefault) {
       e.preventDefault();
     }
   },
 
-  stopPropagation: function(){
+  stopPropagation: function () {
     this.isPropagationStopped = returnTrue;
 
     const e = this.originalEvent;
-    if( !e ){
+    if (!e) {
       return;
     }
 
     // if stopPropagation exists run it on the original event
-    if( e.stopPropagation ){
+    if (e.stopPropagation) {
       e.stopPropagation();
     }
   },
 
-  stopImmediatePropagation: function(){
+  stopImmediatePropagation: function () {
     this.isImmediatePropagationStopped = returnTrue;
     this.stopPropagation();
   },
 
   isDefaultPrevented: returnFalse,
   isPropagationStopped: returnFalse,
-  isImmediatePropagationStopped: returnFalse
+  isImmediatePropagationStopped: returnFalse,
 };
 
 export default Event;
