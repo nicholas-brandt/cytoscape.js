@@ -2,15 +2,15 @@
 
 import window from './window.mjs';
 
-let navigator = window ? window.navigator : null;
-let document = window ? window.document : null;
+const navigator = window ? window.navigator : null;
+const document = window ? window.document : null;
 
-let typeofstr = typeof '';
-let typeofobj = typeof {};
-let typeoffn = typeof function(){};
-let typeofhtmlele = typeof HTMLElement;
+const typeofstr = typeof '';
+const typeofobj = typeof {};
+const typeoffn = typeof function(){};
+const typeofhtmlele = typeof HTMLElement;
 
-let instanceStr = function( obj ){
+const instanceStr = function( obj ){
   return obj && obj.instanceString && fn( obj.instanceString ) ? obj.instanceString() : null;
 };
 

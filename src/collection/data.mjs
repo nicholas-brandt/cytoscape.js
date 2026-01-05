@@ -70,7 +70,7 @@ fn = elesfn = ({
   } ),
 
   id: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele._private.data.id;

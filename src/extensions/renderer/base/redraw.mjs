@@ -1,6 +1,6 @@
 import * as util from '../../../util/index.mjs';
 
-var BRp = {};
+const BRp = {};
 
 BRp.timeToRender = function(){
   return this.redrawTotalTime / this.redrawCount;
@@ -9,7 +9,7 @@ BRp.timeToRender = function(){
 BRp.redraw = function( options ){
   options = options || util.staticEmptyObject();
 
-  var r = this;
+  const r = this;
 
   if( r.averageRedrawTime === undefined ){ r.averageRedrawTime = 0; }
   if( r.lastRedrawTime === undefined ){ r.lastRedrawTime = 0; }
@@ -27,7 +27,7 @@ BRp.beforeRender = function( fn, priority ){
     util.error('Priority is not optional for beforeRender');
   }
 
-  var cbs = this.beforeRenderCallbacks;
+  const cbs = this.beforeRenderCallbacks;
 
   cbs.push({ fn: fn, priority: priority });
 
@@ -35,17 +35,17 @@ BRp.beforeRender = function( fn, priority ){
   cbs.sort(function( a, b ){ return b.priority - a.priority; });
 };
 
-var beforeRenderCallbacks = function( r, willDraw, startTime ){
-  var cbs = r.beforeRenderCallbacks;
+const beforeRenderCallbacks = function( r, willDraw, startTime ){
+  const cbs = r.beforeRenderCallbacks;
 
-  for( var i = 0; i < cbs.length; i++ ){
+  for (let i = 0; i < cbs.length; i++ ){
     cbs[i].fn( willDraw, startTime );
   }
 };
 
 BRp.startRenderLoop = function(){
-  var r = this;
-  var cy = r.cy;
+  const r = this;
+  const cy = r.cy;
 
   if( r.renderLoopStarted ){
     return;
@@ -53,7 +53,7 @@ BRp.startRenderLoop = function(){
     r.renderLoopStarted = true;
   }
 
-  var renderFn = function( requestTime ){
+  const renderFn = function( requestTime ){
     if( r.destroyed ){ return; }
 
     if( cy.batching() ){
@@ -63,11 +63,11 @@ BRp.startRenderLoop = function(){
     } else if( r.requestedFrame && !r.skipFrame ){
       beforeRenderCallbacks( r, true, requestTime );
 
-      var startTime = util.performanceNow();
+      const startTime = util.performanceNow();
 
       r.render( r.renderOptions );
 
-      var endTime = r.lastDrawTime = util.performanceNow();
+      const endTime = r.lastDrawTime = util.performanceNow();
 
       if( r.averageRedrawTime === undefined ){
         r.averageRedrawTime = endTime - startTime;
@@ -83,7 +83,7 @@ BRp.startRenderLoop = function(){
         r.redrawTotalTime = 0;
       }
 
-      var duration = endTime - startTime;
+      const duration = endTime - startTime;
 
       r.redrawTotalTime += duration;
       r.lastRedrawTime = duration;

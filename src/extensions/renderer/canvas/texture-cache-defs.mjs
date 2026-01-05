@@ -1,12 +1,12 @@
 import * as util from '../../../util/index.mjs';
 
-var fullFpsTime = 1000/60; // assume 60 frames per second
+const fullFpsTime = 1000/60; // assume 60 frames per second
 
 export default {
   setupDequeueing: function( opts ){
     return function setupDequeueingImpl(){
-      var self = this;
-      var r = this.renderer;
+      const self = this;
+      const r = this.renderer;
 
       if( self.dequeueingSetup ){
         return;
@@ -14,20 +14,20 @@ export default {
         self.dequeueingSetup = true;
       }
 
-      var queueRedraw = util.debounce( function(){
+      const queueRedraw = util.debounce( function(){
         r.redrawHint( 'eles', true );
         r.redrawHint( 'drag', true );
 
         r.redraw();
       }, opts.deqRedrawThreshold );
 
-      var dequeue = function( willDraw, frameStartTime ){
-        var startTime = util.performanceNow();
-        var avgRenderTime = r.averageRedrawTime;
-        var renderTime = r.lastRedrawTime;
-        var deqd = [];
-        var extent = r.cy.extent();
-        var pixelRatio = r.getPixelRatio();
+      const dequeue = function( willDraw, frameStartTime ){
+        const startTime = util.performanceNow();
+        const avgRenderTime = r.averageRedrawTime;
+        const renderTime = r.lastRedrawTime;
+        const deqd = [];
+        const extent = r.cy.extent();
+        const pixelRatio = r.getPixelRatio();
 
         // if we aren't in a tick that causes a draw, then the rendered style
         // queue won't automatically be flushed before dequeueing starts
@@ -36,15 +36,15 @@ export default {
         }
 
         while( true ){ // eslint-disable-line no-constant-condition
-          var now = util.performanceNow();
-          var duration = now - startTime;
-          var frameDuration = now - frameStartTime;
+          const now = util.performanceNow();
+          const duration = now - startTime;
+          const frameDuration = now - frameStartTime;
 
           if( renderTime < fullFpsTime ){
             // if we're rendering faster than the ideal fps, then do dequeueing
             // during all of the remaining frame time
 
-            var timeAvailable = fullFpsTime - ( willDraw ? avgRenderTime : 0 );
+            const timeAvailable = fullFpsTime - ( willDraw ? avgRenderTime : 0 );
 
             if( frameDuration >= opts.deqFastCost * timeAvailable ){
               break;
@@ -62,10 +62,10 @@ export default {
             }
           }
 
-          var thisDeqd = opts.deq( self, pixelRatio, extent );
+          const thisDeqd = opts.deq( self, pixelRatio, extent );
 
           if( thisDeqd.length > 0 ){
-            for( var i = 0; i < thisDeqd.length; i++ ){
+            for (let i = 0; i < thisDeqd.length; i++ ){
               deqd.push( thisDeqd[i] );
             }
           } else {
@@ -83,7 +83,7 @@ export default {
         }
       };
 
-      var priority = opts.priority || util.noop;
+      const priority = opts.priority || util.noop;
 
       r.beforeRender( dequeue, priority( self ) );
     };

@@ -2,7 +2,7 @@ import * as util from '../../util/index.mjs';
 import * as math from '../../math.mjs';
 import * as is from '../../is.mjs';
 
-let defaults = {
+const defaults = {
   fit: true, // whether to fit the viewport to the graph
   padding: 30, // the padding on fit
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
@@ -29,39 +29,39 @@ function CircleLayout( options ){
 }
 
 CircleLayout.prototype.run = function(){
-  let params = this.options;
-  let options = params;
+  const params = this.options;
+  const options = params;
 
-  let cy = params.cy;
-  let eles = options.eles;
+  const cy = params.cy;
+  const eles = options.eles;
 
-  let clockwise = options.counterclockwise !== undefined ? !options.counterclockwise : options.clockwise;
+  const clockwise = options.counterclockwise !== undefined ? !options.counterclockwise : options.clockwise;
 
-  let nodes = eles.nodes().not( ':parent' );
+  const nodes = eles.nodes().not( ':parent' );
 
   if( options.sort ){
     nodes = nodes.sort( options.sort );
   }
 
-  let bb = math.makeBoundingBox( options.boundingBox ? options.boundingBox : {
+  const bb = math.makeBoundingBox( options.boundingBox ? options.boundingBox : {
     x1: 0, y1: 0, w: cy.width(), h: cy.height()
   } );
 
-  let center = {
+  const center = {
     x: bb.x1 + bb.w / 2,
     y: bb.y1 + bb.h / 2
   };
 
-  let sweep = options.sweep === undefined ? 2 * Math.PI - 2 * Math.PI / nodes.length : options.sweep;
-  let dTheta = sweep / ( Math.max( 1, nodes.length - 1 ) );
+  const sweep = options.sweep === undefined ? 2 * Math.PI - 2 * Math.PI / nodes.length : options.sweep;
+  const dTheta = sweep / ( Math.max( 1, nodes.length - 1 ) );
   let r;
 
-  let minDistance = 0;
-  for( let i = 0; i < nodes.length; i++ ){
-    let n = nodes[ i ];
-    let nbb = n.layoutDimensions( options );
-    let w = nbb.w;
-    let h = nbb.h;
+  const minDistance = 0;
+  for (let i = 0; i < nodes.length; i++ ){
+    const n = nodes[ i ];
+    const nbb = n.layoutDimensions( options );
+    const w = nbb.w;
+    const h = nbb.h;
 
     minDistance = Math.max( minDistance, w, h );
   }
@@ -78,18 +78,18 @@ CircleLayout.prototype.run = function(){
   if( nodes.length > 1 && options.avoidOverlap ){ // but only if more than one node (can't overlap)
     minDistance *= 1.75; // just to have some nice spacing
 
-    let dcos = Math.cos( dTheta ) - Math.cos( 0 );
-    let dsin = Math.sin( dTheta ) - Math.sin( 0 );
-    let rMin = Math.sqrt( minDistance * minDistance / ( dcos * dcos + dsin * dsin ) ); // s.t. no nodes overlapping
+    const dcos = Math.cos( dTheta ) - Math.cos( 0 );
+    const dsin = Math.sin( dTheta ) - Math.sin( 0 );
+    const rMin = Math.sqrt( minDistance * minDistance / ( dcos * dcos + dsin * dsin ) ); // s.t. no nodes overlapping
     r = Math.max( rMin, r );
   }
 
-  let getPos = function( ele, i ){
-    let theta = options.startAngle + i * dTheta * ( clockwise ? 1 : -1 );
+  const getPos = function( ele, i ){
+    const theta = options.startAngle + i * dTheta * ( clockwise ? 1 : -1 );
 
-    let rx = r * Math.cos( theta );
-    let ry = r * Math.sin( theta );
-    let pos = {
+    const rx = r * Math.cos( theta );
+    const ry = r * Math.sin( theta );
+    const pos = {
       x: center.x + rx,
       y: center.y + ry
     };

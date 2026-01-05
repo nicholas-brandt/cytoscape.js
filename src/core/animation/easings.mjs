@@ -1,15 +1,15 @@
 import generateCubicBezier from './cubic-bezier.mjs';
 import generateSpringRK4 from './spring.mjs';
 
-let cubicBezier = function( t1, p1, t2, p2 ){
-  let bezier = generateCubicBezier( t1, p1, t2, p2 );
+const cubicBezier = function( t1, p1, t2, p2 ){
+  const bezier = generateCubicBezier( t1, p1, t2, p2 );
 
   return function( start, end, percent ){
     return start + ( end - start ) * bezier( percent );
   };
 };
 
-let easings = {
+const easings = {
   'linear': function( start, end, percent ){
     return start + (end - start) * percent;
   },
@@ -63,7 +63,7 @@ let easings = {
       return easings.linear; // duration 0 => jump to end so impl doesn't matter
     }
 
-    let spring = generateSpringRK4( tension, friction, duration );
+    const spring = generateSpringRK4( tension, friction, duration );
 
     return function( start, end, percent ){
       return start + (end - start) * spring( percent );

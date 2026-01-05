@@ -58,7 +58,7 @@ BreadthFirstLayout.prototype.run = function(){
   } else if( is.array( options.roots ) ){
     const rootsArray = [];
 
-    for( let i = 0; i < options.roots.length; i++ ){
+    for (let i = 0; i < options.roots.length; i++ ){
       const id = options.roots[ i ];
       const ele = cy.getElementById( id );
       rootsArray.push( ele );
@@ -75,7 +75,7 @@ BreadthFirstLayout.prototype.run = function(){
       const components = eles.components();
 
       roots = cy.collection();
-      for( let i = 0; i < components.length; i++ ){
+      for (let i = 0; i < components.length; i++ ){
         const comp = components[i];
         const maxDegree = comp.maxDegree( false );
         const compRoots = comp.filter( function( ele ){
@@ -130,7 +130,7 @@ BreadthFirstLayout.prototype.run = function(){
 
   // check for nodes not found by bfs
   const orphanNodes = [];
-  for( let i = 0; i < nodes.length; i++ ){
+  for (let i = 0; i < nodes.length; i++ ){
     const ele = nodes[ i ];
 
     if( foundByBfs[ ele.id() ] ){
@@ -144,7 +144,7 @@ BreadthFirstLayout.prototype.run = function(){
   const assignDepthsAt = function( i ){
     const eles = depths[ i ];
 
-    for( let j = 0; j < eles.length; j++ ){
+    for (let j = 0; j < eles.length; j++ ){
       const ele = eles[ j ];
 
       if( ele == null ){
@@ -163,10 +163,10 @@ BreadthFirstLayout.prototype.run = function(){
   const adjustMaximally = function( ele, shifted ){
     const eInfo = getInfo( ele );
     const incomers = ele.incomers().filter( el => el.isNode() && eles.has(el) );
-    let maxDepth = -1;
+    const maxDepth = -1;
     const id = ele.id();
 
-    for( let k = 0; k < incomers.length; k++ ){
+    for (let k = 0; k < incomers.length; k++ ){
       const incmr = incomers[k];
       const iInfo = getInfo( incmr );
 
@@ -213,9 +213,9 @@ BreadthFirstLayout.prototype.run = function(){
   }
 
   // find min distance we need to leave between nodes
-  let minDistance = 0;
+  const minDistance = 0;
   if( options.avoidOverlap ){
-    for( let i = 0; i < nodes.length; i++ ){
+    for (let i = 0; i < nodes.length; i++ ){
       const n = nodes[ i ];
       const nbb = n.layoutDimensions( options );
       const w = nbb.w;
@@ -237,7 +237,7 @@ BreadthFirstLayout.prototype.run = function(){
     let percent = 0;
     let samples = 0;
 
-    for( let i = 0; i < neighbors.length; i++ ){
+    for (let i = 0; i < neighbors.length; i++ ){
       const neighbor = neighbors[ i ];
 
       if( neighbor.isEdge() || neighbor.isParent() || !nodes.has( neighbor ) ){
@@ -277,7 +277,7 @@ BreadthFirstLayout.prototype.run = function(){
 
 
   // rearrange the indices in each depth level based on connectivity
-  let sortFn = function( a, b ){
+  const sortFn = function( a, b ){
     const apct = getWeightedPercent( a );
     const bpct = getWeightedPercent( b );
 
@@ -294,22 +294,22 @@ BreadthFirstLayout.prototype.run = function(){
     sortFn = options.depthSort;
   }
 
-  let depthsLen = depths.length;
+  const depthsLen = depths.length;
 
   // sort each level to make connected nodes closer
-  for( let i = 0; i < depthsLen; i++ ){
+  for (let i = 0; i < depthsLen; i++ ){
     depths[ i ].sort( sortFn );
     assignDepthsAt( i );
   }
 
   // assign orphan nodes to a new top-level depth
   const orphanDepth = [];
-  for( let i = 0; i < orphanNodes.length; i++ ){
+  for (let i = 0; i < orphanNodes.length; i++ ){
     orphanDepth.push( orphanNodes[i] );
   }
 
   const assignDepths = function(){
-    for( let i = 0; i < depthsLen; i++ ){
+    for (let i = 0; i < depthsLen; i++ ){
       assignDepthsAt( i );
     }
   };
@@ -321,8 +321,8 @@ BreadthFirstLayout.prototype.run = function(){
     assignDepths();
   }
 
-  let biggestDepthSize = 0;
-  for( let i = 0; i < depthsLen; i++ ){
+  const biggestDepthSize = 0;
+  for (let i = 0; i < depthsLen; i++ ){
     biggestDepthSize = Math.max( depths[ i ].length, biggestDepthSize );
   }
 
@@ -356,7 +356,7 @@ BreadthFirstLayout.prototype.run = function(){
       let radiusStepSize = Math.min( bb.w / 2 / depthsLen, bb.h / 2 / depthsLen );
       radiusStepSize = Math.max( radiusStepSize, minDistance );
 
-      let radius = radiusStepSize * depth + radiusStepSize - (depthsLen > 0 && depths[0].length <= 3 ? radiusStepSize / 2 : 0);
+      const radius = radiusStepSize * depth + radiusStepSize - (depthsLen > 0 && depths[0].length <= 3 ? radiusStepSize / 2 : 0);
       const theta = 2 * Math.PI / depths[ depth ].length * index;
 
       if( depth === 0 && depths[0].length === 1 ){

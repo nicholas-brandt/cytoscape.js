@@ -1,7 +1,7 @@
 import * as math from '../../../math.mjs';
 import * as round from "../../../round.mjs";
 
-var BRp = {};
+const BRp = {};
 
 BRp.generatePolygon = function( name, points ){
   return ( this.nodeShapes[ name ] = {
@@ -88,7 +88,7 @@ BRp.generateRoundPolygon = function( name, points ){
       cornerRadius = cornerRadius === 'auto' ? math.getRoundPolygonRadius( width, height ) : cornerRadius;
       const p = new Array( points.length / 2 );
 
-      for ( let i = 0; i < points.length / 2; i++ ){
+      for ( const i = 0; i < points.length / 2; i++ ){
         p[i] = {
           x: centerX + halfW * points[ i * 2 ],
           y: centerY + halfH * points[ i * 2 + 1 ]
@@ -158,11 +158,11 @@ BRp.generateRoundRectangle = function(){
 
     checkPoint: function(
       x, y, padding, width, height, centerX, centerY, cornerRadius ){
-      let halfWidth = width / 2;
-      let halfHeight = height / 2;
+      const halfWidth = width / 2;
+      const halfHeight = height / 2;
       cornerRadius = cornerRadius === 'auto' ? math.getRoundRectangleRadius( width, height ) : cornerRadius;
       cornerRadius = Math.min(halfWidth, halfHeight, cornerRadius);
-      var diam = cornerRadius * 2;
+      const diam = cornerRadius * 2;
 
       // Check hBox
       if( math.pointInsidePolygon( x, y, this.points,
@@ -236,13 +236,13 @@ BRp.generateCutRectangle = function(){
     },
 
     generateCutTrianglePts: function( width, height, centerX, centerY, cornerRadius ){
-      var cl = cornerRadius === 'auto' ? this.cornerLength : cornerRadius;
-      var hh = height / 2;
-      var hw = width / 2;
-      var xBegin = centerX - hw;
-      var xEnd = centerX + hw;
-      var yBegin = centerY - hh;
-      var yEnd = centerY + hh;
+      const cl = cornerRadius === 'auto' ? this.cornerLength : cornerRadius;
+      const hh = height / 2;
+      const hw = width / 2;
+      const xBegin = centerX - hw;
+      const xEnd = centerX + hw;
+      const yBegin = centerY - hh;
+      const yEnd = centerY + hh;
 
       // points are in clockwise order, inner (imaginary) triangle pt on [4, 5]
       return {
@@ -254,8 +254,8 @@ BRp.generateCutRectangle = function(){
     },
 
     intersectLine: function( nodeX, nodeY, width, height, x, y, padding, cornerRadius ){
-      var cPts = this.generateCutTrianglePts( width + 2*padding, height+2*padding, nodeX, nodeY, cornerRadius );
-      var pts = [].concat.apply([],
+      const cPts = this.generateCutTrianglePts( width + 2*padding, height+2*padding, nodeX, nodeY, cornerRadius );
+      const pts = [].concat.apply([],
        [cPts.topLeft.splice(0, 4), cPts.topRight.splice(0, 4),
          cPts.bottomRight.splice(0, 4), cPts.bottomLeft.splice(0, 4)
        ]);
@@ -276,7 +276,7 @@ BRp.generateCutRectangle = function(){
         centerX, centerY, width - 2 * cl, height, [0, -1], padding ) ){
         return true;
       }
-      var cutTrianglePts = this.generateCutTrianglePts(width, height, centerX, centerY);
+      const cutTrianglePts = this.generateCutTrianglePts(width, height, centerX, centerY);
       return math.pointInsidePolygonPoints( x, y, cutTrianglePts.topLeft)
        || math.pointInsidePolygonPoints( x, y, cutTrianglePts.topRight )
        || math.pointInsidePolygonPoints( x, y, cutTrianglePts.bottomRight )
@@ -301,17 +301,17 @@ BRp.generateBarrel = function(){
     intersectLine: function( nodeX, nodeY, width, height, x, y, padding, cornerRadius ){
       // use two fixed t values for the bezier curve approximation
 
-      var t0 = 0.15;
-      var t1 = 0.5;
-      var t2 = 0.85;
+      const t0 = 0.15;
+      const t1 = 0.5;
+      const t2 = 0.85;
 
-      var bPts = this.generateBarrelBezierPts( width + 2*padding, height + 2*padding, nodeX, nodeY );
+      const bPts = this.generateBarrelBezierPts( width + 2*padding, height + 2*padding, nodeX, nodeY );
 
-      var approximateBarrelCurvePts = pts => {
+      const approximateBarrelCurvePts = pts => {
         // approximate curve pts based on the two t values
-        var m0 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t0);
-        var m1 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t1);
-        var m2 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t2);
+        const m0 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t0);
+        const m1 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t1);
+        const m2 = math.qbezierPtAt({x: pts[0], y: pts[1]}, {x: pts[2], y: pts[3]}, {x: pts[4], y: pts[5]}, t2);
 
         return [
           pts[0],pts[1],
@@ -322,7 +322,7 @@ BRp.generateBarrel = function(){
         ];
       };
 
-      var pts = [].concat(
+      const pts = [].concat(
         approximateBarrelCurvePts(bPts.topLeft),
         approximateBarrelCurvePts(bPts.topRight),
         approximateBarrelCurvePts(bPts.bottomRight),
@@ -333,20 +333,20 @@ BRp.generateBarrel = function(){
     },
 
     generateBarrelBezierPts: function( width, height, centerX, centerY ){
-      var hh = height / 2;
-      var hw = width / 2;
-      var xBegin = centerX - hw;
-      var xEnd = centerX + hw;
-      var yBegin = centerY - hh;
-      var yEnd = centerY + hh;
+      const hh = height / 2;
+      const hw = width / 2;
+      const xBegin = centerX - hw;
+      const xEnd = centerX + hw;
+      const yBegin = centerY - hh;
+      const yEnd = centerY + hh;
 
-      var curveConstants = math.getBarrelCurveConstants( width, height );
-      var hOffset = curveConstants.heightOffset;
-      var wOffset = curveConstants.widthOffset;
-      var ctrlPtXOffset = curveConstants.ctrlPtOffsetPct * width;
+      const curveConstants = math.getBarrelCurveConstants( width, height );
+      const hOffset = curveConstants.heightOffset;
+      const wOffset = curveConstants.widthOffset;
+      const ctrlPtXOffset = curveConstants.ctrlPtOffsetPct * width;
 
       // points are in clockwise order, inner (imaginary) control pt on [4, 5]
-      var pts = {
+      const pts = {
         topLeft: [ xBegin, yBegin + hOffset, xBegin + ctrlPtXOffset, yBegin, xBegin + wOffset, yBegin ],
         topRight: [ xEnd - wOffset, yBegin, xEnd - ctrlPtXOffset, yBegin, xEnd, yBegin + hOffset ],
         bottomRight: [ xEnd, yEnd - hOffset, xEnd - ctrlPtXOffset, yEnd, xEnd - wOffset, yEnd ],
@@ -364,9 +364,9 @@ BRp.generateBarrel = function(){
     checkPoint: function(
       x, y, padding, width, height, centerX, centerY, cornerRadius){
 
-      var curveConstants = math.getBarrelCurveConstants( width, height );
-      var hOffset = curveConstants.heightOffset;
-      var wOffset = curveConstants.widthOffset;
+      const curveConstants = math.getBarrelCurveConstants( width, height );
+      const hOffset = curveConstants.heightOffset;
+      const wOffset = curveConstants.widthOffset;
 
       // Check hBox
       if( math.pointInsidePolygon( x, y, this.points,
@@ -380,26 +380,26 @@ BRp.generateBarrel = function(){
         return true;
       }
 
-      var barrelCurvePts = this.generateBarrelBezierPts( width, height, centerX, centerY );
+      const barrelCurvePts = this.generateBarrelBezierPts( width, height, centerX, centerY );
 
-      var getCurveT = function (x, y, curvePts) {
-        var x0 = curvePts[ 4 ];
-        var x1 = curvePts[ 2 ];
-        var x2 = curvePts[ 0 ];
-        var y0 = curvePts[ 5 ];
-        // var y1 = curvePts[ 3 ];
-        var y2 = curvePts[ 1 ];
+      const getCurveT = function (x, y, curvePts) {
+        const x0 = curvePts[ 4 ];
+        const x1 = curvePts[ 2 ];
+        const x2 = curvePts[ 0 ];
+        const y0 = curvePts[ 5 ];
+        // const y1 = curvePts[ 3 ];
+        const y2 = curvePts[ 1 ];
 
-        var xMin = Math.min( x0, x2 );
-        var xMax = Math.max( x0, x2 );
-        var yMin = Math.min( y0, y2 );
-        var yMax = Math.max( y0, y2 );
+        const xMin = Math.min( x0, x2 );
+        const xMax = Math.max( x0, x2 );
+        const yMin = Math.min( y0, y2 );
+        const yMax = Math.max( y0, y2 );
 
         if( xMin <= x && x <= xMax  && yMin <= y && y <= yMax ){
-          var coeff = math.bezierPtsToQuadCoeff( x0, x1, x2 );
-          var roots = math.solveQuadratic( coeff[0], coeff[1], coeff[2], x );
+          const coeff = math.bezierPtsToQuadCoeff( x0, x1, x2 );
+          const roots = math.solveQuadratic( coeff[0], coeff[1], coeff[2], x );
 
-          var validRoots = roots.filter(function( r ){
+          const validRoots = roots.filter(function( r ){
             return 0 <= r && r <= 1;
           });
 
@@ -410,18 +410,18 @@ BRp.generateBarrel = function(){
         return null;
       };
 
-      var curveRegions = Object.keys( barrelCurvePts );
-      for( var i = 0; i < curveRegions.length; i++ ){
-        var corner = curveRegions[ i ];
-        var cornerPts = barrelCurvePts[ corner ];
-        var t = getCurveT( x, y, cornerPts );
+      const curveRegions = Object.keys( barrelCurvePts );
+      for (let i = 0; i < curveRegions.length; i++ ){
+        const corner = curveRegions[ i ];
+        const cornerPts = barrelCurvePts[ corner ];
+        const t = getCurveT( x, y, cornerPts );
 
         if( t == null ){ continue; }
 
-        var y0 = cornerPts[ 5 ];
-        var y1 = cornerPts[ 3 ];
-        var y2 = cornerPts[ 1 ];
-        var bezY = math.qbezierAt( y0, y1, y2, t );
+        const y0 = cornerPts[ 5 ];
+        const y1 = cornerPts[ 3 ];
+        const y2 = cornerPts[ 1 ];
+        const bezY = math.qbezierAt( y0, y1, y2, t );
 
         if( cornerPts.isTop && bezY <= y ){
           return true;
@@ -448,12 +448,12 @@ BRp.generateBottomRoundrectangle = function(){
     },
 
     intersectLine: function( nodeX, nodeY, width, height, x, y, padding, cornerRadius ){
-      var topStartX = nodeX - ( width / 2 + padding );
-      var topStartY = nodeY - ( height / 2 + padding );
-      var topEndY = topStartY;
-      var topEndX = nodeX + ( width / 2 + padding );
+      const topStartX = nodeX - ( width / 2 + padding );
+      const topStartY = nodeY - ( height / 2 + padding );
+      const topEndY = topStartY;
+      const topEndX = nodeX + ( width / 2 + padding );
 
-      var topIntersections = math.finiteLinesIntersect(
+      const topIntersections = math.finiteLinesIntersect(
         x, y, nodeX, nodeY, topStartX, topStartY, topEndX, topEndY, false );
       if( topIntersections.length > 0 ){
         return topIntersections;
@@ -472,7 +472,7 @@ BRp.generateBottomRoundrectangle = function(){
       x, y, padding, width, height, centerX, centerY, cornerRadius ){
 
       cornerRadius = cornerRadius === 'auto' ? math.getRoundRectangleRadius( width, height ) : cornerRadius;
-      var diam = 2 * cornerRadius;
+      const diam = 2 * cornerRadius;
 
       // Check hBox
       if( math.pointInsidePolygon( x, y, this.points,
@@ -487,9 +487,9 @@ BRp.generateBottomRoundrectangle = function(){
       }
 
       // check non-rounded top side
-      var outerWidth = ( ( width / 2 ) + 2 * padding );
-      var outerHeight = ( ( height / 2 ) + 2 * padding );
-      var points = [
+      const outerWidth = ( ( width / 2 ) + 2 * padding );
+      const outerHeight = ( ( height / 2 ) + 2 * padding );
+      const points = [
         centerX - outerWidth, centerY - outerHeight,
         centerX - outerWidth, centerY,
         centerX + outerWidth, centerY,
@@ -526,8 +526,8 @@ BRp.generateBottomRoundrectangle = function(){
 
 
 BRp.registerNodeShapes = function(){
-  var nodeShapes = this.nodeShapes = {};
-  var renderer = this;
+  const nodeShapes = this.nodeShapes = {};
+  const renderer = this;
 
   this.generateEllipse();
 
@@ -568,21 +568,21 @@ BRp.registerNodeShapes = function(){
   this.generatePolygon( 'octagon', math.generateUnitNgonPointsFitToSquare( 8, 0 ) );
   this.generateRoundPolygon( 'round-octagon', math.generateUnitNgonPointsFitToSquare( 8, 0) );
 
-  var star5Points = new Array( 20 );
+  let star5Points = new Array( 20 );
   {
-    var outerPoints = math.generateUnitNgonPoints( 5, 0 );
-    var innerPoints = math.generateUnitNgonPoints( 5, Math.PI / 5 );
+    const outerPoints = math.generateUnitNgonPoints( 5, 0 );
+    const innerPoints = math.generateUnitNgonPoints( 5, Math.PI / 5 );
 
     // Outer radius is 1; inner radius of star is smaller
-    var innerRadius = 0.5 * (3 - Math.sqrt( 5 ));
+    let innerRadius = 0.5 * (3 - Math.sqrt( 5 ));
     innerRadius *= 1.57;
 
-    for( var i = 0;i < innerPoints.length / 2;i++ ){
+    for (let i = 0;i < innerPoints.length / 2;i++ ){
       innerPoints[ i * 2] *= innerRadius;
       innerPoints[ i * 2 + 1] *= innerRadius;
     }
 
-    for( var i = 0;i < 20 / 4;i++ ){
+    for (let i = 0;i < 20 / 4;i++ ){
       star5Points[ i * 4] = outerPoints[ i * 2];
       star5Points[ i * 4 + 1] = outerPoints[ i * 2 + 1];
 
@@ -641,9 +641,9 @@ BRp.registerNodeShapes = function(){
 
     // use caching on user-specified polygons so they are as fast as native shapes
 
-    var key = points.join( '$' );
-    var name = 'polygon-' + key;
-    var shape;
+    const key = points.join( '$' );
+    const name = 'polygon-' + key;
+    let shape;
 
     if( (shape = this[ name ]) ){ // got cached shape
       return shape;

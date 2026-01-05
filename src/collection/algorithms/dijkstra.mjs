@@ -8,52 +8,52 @@ const dijkstraDefaults = defaults({
   directed: false
 });
 
-let elesfn = ({
+const elesfn = ({
 
   dijkstra: function( options ){
     if( !is.plainObject(options) ){
-      let args = arguments;
+      const args = arguments;
 
       options = { root: args[0], weight: args[1], directed: args[2] };
     }
 
     let { root, weight, directed } = dijkstraDefaults(options);
 
-    let eles = this;
-    let weightFn = weight;
-    let source = is.string( root ) ? this.filter( root )[0] : root[0];
-    let dist = {};
-    let prev = {};
-    let knownDist = {};
+    const eles = this;
+    const weightFn = weight;
+    const source = is.string( root ) ? this.filter( root )[0] : root[0];
+    const dist = {};
+    const prev = {};
+    const knownDist = {};
 
     let { nodes, edges } = this.byGroup();
     edges.unmergeBy( ele => ele.isLoop() );
 
-    let getDist = node => dist[ node.id() ];
+    const getDist = node => dist[ node.id() ];
 
-    let setDist = ( node, d ) => {
+    const setDist = ( node, d ) => {
       dist[ node.id() ] = d;
 
       Q.updateItem( node );
     };
 
-    let Q = new Heap( (a, b) => getDist(a) - getDist(b) );
+    const Q = new Heap( (a, b) => getDist(a) - getDist(b) );
 
-    for( let i = 0; i < nodes.length; i++ ){
-      let node = nodes[ i ];
+    for (let i = 0; i < nodes.length; i++ ){
+      const node = nodes[ i ];
 
       dist[ node.id() ] = node.same( source ) ? 0 : Infinity;
       Q.push( node );
     }
 
-    let distBetween = ( u, v ) => {
-      let uvs = ( directed ? u.edgesTo(v) : u.edgesWith(v) ).intersect( edges );
-      let smallestDistance = Infinity;
+    const distBetween = ( u, v ) => {
+      const uvs = ( directed ? u.edgesTo(v) : u.edgesWith(v) ).intersect( edges );
+      const smallestDistance = Infinity;
       let smallestEdge;
 
-      for( let i = 0; i < uvs.length; i++ ){
-        let edge = uvs[ i ];
-        let weight = weightFn( edge );
+      for (let i = 0; i < uvs.length; i++ ){
+        const edge = uvs[ i ];
+        const weight = weightFn( edge );
 
         if( weight < smallestDistance || !smallestEdge ){
           smallestDistance = weight;
@@ -68,9 +68,9 @@ let elesfn = ({
     };
 
     while( Q.size() > 0 ){
-      let u = Q.pop();
-      let smalletsDist = getDist( u );
-      let uid = u.id();
+      const u = Q.pop();
+      const smalletsDist = getDist( u );
+      const uid = u.id();
 
       knownDist[ uid ] = smalletsDist;
 
@@ -78,13 +78,13 @@ let elesfn = ({
         continue;
       }
 
-      let neighbors = u.neighborhood().intersect( nodes );
-      for( let i = 0; i < neighbors.length; i++ ){
-        let v = neighbors[ i ];
-        let vid = v.id();
-        let vDist = distBetween( u, v );
+      const neighbors = u.neighborhood().intersect( nodes );
+      for (let i = 0; i < neighbors.length; i++ ){
+        const v = neighbors[ i ];
+        const vid = v.id();
+        const vDist = distBetween( u, v );
 
-        let alt = smalletsDist + vDist.dist;
+        const alt = smalletsDist + vDist.dist;
 
         if( alt < getDist( v ) ){
           setDist( v, alt );
@@ -99,22 +99,22 @@ let elesfn = ({
 
     return {
       distanceTo: function( node ){
-        let target = is.string( node ) ? nodes.filter( node )[0] : node[0];
+        const target = is.string( node ) ? nodes.filter( node )[0] : node[0];
 
         return knownDist[ target.id() ];
       },
 
       pathTo: function( node ){
-        let target = is.string( node ) ? nodes.filter( node )[0] : node[0];
-        let S = [];
-        let u = target;
-        let uid = u.id();
+        const target = is.string( node ) ? nodes.filter( node )[0] : node[0];
+        const S = [];
+        const u = target;
+        const uid = u.id();
 
         if( target.length > 0 ){
           S.unshift( target );
 
           while( prev[ uid ] ){
-            let p = prev[ uid ];
+            const p = prev[ uid ];
 
             S.unshift( p.edge );
             S.unshift( p.node );

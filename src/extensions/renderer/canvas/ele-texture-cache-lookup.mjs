@@ -19,8 +19,8 @@ class ElementTextureCacheLookup {
       util.error(`Can not get id list for null key`);
     }
 
-    let { idsByKey } = this;
-    let ids = this.idsByKey.get(key);
+    const { idsByKey } = this;
+    const ids = this.idsByKey.get(key);
 
     if( !ids ){
       ids = new Set();
@@ -52,9 +52,9 @@ class ElementTextureCacheLookup {
   }
 
   updateKeyMappingFor(ele){
-    let id = ele.id();
-    let prevKey = this.keyForId.get(id);
-    let currKey = this.getKey(ele);
+    const id = ele.id();
+    const prevKey = this.keyForId.get(id);
+    const currKey = this.getKey(ele);
 
     this.deleteIdForKey(prevKey, id);
 
@@ -64,8 +64,8 @@ class ElementTextureCacheLookup {
   }
 
   deleteKeyMappingFor(ele){
-    let id = ele.id();
-    let prevKey = this.keyForId.get(id);
+    const id = ele.id();
+    const prevKey = this.keyForId.get(id);
 
     this.deleteIdForKey(prevKey, id);
 
@@ -73,9 +73,9 @@ class ElementTextureCacheLookup {
   }
 
   keyHasChangedFor(ele){
-    let id = ele.id();
-    let prevKey = this.keyForId.get(id);
-    let newKey = this.getKey(ele);
+    const id = ele.id();
+    const prevKey = this.keyForId.get(id);
+    const newKey = this.getKey(ele);
 
     return prevKey !== newKey;
   }
@@ -86,7 +86,7 @@ class ElementTextureCacheLookup {
 
   getCachesAt(lvl){
     let { cachesByLvl, lvls } = this;
-    let caches = cachesByLvl.get(lvl);
+    const caches = cachesByLvl.get(lvl);
 
     if( !caches ){
       caches = new Map();
@@ -103,8 +103,8 @@ class ElementTextureCacheLookup {
   }
 
   get(ele, lvl){
-    let key = this.getKey(ele);
-    let cache = this.getCache(key, lvl);
+    const key = this.getKey(ele);
+    const cache = this.getCache(key, lvl);
 
     // getting for an element may need to add to the id list b/c eles can share keys
     if( cache != null ){
@@ -115,8 +115,8 @@ class ElementTextureCacheLookup {
   }
 
   getForCachedKey(ele, lvl){
-    let key = this.keyForId.get(ele.id()); // n.b. use cached key, not newly computed key
-    let cache = this.getCache(key, lvl);
+    const key = this.keyForId.get(ele.id()); // n.b. use cached key, not newly computed key
+    const cache = this.getCache(key, lvl);
 
     return cache;
   }
@@ -126,7 +126,7 @@ class ElementTextureCacheLookup {
   }
 
   has(ele, lvl){
-    let key = this.getKey(ele);
+    const key = this.getKey(ele);
 
     return this.hasCache(key, lvl);
   }
@@ -138,7 +138,7 @@ class ElementTextureCacheLookup {
   }
 
   set(ele, lvl, cache){
-    let key = this.getKey(ele);
+    const key = this.getKey(ele);
 
     this.setCache(key, lvl, cache);
     this.updateKeyMappingFor(ele);
@@ -149,7 +149,7 @@ class ElementTextureCacheLookup {
   }
 
   delete(ele, lvl){
-    let key = this.getKey(ele);
+    const key = this.getKey(ele);
 
     this.deleteCache(key, lvl);
   }
@@ -160,12 +160,12 @@ class ElementTextureCacheLookup {
 
   // returns true if no other eles reference the invalidated cache (n.b. other eles may need the cache with the same key)
   invalidate(ele){
-    let id = ele.id();
-    let key = this.keyForId.get(id); // n.b. use stored key rather than current (potential key)
+    const id = ele.id();
+    const key = this.keyForId.get(id); // n.b. use stored key rather than current (potential key)
 
     this.deleteKeyMappingFor(ele);
 
-    let entireKeyInvalidated = this.doesEleInvalidateKey(ele);
+    const entireKeyInvalidated = this.doesEleInvalidateKey(ele);
 
     if( entireKeyInvalidated ){ // clear mapping for current key
       this.invalidateKey(key);

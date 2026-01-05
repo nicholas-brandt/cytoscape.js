@@ -1,20 +1,20 @@
 import Set from '../set.mjs';
 import cache from './cache-traversal-call.mjs';
 
-let elesfn = ({
+const elesfn = ({
   parent: function( selector ){
-    let parents = [];
+    const parents = [];
 
     // optimisation for single ele call
     if( this.length === 1 ){
-      let parent = this[0]._private.parent;
+      const parent = this[0]._private.parent;
 
       if( parent ){ return parent; }
     }
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[ i ];
-      let parent = ele._private.parent;
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[ i ];
+      const parent = ele._private.parent;
 
       if( parent ){
         parents.push( parent );
@@ -25,12 +25,12 @@ let elesfn = ({
   },
 
   parents: function( selector ){
-    let parents = [];
+    const parents = [];
 
-    let eles = this.parent();
+    const eles = this.parent();
     while( eles.nonempty() ){
-      for( let i = 0; i < eles.length; i++ ){
-        let ele = eles[ i ];
+      for (let i = 0; i < eles.length; i++ ){
+        const ele = eles[ i ];
         parents.push( ele );
       }
 
@@ -43,9 +43,9 @@ let elesfn = ({
   commonAncestors: function( selector ){
     let ancestors;
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[ i ];
-      let parents = ele.parents();
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[ i ];
+      const parents = ele.parents();
 
       ancestors = ancestors || parents;
 
@@ -68,13 +68,13 @@ let elesfn = ({
   },
 
   children: cache( function( selector ){
-    let children = [];
+    const children = [];
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[ i ];
-      let eleChildren = ele._private.children;
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[ i ];
+      const eleChildren = ele._private.children;
 
-      for( let j = 0; j < eleChildren.length; j++ ){
+      for (let j = 0; j < eleChildren.length; j++ ){
         children.push( eleChildren[j] );
       }
     }
@@ -87,7 +87,7 @@ let elesfn = ({
   },
 
   isParent: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele.isNode() && ele._private.children.length !== 0;
@@ -95,7 +95,7 @@ let elesfn = ({
   },
 
   isChildless: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele.isNode() && ele._private.children.length === 0;
@@ -103,7 +103,7 @@ let elesfn = ({
   },
 
   isChild: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele.isNode() && ele._private.parent != null;
@@ -111,7 +111,7 @@ let elesfn = ({
   },
 
   isOrphan: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele.isNode() && ele._private.parent == null;
@@ -119,11 +119,11 @@ let elesfn = ({
   },
 
   descendants: function( selector ){
-    let elements = [];
+    const elements = [];
 
     function add( eles ){
-      for( let i = 0; i < eles.length; i++ ){
-        let ele = eles[ i ];
+      for (let i = 0; i < eles.length; i++ ){
+        const ele = eles[ i ];
 
         elements.push( ele );
 
@@ -140,13 +140,13 @@ let elesfn = ({
 });
 
 function forEachCompound( eles, fn, includeSelf, recursiveStep ){
-  let q = [];
-  let did = new Set();
-  let cy = eles.cy();
-  let hasCompounds = cy.hasCompoundNodes();
+  const q = [];
+  const did = new Set();
+  const cy = eles.cy();
+  const hasCompounds = cy.hasCompoundNodes();
 
-  for( let i = 0; i < eles.length; i++ ){
-    let ele = eles[i];
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[i];
 
     if( includeSelf ){
       q.push( ele );
@@ -156,7 +156,7 @@ function forEachCompound( eles, fn, includeSelf, recursiveStep ){
   }
 
   while( q.length > 0 ){
-    let ele = q.shift();
+    const ele = q.shift();
 
     fn( ele );
 
@@ -172,10 +172,10 @@ function forEachCompound( eles, fn, includeSelf, recursiveStep ){
 
 function addChildren( q, did, ele ){
   if( ele.isParent() ){
-    let children = ele._private.children;
+    const children = ele._private.children;
 
-    for( let i = 0; i < children.length; i++ ){
-      let child = children[i];
+    for (let i = 0; i < children.length; i++ ){
+      const child = children[i];
 
       if( !did.has( child.id() ) ){
         q.push( child );
@@ -192,7 +192,7 @@ elesfn.forEachDown = function( fn, includeSelf = true ){
 
 function addParent( q, did, ele ){
   if( ele.isChild() ){
-    let parent = ele._private.parent;
+    const parent = ele._private.parent;
 
     if( !did.has( parent.id() ) ){
       q.push( parent );

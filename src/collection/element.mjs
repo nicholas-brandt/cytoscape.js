@@ -3,13 +3,13 @@ import * as is from '../is.mjs';
 import Set from '../set.mjs';
 
 // represents a node or an edge
-let Element = function( cy, params, restore = true ){
+const Element = function( cy, params, restore = true ){
   if( cy === undefined || params === undefined || !is.core( cy ) ){
     util.error( 'An element must have a core reference and parameters set' );
     return;
   }
 
-  let group = params.group;
+  const group = params.group;
 
   // try to automatically infer the group if unspecified
   if( group == null ){
@@ -31,7 +31,7 @@ let Element = function( cy, params, restore = true ){
   this[0] = this;
 
   // NOTE: when something is added here, add also to ele.json()
-  let _p = this._private = {
+  const _p = this._private = {
     cy: cy,
     single: true, // indicates this is an element
     data: params.data || {}, // data object
@@ -89,9 +89,9 @@ let Element = function( cy, params, restore = true ){
 
   // renderedPosition overrides if specified
   if( params.renderedPosition ){
-    let rpos = params.renderedPosition;
-    let pan = cy.pan();
-    let zoom = cy.zoom();
+    const rpos = params.renderedPosition;
+    const pan = cy.pan();
+    const zoom = cy.zoom();
 
     _p.position = {
       x: (rpos.x - pan.x) / zoom,
@@ -99,14 +99,14 @@ let Element = function( cy, params, restore = true ){
     };
   }
 
-  let classes = [];
+  const classes = [];
   if( is.array( params.classes ) ){
     classes = params.classes;
   } else if( is.string( params.classes ) ){
     classes = params.classes.split( /\s+/ );
   }
-  for( let i = 0, l = classes.length; i < l; i++ ){
-    let cls = classes[ i ];
+  for (let i = 0, l = classes.length; i < l; i++ ){
+    const cls = classes[ i ];
     if( !cls || cls === '' ){ continue; }
 
     _p.classes.add(cls);
@@ -118,7 +118,7 @@ let Element = function( cy, params, restore = true ){
     this.restore();
   }
 
-  let bypass = params.style || params.css;
+  const bypass = params.style || params.css;
   if( bypass ){
     util.warn('Setting a `style` bypass at element creation should be done only when absolutely necessary.  Try to use the stylesheet instead.');
 

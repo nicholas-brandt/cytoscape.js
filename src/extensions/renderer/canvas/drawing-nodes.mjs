@@ -6,14 +6,14 @@ import * as util from '../../../util/index.mjs';
 import * as round from "../../../round.mjs";
 import * as math from "../../../math.mjs";
 
-let CRp = {};
+const CRp = {};
 
 CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, shouldDrawOverlay = true, shouldDrawOpacity = true ){
-  let r = this;
+  const r = this;
   let nodeWidth, nodeHeight;
-  let _p = node._private;
-  let rs = _p.rscratch;
-  let pos = node.position();
+  const _p = node._private;
+  const rs = _p.rscratch;
+  const pos = node.position();
 
   if( !is.number( pos.x ) || !is.number( pos.y ) ){
     return; // can't draw node with undefined position
@@ -21,13 +21,13 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
 
   if( shouldDrawOpacity && !node.visible() ){ return; }
 
-  let eleOpacity = shouldDrawOpacity ? node.effectiveOpacity() : 1;
+  const eleOpacity = shouldDrawOpacity ? node.effectiveOpacity() : 1;
 
-  let usePaths = r.usePaths();
+  const usePaths = r.usePaths();
   let path;
-  let pathCacheHit = false;
+  const pathCacheHit = false;
 
-  let padding = node.padding();
+  const padding = node.padding();
 
   nodeWidth = node.width() + 2 * padding;
   nodeHeight = node.height() + 2 * padding;
@@ -45,17 +45,17 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   //
   // load bg image
 
-  let bgImgProp = node.pstyle( 'background-image' );
-  let urls = bgImgProp.value;
-  let urlDefined = new Array( urls.length );
-  let image = new Array( urls.length );
-  let numImages = 0;
-  for( let i = 0; i < urls.length; i++ ){
-    let url = urls[i];
-    let defd = urlDefined[i] = url != null && url !== 'none';
+  const bgImgProp = node.pstyle( 'background-image' );
+  const urls = bgImgProp.value;
+  const urlDefined = new Array( urls.length );
+  const image = new Array( urls.length );
+  const numImages = 0;
+  for (let i = 0; i < urls.length; i++ ){
+    const url = urls[i];
+    const defd = urlDefined[i] = url != null && url !== 'none';
 
     if( defd ){
-      let bgImgCrossOrigin = node.cy().style().getIndexedStyle(node, 'background-image-crossorigin', 'value', i);
+      const bgImgCrossOrigin = node.cy().style().getIndexedStyle(node, 'background-image-crossorigin', 'value', i);
 
       numImages++;
 
@@ -71,53 +71,53 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
   //
   // setup styles
 
-  let darkness = node.pstyle('background-blacken').value;
-  let borderWidth = node.pstyle('border-width').pfValue;
-  let bgOpacity = node.pstyle('background-opacity').value * eleOpacity;
-  let borderColor = node.pstyle('border-color').value;
-  let borderStyle = node.pstyle('border-style').value;
-  let borderJoin = node.pstyle('border-join').value;
-  let borderCap = node.pstyle('border-cap').value;
-  let borderPosition = node.pstyle('border-position').value;
-  let borderPattern = node.pstyle('border-dash-pattern').pfValue;
-  let borderOffset = node.pstyle('border-dash-offset').pfValue;
-  let borderOpacity = node.pstyle('border-opacity').value * eleOpacity;
-  let outlineWidth = node.pstyle('outline-width').pfValue;
-  let outlineColor = node.pstyle('outline-color').value;
-  let outlineStyle = node.pstyle('outline-style').value;
-  let outlineOpacity = node.pstyle('outline-opacity').value * eleOpacity;
-  let outlineOffset = node.pstyle('outline-offset').value;
-  let cornerRadius = node.pstyle('corner-radius').value;
+  const darkness = node.pstyle('background-blacken').value;
+  const borderWidth = node.pstyle('border-width').pfValue;
+  const bgOpacity = node.pstyle('background-opacity').value * eleOpacity;
+  const borderColor = node.pstyle('border-color').value;
+  const borderStyle = node.pstyle('border-style').value;
+  const borderJoin = node.pstyle('border-join').value;
+  const borderCap = node.pstyle('border-cap').value;
+  const borderPosition = node.pstyle('border-position').value;
+  const borderPattern = node.pstyle('border-dash-pattern').pfValue;
+  const borderOffset = node.pstyle('border-dash-offset').pfValue;
+  const borderOpacity = node.pstyle('border-opacity').value * eleOpacity;
+  const outlineWidth = node.pstyle('outline-width').pfValue;
+  const outlineColor = node.pstyle('outline-color').value;
+  const outlineStyle = node.pstyle('outline-style').value;
+  const outlineOpacity = node.pstyle('outline-opacity').value * eleOpacity;
+  const outlineOffset = node.pstyle('outline-offset').value;
+  const cornerRadius = node.pstyle('corner-radius').value;
   if (cornerRadius !== 'auto') cornerRadius = node.pstyle('corner-radius').pfValue;
 
-  let setupShapeColor = ( bgOpy = bgOpacity ) => {
+  const setupShapeColor = ( bgOpy = bgOpacity ) => {
     r.eleFillStyle( context, node, bgOpy );
   };
 
-  let setupBorderColor = ( bdrOpy = borderOpacity ) => {
+  const setupBorderColor = ( bdrOpy = borderOpacity ) => {
     r.colorStrokeStyle( context, borderColor[0], borderColor[1], borderColor[2], bdrOpy );
   };
 
-  let setupOutlineColor = ( otlnOpy = outlineOpacity ) => {
+  const setupOutlineColor = ( otlnOpy = outlineOpacity ) => {
     r.colorStrokeStyle( context, outlineColor[0], outlineColor[1], outlineColor[2], otlnOpy );
   };
 
   //
   // setup shape
 
-  let getPath = (width, height, shape, points) => {
-    let pathCache = r.nodePathCache = r.nodePathCache || [];
+  const getPath = (width, height, shape, points) => {
+    const pathCache = r.nodePathCache = r.nodePathCache || [];
 
-    let key = util.hashStrings(
+    const key = util.hashStrings(
       shape === 'polygon' ? shape + ',' + points.join(',') : shape,
       '' + height,
       '' + width,
       '' + cornerRadius
     );
 
-    let cachedPath = pathCache[ key ];
+    const cachedPath = pathCache[ key ];
     let path;
-    let cacheHit = false;
+    const cacheHit = false;
 
     if( cachedPath != null ){
       path = cachedPath;
@@ -134,8 +134,8 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     };
   };
 
-  let styleShape = node.pstyle('shape').strValue;
-  let shapePts = node.pstyle('shape-polygon-points').pfValue;
+  const styleShape = node.pstyle('shape').strValue;
+  const shapePts = node.pstyle('shape-polygon-points').pfValue;
 
   if( usePaths ){
     context.translate( pos.x, pos.y );
@@ -145,10 +145,10 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     pathCacheHit = shapePath.cacheHit;
   }
 
-  let drawShape = () => {
+  const drawShape = () => {
     if( !pathCacheHit ){
 
-      let npos = pos;
+      const npos = pos;
 
       if( usePaths ){
         npos = {
@@ -172,11 +172,11 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawImages = ( nodeOpacity = eleOpacity, inside = true ) => {
-    let prevBging = _p.backgrounding;
-    let totalCompleted = 0;
+  const drawImages = ( nodeOpacity = eleOpacity, inside = true ) => {
+    const prevBging = _p.backgrounding;
+    const totalCompleted = 0;
 
-    for( let i = 0; i < image.length; i++ ){
+    for (let i = 0; i < image.length; i++ ){
       const bgContainment = node.cy().style().getIndexedStyle(node, 'background-image-containment', 'value', i);
       if( inside && bgContainment === 'over' || !inside && bgContainment === 'inside' ){
         totalCompleted++;
@@ -195,7 +195,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawPie = ( redrawShape = false, pieOpacity = eleOpacity ) => {
+  const drawPie = ( redrawShape = false, pieOpacity = eleOpacity ) => {
     if( r.hasPie( node ) ){
       r.drawPie( context, node, pieOpacity );
 
@@ -214,7 +214,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawStripe = (redrawShape = false, stripeOpacity = eleOpacity) => {
+  const drawStripe = (redrawShape = false, stripeOpacity = eleOpacity) => {
     if( r.hasStripe( node ) ){
       context.save();
 
@@ -249,9 +249,9 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let darken = ( darkenOpacity = eleOpacity ) => {
-    let opacity = ( darkness > 0 ? darkness : -darkness ) * darkenOpacity;
-    let c = darkness > 0 ? 0 : 255;
+  const darken = ( darkenOpacity = eleOpacity ) => {
+    const opacity = ( darkness > 0 ? darkness : -darkness ) * darkenOpacity;
+    const c = darkness > 0 ? 0 : 255;
 
     if( darkness !== 0 ){
       r.colorFillStyle( context, c, c, c, opacity );
@@ -264,7 +264,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawBorder = () => {
+  const drawBorder = () => {
     if( borderWidth > 0 ){
 
       context.lineWidth = borderWidth;
@@ -314,7 +314,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
       if( borderStyle === 'double' ){
         context.lineWidth = borderWidth / 3;
 
-        let gco = context.globalCompositeOperation;
+        const gco = context.globalCompositeOperation;
         context.globalCompositeOperation = 'destination-out';
 
         if( usePaths ){
@@ -333,7 +333,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawOutline = () => {
+  const drawOutline = () => {
     if( outlineWidth > 0 ){
       context.lineWidth = outlineWidth;
       context.lineCap = 'butt';
@@ -355,7 +355,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         }
       }
 
-      let npos = pos;
+      const npos = pos;
 
       if( usePaths ){
         npos = {
@@ -364,22 +364,22 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         };
       }
 
-      let shape = r.getNodeShape( node );
+      const shape = r.getNodeShape( node );
 
-      let bWidth = borderWidth;
+      const bWidth = borderWidth;
       if( borderPosition === 'inside' ) bWidth = 0;
       if( borderPosition === 'outside' ) bWidth *= 2;
 
-      let scaleX = (nodeWidth + bWidth + (outlineWidth + outlineOffset)) / nodeWidth;
-      let scaleY = (nodeHeight + bWidth + (outlineWidth + outlineOffset)) / nodeHeight;
-      let sWidth = nodeWidth * scaleX;
-      let sHeight = nodeHeight * scaleY;
+      const scaleX = (nodeWidth + bWidth + (outlineWidth + outlineOffset)) / nodeWidth;
+      const scaleY = (nodeHeight + bWidth + (outlineWidth + outlineOffset)) / nodeHeight;
+      const sWidth = nodeWidth * scaleX;
+      const sHeight = nodeHeight * scaleY;
 
-      let points = r.nodeShapes[ shape ].points;
+      const points = r.nodeShapes[ shape ].points;
       let path;
 
       if (usePaths) {
-        let outlinePath = getPath(sWidth, sHeight, shape, points);
+        const outlinePath = getPath(sWidth, sHeight, shape, points);
         path = outlinePath.path;
       }
 
@@ -391,9 +391,9 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         'round-diamond', 'round-heptagon', 'round-hexagon', 'round-octagon',
         'round-pentagon', 'round-polygon', 'round-triangle', 'round-tag'
       ].includes(shape)) {
-        let sMult = 0;
-        let offsetX = 0;
-        let offsetY = 0;
+        const sMult = 0;
+        const offsetX = 0;
+        const offsetY = 0;
 
         if (shape === 'round-diamond') {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.4;
@@ -430,7 +430,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
         const p = new Array( points.length / 2 );
         const corners = new Array( points.length / 2 );
 
-        for ( let i = 0; i < points.length / 2; i++ ){
+        for ( const i = 0; i < points.length / 2; i++ ){
           p[i] = {
             x: npos.x + offsetX + halfW * points[ i * 2 ],
             y: npos.y + offsetY + halfH * points[ i * 2 + 1 ]
@@ -462,11 +462,11 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
       } else if (shape === "barrel") {
         r.drawBarrelPath(path || context, npos.x, npos.y, sWidth, sHeight);
       } else if (shape.startsWith("polygon") || ['rhomboid', 'right-rhomboid', 'round-tag', 'tag', 'vee'].includes(shape)) {
-        let pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
+        const pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
         points = joinLines(expandPolygon(points, pad));
         r.drawPolygonPath(path || context, npos.x, npos.y, nodeWidth, nodeHeight, points);
       } else {
-        let pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
+        const pad = (bWidth + outlineWidth + outlineOffset) / nodeWidth;
         points = joinLines(expandPolygon(points, -pad));
         r.drawPolygonPath(path || context, npos.x, npos.y, nodeWidth, nodeHeight, points);
       }
@@ -480,7 +480,7 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
       if( outlineStyle === 'double' ){
         context.lineWidth = bWidth / 3;
 
-        let gco = context.globalCompositeOperation;
+        const gco = context.globalCompositeOperation;
         context.globalCompositeOperation = 'destination-out';
 
         if( usePaths ){
@@ -499,29 +499,29 @@ CRp.drawNode = function( context, node, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawOverlay = () => {
+  const drawOverlay = () => {
     if( shouldDrawOverlay ){
       r.drawNodeOverlay( context, node, pos, nodeWidth, nodeHeight );
     }
   };
 
-  let drawUnderlay = () => {
+  const drawUnderlay = () => {
     if( shouldDrawOverlay ){
       r.drawNodeUnderlay( context, node, pos, nodeWidth, nodeHeight );
     }
   };
 
-  let drawText = () => {
+  const drawText = () => {
     r.drawElementText( context, node, null, drawLabel );
   };
 
-  let ghost = node.pstyle('ghost').value === 'yes';
+  const ghost = node.pstyle('ghost').value === 'yes';
 
   if( ghost ){
-    let gx = node.pstyle('ghost-offset-x').pfValue;
-    let gy = node.pstyle('ghost-offset-y').pfValue;
-    let ghostOpacity = node.pstyle('ghost-opacity').value;
-    let effGhostOpacity = ghostOpacity * eleOpacity;
+    const gx = node.pstyle('ghost-offset-x').pfValue;
+    const gy = node.pstyle('ghost-offset-y').pfValue;
+    const ghostOpacity = node.pstyle('ghost-opacity').value;
+    const effGhostOpacity = ghostOpacity * eleOpacity;
 
     context.translate( gx, gy );
 
@@ -584,21 +584,21 @@ const drawNodeOverlayUnderlay = function( overlayOrUnderlay ) {
   }
 
   return function( context, node, pos, nodeWidth, nodeHeight ){
-    let r = this;
+    const r = this;
 
     if( !node.visible() ){ return; }
 
-    let padding = node.pstyle( `${overlayOrUnderlay}-padding` ).pfValue;
-    let opacity = node.pstyle( `${overlayOrUnderlay}-opacity` ).value;
-    let color = node.pstyle( `${overlayOrUnderlay}-color` ).value;
-    let shape = node.pstyle( `${overlayOrUnderlay}-shape` ).value;
-    let radius = node.pstyle( `${overlayOrUnderlay}-corner-radius` ).value;
+    const padding = node.pstyle( `${overlayOrUnderlay}-padding` ).pfValue;
+    const opacity = node.pstyle( `${overlayOrUnderlay}-opacity` ).value;
+    const color = node.pstyle( `${overlayOrUnderlay}-color` ).value;
+    const shape = node.pstyle( `${overlayOrUnderlay}-shape` ).value;
+    const radius = node.pstyle( `${overlayOrUnderlay}-corner-radius` ).value;
 
     if( opacity > 0 ){
       pos = pos || node.position();
 
       if( nodeWidth == null || nodeHeight == null ){
-        let padding = node.padding();
+        const padding = node.padding();
 
         nodeWidth = node.width() + 2 * padding;
         nodeHeight = node.height() + 2 * padding;
@@ -641,18 +641,18 @@ CRp.drawPie = function( context, node, nodeOpacity, pos ){
   node = node[0]; // ensure ele ref
   pos = pos || node.position();
 
-  let cyStyle = node.cy().style();
-  let pieSize = node.pstyle( 'pie-size' );
-  let hole = node.pstyle('pie-hole');
-  let overallStartAngle = node.pstyle('pie-start-angle').pfValue;
-  let x = pos.x;
-  let y = pos.y;
-  let nodeW = node.width();
-  let nodeH = node.height();
-  let radius = Math.min( nodeW, nodeH ) / 2; // must fit in node
+  const cyStyle = node.cy().style();
+  const pieSize = node.pstyle( 'pie-size' );
+  const hole = node.pstyle('pie-hole');
+  const overallStartAngle = node.pstyle('pie-start-angle').pfValue;
+  const x = pos.x;
+  const y = pos.y;
+  const nodeW = node.width();
+  const nodeH = node.height();
+  const radius = Math.min( nodeW, nodeH ) / 2; // must fit in node
   let holeRadius;
-  let lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
-  let usePaths = this.usePaths();
+  const lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
+  const usePaths = this.usePaths();
 
   if( usePaths ){
     x = 0;
@@ -675,11 +675,11 @@ CRp.drawPie = function( context, node, nodeOpacity, pos ){
     return; // the pie would be invisible anyway
   }
 
-  for( let i = 1; i <= cyStyle.pieBackgroundN; i++ ){ // 1..N
-    let size = node.pstyle( 'pie-' + i + '-background-size' ).value;
-    let color = node.pstyle( 'pie-' + i + '-background-color' ).value;
-    let opacity = node.pstyle( 'pie-' + i + '-background-opacity' ).value * nodeOpacity;
-    let percent = size / 100; // map integer range [0, 100] to [0, 1]
+  for (let i = 1; i <= cyStyle.pieBackgroundN; i++ ){ // 1..N
+    const size = node.pstyle( 'pie-' + i + '-background-size' ).value;
+    const color = node.pstyle( 'pie-' + i + '-background-color' ).value;
+    const opacity = node.pstyle( 'pie-' + i + '-background-opacity' ).value * nodeOpacity;
+    const percent = size / 100; // map integer range [0, 100] to [0, 1]
 
     // percent can't push beyond 1
     if( percent + lastPercent > 1 ){
@@ -688,8 +688,8 @@ CRp.drawPie = function( context, node, nodeOpacity, pos ){
 
     let angleStart = (1.5 * Math.PI) + (2 * Math.PI * lastPercent); // start at 12 o'clock and go clockwise
     angleStart += overallStartAngle; // shift by the overall pie start angle
-    let angleDelta = 2 * Math.PI * percent;
-    let angleEnd = angleStart + angleDelta;
+    const angleDelta = 2 * Math.PI * percent;
+    const angleEnd = angleStart + angleDelta;
 
     // ignore if
     // - zero size
@@ -724,18 +724,18 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
   node = node[0]; // ensure ele ref
   pos = pos || node.position();
 
-  let cyStyle = node.cy().style();
+  const cyStyle = node.cy().style();
   let x = pos.x;
   let y = pos.y;
-  let nodeW = node.width();
-  let nodeH = node.height();
-  let lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
-  let usePaths = this.usePaths();
+  const nodeW = node.width();
+  const nodeH = node.height();
+  const lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
+  const usePaths = this.usePaths();
 
   context.save();
 
-  let direction = node.pstyle('stripe-direction').value;
-  let stripeSize = node.pstyle('stripe-size');
+  const direction = node.pstyle('stripe-direction').value;
+  const stripeSize = node.pstyle('stripe-size');
 
   switch (direction) {
     case 'vertical':
@@ -745,8 +745,8 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
       break;
   }
 
-  let stripeW = nodeW;
-  let stripeH = nodeH;
+  const stripeW = nodeW;
+  const stripeH = nodeH;
 
   if( stripeSize.units === '%' ){
     stripeW = stripeW * stripeSize.pfValue;
@@ -765,11 +765,11 @@ CRp.drawStripe = function( context, node, nodeOpacity, pos ){
   y -= stripeW / 2;
   x -= stripeH / 2;
 
-  for( let i = 1; i <= cyStyle.stripeBackgroundN; i++ ){ // 1..N
-    let size = node.pstyle( 'stripe-' + i + '-background-size' ).value;
-    let color = node.pstyle( 'stripe-' + i + '-background-color' ).value;
-    let opacity = node.pstyle( 'stripe-' + i + '-background-opacity' ).value * nodeOpacity;
-    let percent = size / 100; // map integer range [0, 100] to [0, 1]
+  for (let i = 1; i <= cyStyle.stripeBackgroundN; i++ ){ // 1..N
+    const size = node.pstyle( 'stripe-' + i + '-background-size' ).value;
+    const color = node.pstyle( 'stripe-' + i + '-background-color' ).value;
+    const opacity = node.pstyle( 'stripe-' + i + '-background-opacity' ).value * nodeOpacity;
+    const percent = size / 100; // map integer range [0, 100] to [0, 1]
 
     // percent can't push beyond 1
     if( percent + lastPercent > 1 ){

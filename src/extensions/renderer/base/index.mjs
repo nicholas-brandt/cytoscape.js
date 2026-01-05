@@ -8,37 +8,37 @@ import loadListeners from './load-listeners.mjs';
 import nodeShapes from './node-shapes.mjs';
 import redraw from './redraw.mjs';
 
-var BaseRenderer = function( options ){ this.init( options ); };
-var BR = BaseRenderer;
-var BRp = BR.prototype;
+const BaseRenderer = function( options ){ this.init( options ); };
+const BR = BaseRenderer;
+const BRp = BR.prototype;
 
 BRp.clientFunctions = [ 'redrawHint', 'render', 'renderTo', 'matchCanvasSize', 'nodeShapeImpl', 'arrowShapeImpl' ];
 
 BRp.init = function( options ){
-  var r = this;
+  const r = this;
 
   r.options = options;
 
   r.cy = options.cy;
 
-  var ctr = r.container = options.cy.container();
-  var containerWindow = r.cy.window();
+  const ctr = r.container = options.cy.container();
+  const containerWindow = r.cy.window();
 
 
   // prepend a stylesheet in the head such that
   if( containerWindow ){
-    var document = containerWindow.document;
-    var head = document.head;
-    var stylesheetId = '__________cytoscape_stylesheet';
-    var className =    '__________cytoscape_container';
-    var stylesheetAlreadyExists = document.getElementById( stylesheetId ) != null;
+    const document = containerWindow.document;
+    const head = document.head;
+    const stylesheetId = '__________cytoscape_stylesheet';
+    const className =    '__________cytoscape_container';
+    const stylesheetAlreadyExists = document.getElementById( stylesheetId ) != null;
 
     if( ctr.className.indexOf( className ) < 0 ){
       ctr.className = ( ctr.className || '' ) + ' ' + className;
     }
 
     if( !stylesheetAlreadyExists ){
-      var stylesheet = document.createElement('style');
+      const stylesheet = document.createElement('style');
 
       stylesheet.id = stylesheetId;
       stylesheet.textContent = '.'+className+' { position: relative; }';
@@ -46,8 +46,8 @@ BRp.init = function( options ){
       head.insertBefore( stylesheet, head.children[0] ); // first so lowest priority
     }
 
-    var computedStyle = containerWindow.getComputedStyle( ctr );
-    var position = computedStyle.getPropertyValue('position');
+    const computedStyle = containerWindow.getComputedStyle( ctr );
+    const position = computedStyle.getPropertyValue('position');
 
     if( position === 'static' ){
       util.warn('A Cytoscape container has style position:static and so can not use UI extensions properly');
@@ -118,8 +118,8 @@ BRp.init = function( options ){
 };
 
 BRp.notify = function( eventName, eles ) {
-  var r = this;
-  var cy = r.cy;
+  const r = this;
+  const cy = r.cy;
 
   // the renderer can't be notified after it's destroyed
   if( this.destroyed ){ return; }
@@ -167,16 +167,16 @@ BRp.notify = function( eventName, eles ) {
 };
 
 BRp.destroy = function(){
-  var r = this;
+  const r = this;
 
   r.destroyed = true;
 
   r.cy.stopAnimationLoop();
 
-  for( var i = 0; i < r.bindings.length; i++ ){
-    var binding = r.bindings[ i ];
-    var b = binding;
-    var tgt = b.target;
+  for (let i = 0; i < r.bindings.length; i++ ){
+    const binding = r.bindings[ i ];
+    const b = binding;
+    const tgt = b.target;
 
     ( tgt.off || tgt.removeEventListener ).apply( tgt, b.args );
   }

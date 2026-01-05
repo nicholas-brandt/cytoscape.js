@@ -4,17 +4,17 @@ import * as is from '../is.mjs';
 const styfn = {};
 
 (function(){
-  let number = util.regex.number;
-  let rgba = util.regex.rgbaNoBackRefs;
-  let hsla = util.regex.hslaNoBackRefs;
-  let hex3 = util.regex.hex3;
-  let hex6 = util.regex.hex6;
-  let data = function( prefix ){ return '^' + prefix + '\\s*\\(\\s*([\\w\\.]+)\\s*\\)$'; };
-  let mapData = function( prefix ){
-    let mapArg = number + '|\\w+|' + rgba + '|' + hsla + '|' + hex3 + '|' + hex6;
+  const number = util.regex.number;
+  const rgba = util.regex.rgbaNoBackRefs;
+  const hsla = util.regex.hslaNoBackRefs;
+  const hex3 = util.regex.hex3;
+  const hex6 = util.regex.hex6;
+  const data = function( prefix ){ return '^' + prefix + '\\s*\\(\\s*([\\w\\.]+)\\s*\\)$'; };
+  const mapData = function( prefix ){
+    const mapArg = number + '|\\w+|' + rgba + '|' + hsla + '|' + hex3 + '|' + hex6;
     return '^' + prefix + '\\s*\\(([\\w\\.]+)\\s*\\,\\s*(' + number + ')\\s*\\,\\s*(' + number + ')\\s*,\\s*(' + mapArg + ')\\s*\\,\\s*(' + mapArg + ')\\)$';
   };
-  let urlRegexes = [
+  const urlRegexes = [
     '^url\\s*\\(\\s*[\'"]?(.+?)[\'"]?\\s*\\)$',
     '^(none)$',
     '^(.+)$'
@@ -154,7 +154,7 @@ const styfn = {};
     },
   };
 
-  let diff = {
+  const diff = {
     zeroNonZero: function( val1, val2 ){
       if( ( val1 == null || val2 == null ) && val1 !== val2 ){
         return true; // null cases could represent any value
@@ -182,16 +182,16 @@ const styfn = {};
   // - n.b. adding a new group of props may require updates to updateStyleHints()
   // - adding new props to an existing group gets handled automatically
 
-  let t = styfn.types;
+  const t = styfn.types;
 
-  let mainLabel = [
+  const mainLabel = [
     { name: 'label', type: t.text, triggersBounds: diff.any, triggersZOrder: diff.emptyNonEmpty },
     { name: 'text-rotation', type: t.textRotation, triggersBounds: diff.any },
     { name: 'text-margin-x', type: t.bidirectionalSize, triggersBounds: diff.any },
     { name: 'text-margin-y', type: t.bidirectionalSize, triggersBounds: diff.any }
   ];
 
-  let sourceLabel = [
+  const sourceLabel = [
     { name: 'source-label', type: t.text, triggersBounds: diff.any },
     { name: 'source-text-rotation', type: t.textRotation, triggersBounds: diff.any },
     { name: 'source-text-margin-x', type: t.bidirectionalSize, triggersBounds: diff.any },
@@ -199,7 +199,7 @@ const styfn = {};
     { name: 'source-text-offset', type: t.size, triggersBounds: diff.any }
   ];
 
-  let targetLabel = [
+  const targetLabel = [
     { name: 'target-label', type: t.text, triggersBounds: diff.any },
     { name: 'target-text-rotation', type: t.textRotation, triggersBounds: diff.any },
     { name: 'target-text-margin-x', type: t.bidirectionalSize, triggersBounds: diff.any },
@@ -207,7 +207,7 @@ const styfn = {};
     { name: 'target-text-offset', type: t.size, triggersBounds: diff.any }
   ];
 
-  let labelDimensions = [
+  const labelDimensions = [
     { name: 'font-family', type: t.fontFamily, triggersBounds: diff.any },
     { name: 'font-style', type: t.fontStyle, triggersBounds: diff.any },
     { name: 'font-weight', type: t.fontWeight, triggersBounds: diff.any },
@@ -220,7 +220,7 @@ const styfn = {};
     { name: 'line-height', type: t.positiveNumber, triggersBounds: diff.any }
   ];
 
-  let commonLabel = [
+  const commonLabel = [
     { name: 'text-valign', type: t.valign, triggersBounds: diff.any },
     { name: 'text-halign', type: t.halign, triggersBounds: diff.any },
     { name: 'color', type: t.color },
@@ -238,13 +238,13 @@ const styfn = {};
     { name: 'box-select-labels', type: t.bool, triggersBounds: diff.any },
   ];
 
-  let behavior = [
+  const behavior = [
     { name: 'events', type: t.bool, triggersZOrder: diff.any },
     { name: 'text-events', type: t.bool, triggersZOrder: diff.any },
     { name: 'box-selection', type: t.boxSelection, triggersZOrder: diff.any },
   ];
 
-  let visibility = [
+  const visibility = [
     {
       name: 'display',
       type: t.display, 
@@ -267,7 +267,7 @@ const styfn = {};
     { name: 'z-index', type: t.number, triggersZOrder: diff.any }
   ];
 
-  let overlay = [
+  const overlay = [
     { name: 'overlay-padding', type: t.size, triggersBounds: diff.any },
     { name: 'overlay-color', type: t.color },
     { name: 'overlay-opacity', type: t.zeroOneNumber, triggersBounds: diff.zeroNonZero },
@@ -275,7 +275,7 @@ const styfn = {};
     { name: 'overlay-corner-radius', type: t.cornerRadius }
   ];
 
-  let underlay = [
+  const underlay = [
     { name: 'underlay-padding', type: t.size, triggersBounds: diff.any },
     { name: 'underlay-color', type: t.color },
     { name: 'underlay-opacity', type: t.zeroOneNumber, triggersBounds: diff.zeroNonZero },
@@ -283,14 +283,14 @@ const styfn = {};
     { name: 'underlay-corner-radius', type: t.cornerRadius }
   ];
 
-  let transition = [
+  const transition = [
     { name: 'transition-property', type: t.propList },
     { name: 'transition-duration', type: t.time },
     { name: 'transition-delay', type: t.time },
     { name: 'transition-timing-function', type: t.easing }
   ];
 
-  let nodeSizeHashOverride = (ele, parsedProp) => {
+  const nodeSizeHashOverride = (ele, parsedProp) => {
     if( parsedProp.value === 'label' ){
       return -ele.poolIndex(); // no hash key hits is using label size (hitrate for perf probably low anyway)
     } else {
@@ -298,7 +298,7 @@ const styfn = {};
     }
   };
 
-  let nodeBody = [
+  const nodeBody = [
     { name: 'height', type: t.nodeSize, triggersBounds: diff.any, hashOverride: nodeSizeHashOverride },
     { name: 'width', type: t.nodeSize, triggersBounds: diff.any, hashOverride: nodeSizeHashOverride },
     { name: 'shape', type: t.nodeShape, triggersBounds: diff.any },
@@ -316,7 +316,7 @@ const styfn = {};
     { name: 'bounds-expansion', type: t.boundsExpansion, triggersBounds: diff.any }
   ];
 
-  let nodeBorder = [
+  const nodeBorder = [
     { name: 'border-color', type: t.color },
     { name: 'border-opacity', type: t.zeroOneNumber },
     { name: 'border-width', type: t.size, triggersBounds: diff.any },
@@ -328,7 +328,7 @@ const styfn = {};
     { name: 'border-position', type: t.linePosition },
   ];
 
-  let nodeOutline = [
+  const nodeOutline = [
     { name: 'outline-color', type: t.color },
     { name: 'outline-opacity', type: t.zeroOneNumber },
     { name: 'outline-width', type: t.size, triggersBounds: diff.any },
@@ -336,7 +336,7 @@ const styfn = {};
     { name: 'outline-offset', type: t.size, triggersBounds: diff.any }
   ];
 
-  let backgroundImage = [
+  const backgroundImage = [
     { name: 'background-image', type: t.urls },
     { name: 'background-image-crossorigin', type: t.bgCrossOrigin },
     { name: 'background-image-opacity', type: t.zeroOneNumbers },
@@ -355,7 +355,7 @@ const styfn = {};
     { name: 'background-offset-y', type: t.bgPos }
   ];
 
-  let compound = [
+  const compound = [
     { name: 'position', type: t.position, triggersBounds: diff.any },
     { name: 'compound-sizing-wrt-labels', type: t.compoundIncludeLabels, triggersBounds: diff.any },
     { name: 'min-width', type: t.size, triggersBounds: diff.any },
@@ -366,7 +366,7 @@ const styfn = {};
     { name: 'min-height-bias-bottom', type: t.sizeMaybePercent, triggersBounds: diff.any }
   ];
 
-  let edgeLine = [
+  const edgeLine = [
     { name: 'line-style', type: t.lineStyle },
     { name: 'line-color', type: t.color },
     { name: 'line-fill', type: t.fill },
@@ -412,14 +412,14 @@ const styfn = {};
     { name: 'target-distance-from-node', type: t.size, triggersBounds: diff.any },
   ];
 
-  let ghost = [
+  const ghost = [
     { name: 'ghost', type: t.bool, triggersBounds: diff.any },
     { name: 'ghost-offset-x', type: t.bidirectionalSize, triggersBounds: diff.any },
     { name: 'ghost-offset-y', type: t.bidirectionalSize, triggersBounds: diff.any },
     { name: 'ghost-opacity', type: t.zeroOneNumber }
   ];
 
-  let core = [
+  const core = [
     { name: 'selection-box-color', type: t.color },
     { name: 'selection-box-opacity', type: t.zeroOneNumber },
     { name: 'selection-box-border-color', type: t.color },
@@ -432,31 +432,31 @@ const styfn = {};
   ];
 
   // pie backgrounds for nodes
-  let pie = [];
+  const pie = [];
   styfn.pieBackgroundN = 16; // because the pie properties are numbered, give access to a constant N (for renderer use)
   pie.push( { name: 'pie-size', type: t.sizeMaybePercent } );
   pie.push( { name: 'pie-hole', type: t.sizeMaybePercent } );
   pie.push( { name: 'pie-start-angle', type: t.angle } );
-  for( let i = 1; i <= styfn.pieBackgroundN; i++ ){
+  for (let i = 1; i <= styfn.pieBackgroundN; i++ ){
     pie.push( { name: 'pie-' + i + '-background-color', type: t.color } );
     pie.push( { name: 'pie-' + i + '-background-size', type: t.percent } );
     pie.push( { name: 'pie-' + i + '-background-opacity', type: t.zeroOneNumber } );
   }
 
   // stripe backgrounds for nodes
-  let stripe = [];
+  const stripe = [];
   styfn.stripeBackgroundN = 16; // because the stripe properties are numbered, give access to a constant N (for renderer use)
   stripe.push( { name: 'stripe-size', type: t.sizeMaybePercent } );
   stripe.push( { name: 'stripe-direction', type: t.axisDirectionPrimary } );
-  for( let i = 1; i <= styfn.stripeBackgroundN; i++ ){
+  for (let i = 1; i <= styfn.stripeBackgroundN; i++ ){
     stripe.push( { name: 'stripe-' + i + '-background-color', type: t.color } );
     stripe.push( { name: 'stripe-' + i + '-background-size', type: t.percent } );
     stripe.push( { name: 'stripe-' + i + '-background-opacity', type: t.zeroOneNumber } );
   }
 
   // edge arrows
-  let edgeArrow = [];
-  let arrowPrefixes = styfn.arrowPrefixes = [ 'source', 'mid-source', 'target', 'mid-target' ];
+  const edgeArrow = [];
+  const arrowPrefixes = styfn.arrowPrefixes = [ 'source', 'mid-source', 'target', 'mid-target' ];
   [
     { name: 'arrow-shape', type: t.arrowShape, triggersBounds: diff.any },
     { name: 'arrow-color', type: t.color },
@@ -464,14 +464,14 @@ const styfn = {};
     { name: 'arrow-width', type: t.arrowWidth }
   ].forEach( function( prop ){
     arrowPrefixes.forEach( function( prefix ){
-      let name = prefix + '-' + prop.name;
+      const name = prefix + '-' + prop.name;
       let { type, triggersBounds } = prop;
 
       edgeArrow.push( { name, type, triggersBounds } );
     } );
   }, {} );
 
-  let props = styfn.properties = [
+  const props = styfn.properties = [
     // common to all eles
     ...behavior,
     ...transition,
@@ -503,7 +503,7 @@ const styfn = {};
     ...core
   ];
 
-  let propGroups = styfn.propertyGroups = {
+  const propGroups = styfn.propertyGroups = {
     // common to all eles
     behavior,
     transition,
@@ -535,9 +535,9 @@ const styfn = {};
     core
   };
 
-  let propGroupNames = styfn.propertyGroupNames = {};
+  const propGroupNames = styfn.propertyGroupNames = {};
 
-  let propGroupKeys = styfn.propertyGroupKeys = Object.keys( propGroups );
+  const propGroupKeys = styfn.propertyGroupKeys = Object.keys( propGroups );
 
   propGroupKeys.forEach( key => {
     propGroupNames[ key ] = propGroups[ key ].map( prop => prop.name );
@@ -546,7 +546,7 @@ const styfn = {};
   } );
 
   // define aliases
-  let aliases = styfn.aliases = [
+  const aliases = styfn.aliases = [
     { name: 'content', pointsTo: 'label' },
     { name: 'control-point-distance', pointsTo: 'control-point-distances' },
     { name: 'control-point-weight', pointsTo: 'control-point-weights' },
@@ -564,17 +564,17 @@ const styfn = {};
   styfn.propertyNames = props.map( function( p ){ return p.name; } );
 
   // allow access of properties by name ( e.g. style.properties.height )
-  for( let i = 0; i < props.length; i++ ){
-    let prop = props[ i ];
+  for (let i = 0; i < props.length; i++ ){
+    const prop = props[ i ];
 
     props[ prop.name ] = prop; // allow lookup by name
   }
 
   // map aliases
-  for( let i = 0; i < aliases.length; i++ ){
-    let alias = aliases[ i ];
-    let pointsToProp = props[ alias.pointsTo ];
-    let aliasProp = {
+  for (let i = 0; i < aliases.length; i++ ){
+    const alias = aliases[ i ];
+    const pointsToProp = props[ alias.pointsTo ];
+    const aliasProp = {
       name: alias.name,
       alias: true,
       pointsTo: pointsToProp
@@ -592,13 +592,13 @@ styfn.getDefaultProperty = function( name ){
 };
 
 styfn.getDefaultProperties = function(){
-  let _p = this._private;
+  const _p = this._private;
 
   if( _p.defaultProperties != null ){
     return _p.defaultProperties;
   }
 
-  let rawProps = util.extend( {
+  const rawProps = util.extend( {
     // core props
     'selection-box-color': '#ddd',
     'selection-box-opacity': 0.65,
@@ -751,9 +751,9 @@ styfn.getDefaultProperties = function(){
     { name: 'pie-{{i}}-background-size', value: '0%' },
     { name: 'pie-{{i}}-background-opacity', value: 1 }
   ].reduce( function( css, prop ){
-    for( let i = 1; i <= styfn.pieBackgroundN; i++ ){
-      let name = prop.name.replace( '{{i}}', i );
-      let val = prop.value;
+    for (let i = 1; i <= styfn.pieBackgroundN; i++ ){
+      const name = prop.name.replace( '{{i}}', i );
+      const val = prop.value;
 
       css[ name ] = val;
     }
@@ -768,9 +768,9 @@ styfn.getDefaultProperties = function(){
     { name: 'stripe-{{i}}-background-size', value: '0%' },
     { name: 'stripe-{{i}}-background-opacity', value: 1 }
   ].reduce( function( css, prop ){
-    for( let i = 1; i <= styfn.stripeBackgroundN; i++ ){
-      let name = prop.name.replace( '{{i}}', i );
-      let val = prop.value;
+    for (let i = 1; i <= styfn.stripeBackgroundN; i++ ){
+      const name = prop.name.replace( '{{i}}', i );
+      const val = prop.value;
 
       css[ name ] = val;
     }
@@ -816,8 +816,8 @@ styfn.getDefaultProperties = function(){
     { name: 'arrow-width', value: 1 },
   ].reduce( function( css, prop ){
     styfn.arrowPrefixes.forEach( function( prefix ){
-      let name = prefix + '-' + prop.name;
-      let val = prop.value;
+      const name = prefix + '-' + prop.name;
+      const val = prop.value;
 
       css[ name ] = val;
     } );
@@ -825,16 +825,16 @@ styfn.getDefaultProperties = function(){
     return css;
   }, {} ) );
 
-  let parsedProps = {};
+  const parsedProps = {};
 
-  for( let i = 0; i < this.properties.length; i++ ){
-    let prop = this.properties[i];
+  for (let i = 0; i < this.properties.length; i++ ){
+    const prop = this.properties[i];
 
     if( prop.pointsTo ){ continue; }
 
-    let name = prop.name;
-    let val = rawProps[ name ];
-    let parsedProp = this.parse( name, val );
+    const name = prop.name;
+    const val = rawProps[ name ];
+    const parsedProp = this.parse( name, val );
 
     parsedProps[ name ] = parsedProp;
   }

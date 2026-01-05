@@ -8,7 +8,7 @@ const ifEdge = (ele, getValue) => {
 
 const ifEdgeRenderedPosition = (ele, getPoint) => {
   if( ele.isEdge() && ele.takesUpSpace() ){
-    let cy = ele.cy();
+    const cy = ele.cy();
 
     return math.modelToRenderedPosition( getPoint( ele ), cy.zoom(), cy.pan() );
   }
@@ -16,9 +16,9 @@ const ifEdgeRenderedPosition = (ele, getPoint) => {
 
 const ifEdgeRenderedPositions = (ele, getPoints) => {
   if( ele.isEdge() && ele.takesUpSpace() ){
-    let cy = ele.cy();
-    let pan = cy.pan();
-    let zoom = cy.zoom();
+    const cy = ele.cy();
+    const pan = cy.pan();
+    const zoom = cy.zoom();
 
     return getPoints( ele ).map( p => math.modelToRenderedPosition( p, zoom, pan ) );
   }
@@ -41,8 +41,8 @@ const pts = {
 const renderedName = name => 'rendered' + name[0].toUpperCase() + name.substr(1);
 
 export default Object.keys( pts ).reduce( ( obj, name ) => {
-  let spec = pts[ name ];
-  let rName = renderedName( name );
+  const spec = pts[ name ];
+  const rName = renderedName( name );
 
   obj[ name ] = function(){ return ifEdge( this, spec.get ); };
 

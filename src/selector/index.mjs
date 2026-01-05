@@ -5,7 +5,7 @@ import parse from './parse.mjs';
 import matching from './matching.mjs';
 import Type from './type.mjs';
 
-let Selector = function( selector ){
+const Selector = function( selector ){
   this.inputText = selector;
   this.currentSubject = null;
   this.compoundCount = 0;
@@ -43,7 +43,7 @@ let Selector = function( selector ){
   }
 };
 
-let selfn = Selector.prototype;
+const selfn = Selector.prototype;
 
 [
   parse,

@@ -3,11 +3,11 @@
 import * as util from '../../../util/index.mjs';
 import {drawPreparedRoundCorner} from "../../../round.mjs";
 
-let CRp = {};
+const CRp = {};
 
 CRp.drawEdge = function( context, edge, shiftToOriginWithBb, drawLabel = true, shouldDrawOverlay = true, shouldDrawOpacity = true ){
-  let r = this;
-  let rs = edge._private.rscratch;
+  const r = this;
+  const rs = edge._private.rscratch;
 
   if( shouldDrawOpacity && !edge.visible() ){ return; }
 
@@ -23,21 +23,21 @@ CRp.drawEdge = function( context, edge, shiftToOriginWithBb, drawLabel = true, s
     context.translate( -bb.x1, -bb.y1 );
   }
 
-  let opacity = shouldDrawOpacity ? edge.pstyle('opacity').value : 1;
-  let lineOpacity = shouldDrawOpacity ? edge.pstyle('line-opacity').value : 1;
+  const opacity = shouldDrawOpacity ? edge.pstyle('opacity').value : 1;
+  const lineOpacity = shouldDrawOpacity ? edge.pstyle('line-opacity').value : 1;
   
-  let curveStyle = edge.pstyle('curve-style').value;
-  let lineStyle = edge.pstyle('line-style').value;
-  let edgeWidth = edge.pstyle('width').pfValue;
-  let lineCap = edge.pstyle('line-cap').value;
-  let lineOutlineWidth = edge.pstyle('line-outline-width').value;
-  let lineOutlineColor = edge.pstyle('line-outline-color').value;
+  const curveStyle = edge.pstyle('curve-style').value;
+  const lineStyle = edge.pstyle('line-style').value;
+  const edgeWidth = edge.pstyle('width').pfValue;
+  const lineCap = edge.pstyle('line-cap').value;
+  const lineOutlineWidth = edge.pstyle('line-outline-width').value;
+  const lineOutlineColor = edge.pstyle('line-outline-color').value;
   
-  let effectiveLineOpacity = opacity * lineOpacity;
+  const effectiveLineOpacity = opacity * lineOpacity;
   // separate arrow opacity would require arrow-opacity property
-  let effectiveArrowOpacity = opacity * lineOpacity;
+  const effectiveArrowOpacity = opacity * lineOpacity;
 
-  let drawLine = ( strokeOpacity = effectiveLineOpacity) => {
+  const drawLine = ( strokeOpacity = effectiveLineOpacity) => {
     if (curveStyle === 'straight-triangle') {
       r.eleStrokeStyle( context, edge, strokeOpacity );
       r.drawEdgeTrianglePath(
@@ -61,7 +61,7 @@ CRp.drawEdge = function( context, edge, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawLineOutline = ( strokeOpacity = effectiveLineOpacity) => {
+  const drawLineOutline = ( strokeOpacity = effectiveLineOpacity) => {
     context.lineWidth = edgeWidth + lineOutlineWidth;
     context.lineCap = lineCap;
 
@@ -91,35 +91,35 @@ CRp.drawEdge = function( context, edge, shiftToOriginWithBb, drawLabel = true, s
     }
   };
 
-  let drawOverlay = () => {
+  const drawOverlay = () => {
     if( !shouldDrawOverlay ){ return; }
 
     r.drawEdgeOverlay( context, edge );
   };
 
-  let drawUnderlay = () => {
+  const drawUnderlay = () => {
     if( !shouldDrawOverlay ){ return; }
 
     r.drawEdgeUnderlay( context, edge );
   };
 
-  let drawArrows = ( arrowOpacity = effectiveArrowOpacity) => {
+  const drawArrows = ( arrowOpacity = effectiveArrowOpacity) => {
     r.drawArrowheads( context, edge, arrowOpacity );
   };
 
-  let drawText = () => {
+  const drawText = () => {
     r.drawElementText( context, edge, null, drawLabel );
   };
 
   context.lineJoin = 'round';
 
-  let ghost = edge.pstyle('ghost').value === 'yes';
+  const ghost = edge.pstyle('ghost').value === 'yes';
 
   if( ghost ){
-    let gx = edge.pstyle('ghost-offset-x').pfValue;
-    let gy = edge.pstyle('ghost-offset-y').pfValue;
-    let ghostOpacity = edge.pstyle('ghost-opacity').value;
-    let effectiveGhostOpacity = effectiveLineOpacity * ghostOpacity;
+    const gx = edge.pstyle('ghost-offset-x').pfValue;
+    const gy = edge.pstyle('ghost-offset-y').pfValue;
+    const ghostOpacity = edge.pstyle('ghost-opacity').value;
+    const effectiveGhostOpacity = effectiveLineOpacity * ghostOpacity;
 
     context.translate( gx, gy );
 
@@ -150,17 +150,17 @@ const drawEdgeOverlayUnderlay = function( overlayOrUnderlay ) {
   return function( context, edge ){
     if( !edge.visible() ){ return; }
   
-    let opacity = edge.pstyle(`${overlayOrUnderlay}-opacity`).value;
+    const opacity = edge.pstyle(`${overlayOrUnderlay}-opacity`).value;
   
     if( opacity === 0 ){ return; }
   
-    let r = this;
-    let usePaths = r.usePaths();
-    let rs = edge._private.rscratch;
+    const r = this;
+    const usePaths = r.usePaths();
+    const rs = edge._private.rscratch;
   
-    let padding = edge.pstyle(`${overlayOrUnderlay}-padding`).pfValue;
-    let width = 2 * padding;
-    let color = edge.pstyle(`${overlayOrUnderlay}-color`).value;
+    const padding = edge.pstyle(`${overlayOrUnderlay}-padding`).pfValue;
+    const width = 2 * padding;
+    const color = edge.pstyle(`${overlayOrUnderlay}-color`).value;
   
     context.lineWidth = width;
   
@@ -187,17 +187,17 @@ CRp.drawEdgeUnderlay = drawEdgeOverlayUnderlay('underlay');
 
 
 CRp.drawEdgePath = function( edge, context, pts, type ){
-  let rs = edge._private.rscratch;
-  let canvasCxt = context;
+  const rs = edge._private.rscratch;
+  const canvasCxt = context;
   let path;
-  let pathCacheHit = false;
-  let usePaths = this.usePaths();
-  let lineDashPattern = edge.pstyle('line-dash-pattern').pfValue;
-  let lineDashOffset = edge.pstyle('line-dash-offset').pfValue;
+  const pathCacheHit = false;
+  const usePaths = this.usePaths();
+  const lineDashPattern = edge.pstyle('line-dash-pattern').pfValue;
+  const lineDashOffset = edge.pstyle('line-dash-offset').pfValue;
 
   if( usePaths ){
-    let pathCacheKey = pts.join( '$' );
-    let keyMatches = rs.pathCacheKey && rs.pathCacheKey === pathCacheKey;
+    const pathCacheKey = pts.join( '$' );
+    const keyMatches = rs.pathCacheKey && rs.pathCacheKey === pathCacheKey;
 
     if( keyMatches ){
       path = context = rs.pathCache;
@@ -235,14 +235,14 @@ CRp.drawEdgePath = function( edge, context, pts, type ){
       case 'self':
       case 'compound':
       case 'multibezier':
-        for( let i = 2; i + 3 < pts.length; i += 4 ){
+        for (let i = 2; i + 3 < pts.length; i += 4 ){
           context.quadraticCurveTo( pts[ i ], pts[ i + 1], pts[ i + 2], pts[ i + 3] );
         }
         break;
 
       case 'straight':
       case 'haystack':
-        for( let i = 2; i + 1 < pts.length; i += 2 ) {
+        for (let i = 2; i + 1 < pts.length; i += 2 ) {
           context.lineTo( pts[ i ], pts[ i + 1] );
         }
         break;
@@ -253,7 +253,7 @@ CRp.drawEdgePath = function( edge, context, pts, type ){
           }
           context.lineTo( pts[ pts.length - 2 ], pts[ pts.length - 1] );
         } else {
-          for( let i = 2; i + 1 < pts.length; i += 2 ) {
+          for (let i = 2; i + 1 < pts.length; i += 2 ) {
             context.lineTo( pts[ i ], pts[ i + 1] );
           }
         }
@@ -280,9 +280,9 @@ CRp.drawEdgeTrianglePath = function( edge, context, pts ){
   // use line stroke style for triangle fill style
   context.fillStyle = context.strokeStyle;
 
-  let edgeWidth = edge.pstyle('width').pfValue;
+  const edgeWidth = edge.pstyle('width').pfValue;
 
-  for( let i = 0; i + 1 < pts.length; i += 2 ){
+  for (let i = 0; i + 1 < pts.length; i += 2 ){
     const vector = [ pts[ i + 2 ] - pts[ i ], pts[ i + 3 ] - pts[ i + 1 ] ];
     const length = Math.sqrt( vector[0] * vector[0] + vector[1] * vector[1] );
     const normal = [ vector[1] / length, -vector[0] / length ];
@@ -298,8 +298,8 @@ CRp.drawEdgeTrianglePath = function( edge, context, pts ){
 };
 
 CRp.drawArrowheads = function( context, edge, opacity ){
-  let rs = edge._private.rscratch;
-  let isHaystack = rs.edgeType === 'haystack';
+  const rs = edge._private.rscratch;
+  const isHaystack = rs.edgeType === 'haystack';
 
   if( !isHaystack ){
     this.drawArrowhead( context, edge, 'source', rs.arrowStartX, rs.arrowStartY, rs.srcArrowAngle, opacity );
@@ -317,25 +317,25 @@ CRp.drawArrowheads = function( context, edge, opacity ){
 CRp.drawArrowhead = function( context, edge, prefix, x, y, angle, opacity ){
   if( isNaN( x ) || x == null || isNaN( y ) || y == null || isNaN( angle ) || angle == null ){ return; }
 
-  let self = this;
-  let arrowShape = edge.pstyle( prefix + '-arrow-shape' ).value;
+  const self = this;
+  const arrowShape = edge.pstyle( prefix + '-arrow-shape' ).value;
   if( arrowShape === 'none' ) { return; }
 
-  let arrowClearFill = edge.pstyle( prefix + '-arrow-fill' ).value === 'hollow' ? 'both' : 'filled';
-  let arrowFill = edge.pstyle( prefix + '-arrow-fill' ).value;
-  let edgeWidth = edge.pstyle( 'width' ).pfValue;
+  const arrowClearFill = edge.pstyle( prefix + '-arrow-fill' ).value === 'hollow' ? 'both' : 'filled';
+  const arrowFill = edge.pstyle( prefix + '-arrow-fill' ).value;
+  const edgeWidth = edge.pstyle( 'width' ).pfValue;
 
-  let pArrowWidth = edge.pstyle( prefix + '-arrow-width' );
-  let arrowWidth = pArrowWidth.value === 'match-line' ? edgeWidth : pArrowWidth.pfValue;
+  const pArrowWidth = edge.pstyle( prefix + '-arrow-width' );
+  const arrowWidth = pArrowWidth.value === 'match-line' ? edgeWidth : pArrowWidth.pfValue;
   if (pArrowWidth.units === '%') arrowWidth *= edgeWidth;
 
-  let edgeOpacity = edge.pstyle( 'opacity' ).value;
+  const edgeOpacity = edge.pstyle( 'opacity' ).value;
 
   if( opacity === undefined ){
     opacity = edgeOpacity;
   }
 
-  let gco = context.globalCompositeOperation;
+  const gco = context.globalCompositeOperation;
 
   if( opacity !== 1 || arrowFill === 'hollow' ){ // then extra clear is needed
     context.globalCompositeOperation = 'destination-out';
@@ -350,7 +350,7 @@ CRp.drawArrowhead = function( context, edge, prefix, x, y, angle, opacity ){
     context.globalCompositeOperation = gco;
   } // otherwise, the opaque arrow clears it for free :)
 
-  let color = edge.pstyle( prefix + '-arrow-color' ).value;
+  const color = edge.pstyle( prefix + '-arrow-color' ).value;
   self.colorFillStyle( context, color[0], color[1], color[2], opacity );
   self.colorStrokeStyle( context, color[0], color[1], color[2], opacity );
 
@@ -360,20 +360,20 @@ CRp.drawArrowhead = function( context, edge, prefix, x, y, angle, opacity ){
 };
 
 CRp.drawArrowShape = function( edge, context, fill, edgeWidth, shape, shapeWidth, x, y, angle ){
-  let r = this;
-  let usePaths = this.usePaths() && shape !== 'triangle-cross';
-  let pathCacheHit = false;
+  const r = this;
+  const usePaths = this.usePaths() && shape !== 'triangle-cross';
+  const pathCacheHit = false;
   let path;
-  let canvasContext = context;
-  let translation = { x, y };
-  let scale = edge.pstyle( 'arrow-scale' ).value;
-  let size = this.getArrowWidth( edgeWidth, scale );
-  let shapeImpl = r.arrowShapes[ shape ];
+  const canvasContext = context;
+  const translation = { x, y };
+  const scale = edge.pstyle( 'arrow-scale' ).value;
+  const size = this.getArrowWidth( edgeWidth, scale );
+  const shapeImpl = r.arrowShapes[ shape ];
 
   if( usePaths ){
-    let cache = r.arrowPathCache = r.arrowPathCache || [];
-    let key = util.hashString(shape);
-    let cachedPath = cache[ key ];
+    const cache = r.arrowPathCache = r.arrowPathCache || [];
+    const key = util.hashString(shape);
+    const cachedPath = cache[ key ];
 
     if( cachedPath != null ){
       path = context = cachedPath;

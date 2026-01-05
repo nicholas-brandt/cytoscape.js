@@ -2,7 +2,7 @@ import * as util from '../../util/index.mjs';
 import * as is from '../../is.mjs';
 import { copyPosition } from '../../math.mjs';
 
-let defaults = {
+const defaults = {
   positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
   zoom: undefined, // the zoom level to set (prob want fit = false if set)
   pan: undefined, // the pan level to set (prob want fit = false if set)
@@ -23,11 +23,11 @@ function PresetLayout( options ){
 }
 
 PresetLayout.prototype.run = function(){
-  let options = this.options;
-  let eles = options.eles;
+  const options = this.options;
+  const eles = options.eles;
 
-  let nodes = eles.nodes();
-  let posIsFn = is.fn( options.positions );
+  const nodes = eles.nodes();
+  const posIsFn = is.fn( options.positions );
 
   function getPosition( node ){
     if( options.positions == null ){
@@ -38,7 +38,7 @@ PresetLayout.prototype.run = function(){
       return options.positions( node );
     }
 
-    let pos = options.positions[ node._private.data.id ];
+    const pos = options.positions[ node._private.data.id ];
 
     if( pos == null ){
       return null;
@@ -48,7 +48,7 @@ PresetLayout.prototype.run = function(){
   }
 
   nodes.layoutPositions( this, options, function( node, i ){
-    let position = getPosition( node );
+    const position = getPosition( node );
 
     if( node.locked() || position == null ){
       return false;

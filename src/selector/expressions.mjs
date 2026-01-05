@@ -20,7 +20,7 @@ const replaceLastQuery = ( selector, examiningQuery, replacementQuery ) => {
 // - a query contains all adjacent (i.e. no separator in between) expressions;
 // - the current query is stored in selector[i]
 // - you need to check the query objects in match() for it actually filter properly, but that's pretty straight forward
-let exprs = [
+const exprs = [
   {
     name: 'group', // just used for identifying when debugging
     query: true,
@@ -86,7 +86,7 @@ let exprs = [
     query: true,
     regex: '\\[\\s*(' + tokens.variable + ')\\s*(' + tokens.comparatorOp + ')\\s*(' + tokens.value + ')\\s*\\]',
     populate: function( selector, query, [ variable, comparatorOp, value ] ){
-      let valueIsString = new RegExp( '^' + tokens.string + '$' ).exec( value ) != null;
+      const valueIsString = new RegExp( '^' + tokens.string + '$' ).exec( value ) != null;
 
       if( valueIsString ){
         value = value.substring( 1, value.length - 1 );
@@ -135,10 +135,10 @@ let exprs = [
     separator: true,
     regex: tokens.separator,
     populate: function( selector, query ){
-      let currentSubject = selector.currentSubject;
-      let edgeCount = selector.edgeCount;
-      let compoundCount = selector.compoundCount;
-      let lastQ = selector[ selector.length - 1 ];
+      const currentSubject = selector.currentSubject;
+      const edgeCount = selector.edgeCount;
+      const compoundCount = selector.compoundCount;
+      const lastQ = selector[ selector.length - 1 ];
 
       if( currentSubject != null ){
         lastQ.subject = currentSubject;
@@ -152,7 +152,7 @@ let exprs = [
       selector.compoundCount = 0;
 
       // go on to next query
-      let nextQuery = selector[ selector.length++ ] = newQuery();
+      const nextQuery = selector[ selector.length++ ] = newQuery();
 
       return nextQuery; // this is the new query to be filled by the following exprs
     }
@@ -164,9 +164,9 @@ let exprs = [
     regex: tokens.directedEdge,
     populate: function( selector, query ){
       if( selector.currentSubject == null ){ // undirected edge
-        let edgeQuery = newQuery();
-        let source = query;
-        let target = newQuery();
+        const edgeQuery = newQuery();
+        const source = query;
+        const target = newQuery();
 
         edgeQuery.checks.push({ type: Type.DIRECTED_EDGE, source, target });
 
@@ -178,9 +178,9 @@ let exprs = [
         // we're now populating the target query with expressions that follow
         return target;
       } else { // source/target
-        let srcTgtQ = newQuery();
-        let source = query;
-        let target = newQuery();
+        const srcTgtQ = newQuery();
+        const source = query;
+        const target = newQuery();
 
         srcTgtQ.checks.push({ type: Type.NODE_SOURCE, source, target });
 
@@ -200,9 +200,9 @@ let exprs = [
     regex: tokens.undirectedEdge,
     populate: function( selector, query ){
       if( selector.currentSubject == null ){ // undirected edge
-        let edgeQuery = newQuery();
-        let source = query;
-        let target = newQuery();
+        const edgeQuery = newQuery();
+        const source = query;
+        const target = newQuery();
 
         edgeQuery.checks.push({ type: Type.UNDIRECTED_EDGE, nodes: [ source, target ] });
 
@@ -214,9 +214,9 @@ let exprs = [
         // we're now populating the target query with expressions that follow
         return target;
       } else { // neighbourhood
-        let nhoodQ = newQuery();
-        let node = query;
-        let neighbor = newQuery();
+        const nhoodQ = newQuery();
+        const node = query;
+        const neighbor = newQuery();
 
         nhoodQ.checks.push({ type: Type.NODE_NEIGHBOR, node, neighbor });
 
@@ -234,9 +234,9 @@ let exprs = [
     regex: tokens.child,
     populate: function( selector, query ){
       if( selector.currentSubject == null ){ // default: child query
-        let parentChildQuery = newQuery();
-        let child = newQuery();
-        let parent = selector[selector.length - 1];
+        const parentChildQuery = newQuery();
+        const child = newQuery();
+        const parent = selector[selector.length - 1];
 
         parentChildQuery.checks.push({ type: Type.CHILD, parent, child });
 
@@ -248,12 +248,12 @@ let exprs = [
         // we're now populating the child query with expressions that follow
         return child;
       } else if( selector.currentSubject === query ){ // compound split query
-        let compound = newQuery();
-        let left = selector[ selector.length - 1 ];
-        let right = newQuery();
-        let subject = newQuery();
-        let child = newQuery();
-        let parent = newQuery();
+        const compound = newQuery();
+        const left = selector[ selector.length - 1 ];
+        const right = newQuery();
+        const subject = newQuery();
+        const child = newQuery();
+        const parent = newQuery();
 
         // set up the root compound q
         compound.checks.push({ type: Type.COMPOUND_SPLIT, left, right, subject });
@@ -280,9 +280,9 @@ let exprs = [
         return child; // now populating the right side's child
       } else { // parent query
         // info for parent query
-        let parent = newQuery();
-        let child = newQuery();
-        let pcQChecks = [ { type: Type.PARENT, parent, child } ];
+        const parent = newQuery();
+        const child = newQuery();
+        const pcQChecks = [ { type: Type.PARENT, parent, child } ];
 
         // the parent-child query takes the place of the query previously being populated
         parent.checks = query.checks; // the previous query contains the checks for the parent
@@ -301,9 +301,9 @@ let exprs = [
     regex: tokens.descendant,
     populate: function( selector, query ){
       if( selector.currentSubject == null ){ // default: descendant query
-        let ancChQuery = newQuery();
-        let descendant = newQuery();
-        let ancestor = selector[selector.length - 1];
+        const ancChQuery = newQuery();
+        const descendant = newQuery();
+        const ancestor = selector[selector.length - 1];
 
         ancChQuery.checks.push({ type: Type.DESCENDANT, ancestor, descendant });
 
@@ -315,12 +315,12 @@ let exprs = [
         // we're now populating the descendant query with expressions that follow
         return descendant;
       } else if( selector.currentSubject === query ){ // compound split query
-        let compound = newQuery();
-        let left = selector[ selector.length - 1 ];
-        let right = newQuery();
-        let subject = newQuery();
-        let descendant = newQuery();
-        let ancestor = newQuery();
+        const compound = newQuery();
+        const left = selector[ selector.length - 1 ];
+        const right = newQuery();
+        const subject = newQuery();
+        const descendant = newQuery();
+        const ancestor = newQuery();
 
         // set up the root compound q
         compound.checks.push({ type: Type.COMPOUND_SPLIT, left, right, subject });
@@ -347,9 +347,9 @@ let exprs = [
         return descendant; // now populating the right side's descendant
       } else { // ancestor query
         // info for parent query
-        let ancestor = newQuery();
-        let descendant = newQuery();
-        let adQChecks = [ { type: Type.ANCESTOR, ancestor, descendant } ];
+        const ancestor = newQuery();
+        const descendant = newQuery();
+        const adQChecks = [ { type: Type.ANCESTOR, ancestor, descendant } ];
 
         // the parent-child query takes the place of the query previously being populated
         ancestor.checks = query.checks; // the previous query contains the checks for the parent
@@ -374,9 +374,9 @@ let exprs = [
 
       selector.currentSubject = query;
 
-      let topQ = selector[selector.length - 1];
-      let topChk = topQ.checks[0];
-      let topType = topChk == null ? null : topChk.type;
+      const topQ = selector[selector.length - 1];
+      const topChk = topQ.checks[0];
+      const topType = topChk == null ? null : topChk.type;
 
       if( topType === Type.DIRECTED_EDGE ){
         // directed edge with subject on the target

@@ -7,9 +7,9 @@ export const memoize = ( fn, keyFn ) => {
         return 'undefined';
       }
 
-      let args = [];
+      const args = [];
 
-      for( let i = 0; i < arguments.length; i++ ){
+      for (let i = 0; i < arguments.length; i++ ){
         args.push( arguments[ i ] );
       }
 
@@ -17,12 +17,12 @@ export const memoize = ( fn, keyFn ) => {
     };
   }
 
-  let memoizedFn = function(){
-    let self = this;
-    let args = arguments;
+  const memoizedFn = function(){
+    const self = this;
+    const args = arguments;
     let ret;
-    let k = keyFn.apply( self, args );
-    let cache = memoizedFn.cache;
+    const k = keyFn.apply( self, args );
+    const cache = memoizedFn.cache;
 
     if( !(ret = cache[ k ]) ){
       ret = cache[ k ] = fn.apply( self, args );

@@ -16,7 +16,7 @@ class ObjectSet {
         arr = arrayOrObjectSet;
       }
 
-      for( let i = 0; i < arr.length; i++ ){
+      for (let i = 0; i < arr.length; i++ ){
         this.add( arr[i] );
       }
     }
@@ -27,7 +27,7 @@ class ObjectSet {
   }
 
   add( val ){
-    let o = this._obj;
+    const o = this._obj;
 
     if( o[ val ] !== 1 ){
       o[ val ] = 1;
@@ -36,7 +36,7 @@ class ObjectSet {
   }
 
   delete( val ){
-    let o = this._obj;
+    const o = this._obj;
 
     if( o[ val ] === 1 ){
       o[ val ] = 0;

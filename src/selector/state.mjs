@@ -127,11 +127,11 @@ export const stateSelectors = [
   return util.sort.descending( a.selector, b.selector );
 });
 
-let lookup = (function(){
-  let selToFn = {};
+const lookup = (function(){
+  const selToFn = {};
   let s;
 
-  for( let i = 0; i < stateSelectors.length; i++ ){
+  for (let i = 0; i < stateSelectors.length; i++ ){
     s = stateSelectors[i];
 
     selToFn[ s.selector ] = s.matches;

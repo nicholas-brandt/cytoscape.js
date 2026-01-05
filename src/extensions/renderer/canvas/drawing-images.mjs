@@ -1,6 +1,6 @@
 import * as util from '../../../util/index.mjs';
 
-var CRp = {};
+const CRp = {};
 
 CRp.safeDrawImage = function( context, img, ix, iy, iw, ih, x, y, w, h ){
   // detect problematic cases for old browsers with bad images (cheaper than try-catch)
@@ -16,29 +16,29 @@ CRp.safeDrawImage = function( context, img, ix, iy, iw, ih, x, y, w, h ){
 };
 
 CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
-  var r = this;
-  var pos = node.position();
-  var nodeX = pos.x;
-  var nodeY = pos.y;
-  var styleObj = node.cy().style();
-  var getIndexedStyle = styleObj.getIndexedStyle.bind( styleObj );
-  var fit = getIndexedStyle( node, 'background-fit', 'value', index );
-  var repeat = getIndexedStyle( node, 'background-repeat', 'value', index );
-  var nodeW = node.width();
-  var nodeH = node.height();
-  var paddingX2 = node.padding() * 2;
-  var nodeTW = nodeW + ( getIndexedStyle( node, 'background-width-relative-to', 'value', index ) === 'inner' ? 0 : paddingX2 );
-  var nodeTH = nodeH + ( getIndexedStyle( node, 'background-height-relative-to', 'value', index ) === 'inner' ? 0 : paddingX2 );
-  var rs = node._private.rscratch;
-  var clip = getIndexedStyle( node, 'background-clip', 'value', index );
-  var shouldClip = clip === 'node';
-  var imgOpacity = getIndexedStyle( node, 'background-image-opacity', 'value', index ) * nodeOpacity;
-  var smooth = getIndexedStyle( node, 'background-image-smoothing', 'value', index );
-  var cornerRadius = node.pstyle('corner-radius').value;
+  const r = this;
+  const pos = node.position();
+  const nodeX = pos.x;
+  const nodeY = pos.y;
+  const styleObj = node.cy().style();
+  const getIndexedStyle = styleObj.getIndexedStyle.bind( styleObj );
+  const fit = getIndexedStyle( node, 'background-fit', 'value', index );
+  const repeat = getIndexedStyle( node, 'background-repeat', 'value', index );
+  const nodeW = node.width();
+  const nodeH = node.height();
+  const paddingX2 = node.padding() * 2;
+  const nodeTW = nodeW + ( getIndexedStyle( node, 'background-width-relative-to', 'value', index ) === 'inner' ? 0 : paddingX2 );
+  const nodeTH = nodeH + ( getIndexedStyle( node, 'background-height-relative-to', 'value', index ) === 'inner' ? 0 : paddingX2 );
+  const rs = node._private.rscratch;
+  const clip = getIndexedStyle( node, 'background-clip', 'value', index );
+  const shouldClip = clip === 'node';
+  const imgOpacity = getIndexedStyle( node, 'background-image-opacity', 'value', index ) * nodeOpacity;
+  const smooth = getIndexedStyle( node, 'background-image-smoothing', 'value', index );
+  const cornerRadius = node.pstyle('corner-radius').value;
   if (cornerRadius !== 'auto') cornerRadius = node.pstyle('corner-radius').pfValue;
 
-  var imgW = img.width || img.cachedW;
-  var imgH = img.height || img.cachedH;
+  const imgW = img.width || img.cachedW;
+  const imgH = img.height || img.cachedH;
 
   // workaround for broken browsers like ie
   if( null == imgW || null == imgH ){
@@ -50,8 +50,8 @@ CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
     document.body.removeChild( img ); // eslint-disable-line no-undef
   }
 
-  var w = imgW;
-  var h = imgH;
+  const w = imgW;
+  const h = imgH;
 
   if( getIndexedStyle( node, 'background-width', 'value', index ) !== 'auto' ){
     if( getIndexedStyle( node, 'background-width', 'units', index ) === '%' ){
@@ -74,46 +74,46 @@ CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
   }
 
   if( fit === 'contain' ){
-    var scale = Math.min( nodeTW / w, nodeTH / h );
+    const scale = Math.min( nodeTW / w, nodeTH / h );
 
     w *= scale;
     h *= scale;
 
   } else if( fit === 'cover' ){
-    var scale = Math.max( nodeTW / w, nodeTH / h );
+    const scale = Math.max( nodeTW / w, nodeTH / h );
 
     w *= scale;
     h *= scale;
   }
 
-  var x = (nodeX - nodeTW / 2); // left
-  var posXUnits = getIndexedStyle( node, 'background-position-x', 'units', index );
-  var posXPfVal = getIndexedStyle( node, 'background-position-x', 'pfValue', index );
+  const x = (nodeX - nodeTW / 2); // left
+  const posXUnits = getIndexedStyle( node, 'background-position-x', 'units', index );
+  const posXPfVal = getIndexedStyle( node, 'background-position-x', 'pfValue', index );
   if( posXUnits === '%' ){
     x += (nodeTW - w) * posXPfVal;
   } else {
     x += posXPfVal;
   }
 
-  var offXUnits = getIndexedStyle( node, 'background-offset-x', 'units', index );
-  var offXPfVal = getIndexedStyle( node, 'background-offset-x', 'pfValue', index );
+  const offXUnits = getIndexedStyle( node, 'background-offset-x', 'units', index );
+  const offXPfVal = getIndexedStyle( node, 'background-offset-x', 'pfValue', index );
   if( offXUnits === '%' ){
     x += (nodeTW - w) * offXPfVal;
   } else {
     x += offXPfVal;
   }
 
-  var y = (nodeY - nodeTH / 2); // top
-  var posYUnits = getIndexedStyle( node, 'background-position-y', 'units', index );
-  var posYPfVal = getIndexedStyle( node, 'background-position-y', 'pfValue', index );
+  const y = (nodeY - nodeTH / 2); // top
+  const posYUnits = getIndexedStyle( node, 'background-position-y', 'units', index );
+  const posYPfVal = getIndexedStyle( node, 'background-position-y', 'pfValue', index );
   if( posYUnits === '%' ){
     y += (nodeTH - h) * posYPfVal;
   } else {
     y += posYPfVal;
   }
 
-  var offYUnits = getIndexedStyle( node, 'background-offset-y', 'units', index );
-  var offYPfVal = getIndexedStyle( node, 'background-offset-y', 'pfValue', index );
+  const offYUnits = getIndexedStyle( node, 'background-offset-y', 'units', index );
+  const offYPfVal = getIndexedStyle( node, 'background-offset-y', 'pfValue', index );
   if( offYUnits === '%' ){
     y += (nodeTH - h) * offYPfVal;
   } else {
@@ -128,12 +128,12 @@ CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
     nodeY = 0;
   }
 
-  var gAlpha = context.globalAlpha;
+  const gAlpha = context.globalAlpha;
 
   context.globalAlpha = imgOpacity;
 
-  var smoothingEnabled = r.getImgSmoothing( context );
-  var isSmoothingSwitched = false;
+  const smoothingEnabled = r.getImgSmoothing( context );
+  const isSmoothingSwitched = false;
 
   if( smooth === 'no' && smoothingEnabled ){ 
     r.setImgSmoothing( context, false );
@@ -167,7 +167,7 @@ CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
       context.restore();
     }
   } else {
-    var pattern = context.createPattern( img, repeat );
+    const pattern = context.createPattern( img, repeat );
     context.fillStyle = pattern;
 
     r.nodeShapes[ r.getNodeShape( node ) ].draw(

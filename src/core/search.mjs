@@ -1,7 +1,7 @@
 import * as is from '../is.mjs';
 import Collection from '../collection/index.mjs';
 
-let corefn = ({
+const corefn = ({
 
   // get a collection
   // - empty collection on no args
@@ -26,7 +26,7 @@ let corefn = ({
   },
 
   nodes: function( selector ){
-    let nodes = this.$( function( ele ){
+    const nodes = this.$( function( ele ){
       return ele.isNode();
     } );
 
@@ -38,7 +38,7 @@ let corefn = ({
   },
 
   edges: function( selector ){
-    let edges = this.$( function( ele ){
+    const edges = this.$( function( ele ){
       return ele.isEdge();
     } );
 
@@ -51,7 +51,7 @@ let corefn = ({
 
   // search the graph like jQuery
   $: function( selector ){
-    let eles = this._private.elements;
+    const eles = this._private.elements;
 
     if( selector ){
       return eles.filter( selector );

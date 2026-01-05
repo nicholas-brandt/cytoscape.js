@@ -1,6 +1,6 @@
 import * as util from '../util/index.mjs';
 
-let rendererDefaults = util.defaults({
+const rendererDefaults = util.defaults({
   hideEdgesOnViewport: false,
   textureOnViewport: false,
   motionBlur: false,
@@ -25,10 +25,10 @@ let rendererDefaults = util.defaults({
   webglBgColor: [255, 255, 255]
 });
 
-let corefn = ({
+const corefn = ({
 
   renderTo: function( context, zoom, pan, pxRatio ){
-    let r = this._private.renderer;
+    const r = this._private.renderer;
 
     r.renderTo( context, zoom, pan, pxRatio );
     return this;
@@ -53,9 +53,9 @@ let corefn = ({
   },
 
   initRenderer: function( options ){
-    let cy = this;
+    const cy = this;
 
-    let RendererProto = cy.extension( 'renderer', options.name );
+    const RendererProto = cy.extension( 'renderer', options.name );
     if( RendererProto == null ){
       util.error( `Can not initialise: No such renderer \`${options.name}\` found. Did you forget to import it and \`cytoscape.use()\` it?` );
       return;
@@ -65,7 +65,7 @@ let corefn = ({
       util.warn(`You have set a custom wheel sensitivity.  This will make your app zoom unnaturally when using mainstream mice.  You should change this value from the default only if you can guarantee that all your users will use the same hardware and OS configuration as your current machine.`);
     }
 
-    let rOpts = rendererDefaults(options);
+    const rOpts = rendererDefaults(options);
 
     rOpts.cy = cy;
 
@@ -75,11 +75,11 @@ let corefn = ({
   },
 
   destroyRenderer: function(){
-    let cy = this;
+    const cy = this;
 
     cy.notify('destroy'); // destroy the renderer
 
-    let domEle = cy.container();
+    const domEle = cy.container();
     if( domEle ){
       domEle._cyreg = null;
 
@@ -90,7 +90,7 @@ let corefn = ({
 
     cy._private.renderer = null; // to be extra safe, remove the ref
     cy.mutableElements().forEach(function( ele ){
-      let _p = ele._private;
+      const _p = ele._private;
       _p.rscratch = {};
       _p.rstyle = {};
       _p.animation.current = [];

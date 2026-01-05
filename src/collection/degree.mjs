@@ -1,10 +1,10 @@
 import * as util from '../util/index.mjs';
 
-let elesfn = {};
+const elesfn = {};
 
 function defineDegreeFunction( callback ){
   return function( includeLoops ){
-    let self = this;
+    const self = this;
 
     if( includeLoops === undefined ){
       includeLoops = true;
@@ -13,12 +13,12 @@ function defineDegreeFunction( callback ){
     if( self.length === 0 ){ return; }
 
     if( self.isNode() && !self.removed() ){
-      let degree = 0;
-      let node = self[0];
-      let connectedEdges = node._private.edges;
+      const degree = 0;
+      const node = self[0];
+      const connectedEdges = node._private.edges;
 
-      for( let i = 0; i < connectedEdges.length; i++ ){
-        let edge = connectedEdges[ i ];
+      for (let i = 0; i < connectedEdges.length; i++ ){
+        const edge = connectedEdges[ i ];
 
         if( !includeLoops && edge.isLoop() ){
           continue;
@@ -63,11 +63,11 @@ util.extend( elesfn, {
 function defineDegreeBoundsFunction( degreeFn, callback ){
   return function( includeLoops ){
     let ret;
-    let nodes = this.nodes();
+    const nodes = this.nodes();
 
-    for( let i = 0; i < nodes.length; i++ ){
-      let ele = nodes[ i ];
-      let degree = ele[ degreeFn ]( includeLoops );
+    for (let i = 0; i < nodes.length; i++ ){
+      const ele = nodes[ i ];
+      const degree = ele[ degreeFn ]( includeLoops );
       if( degree !== undefined && (ret === undefined || callback( degree, ret )) ){
         ret = degree;
       }
@@ -105,10 +105,10 @@ util.extend( elesfn, {
 
 util.extend( elesfn, {
   totalDegree: function( includeLoops ){
-    let total = 0;
-    let nodes = this.nodes();
+    const total = 0;
+    const nodes = this.nodes();
 
-    for( let i = 0; i < nodes.length; i++ ){
+    for (let i = 0; i < nodes.length; i++ ){
       total += nodes[ i ].degree( includeLoops );
     }
 

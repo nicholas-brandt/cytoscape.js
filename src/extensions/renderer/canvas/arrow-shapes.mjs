@@ -1,20 +1,20 @@
-var CRp = {};
+const CRp = {};
 
-var impl;
+let impl;
 
 function polygon( context, points ){
-  for( var i = 0; i < points.length; i++ ){
-    var pt = points[ i ];
+  for (let i = 0; i < points.length; i++ ){
+    const pt = points[ i ];
 
     context.lineTo( pt.x, pt.y );
   }
 }
 
 function triangleBackcurve( context, points, controlPoint ){
-  var firstPt;
+  let firstPt;
 
-  for( var i = 0; i < points.length; i++ ){
-    var pt = points[ i ];
+  for (let i = 0; i < points.length; i++ ){
+    const pt = points[ i ];
 
     if( i === 0 ){
       firstPt = pt;
@@ -29,19 +29,19 @@ function triangleBackcurve( context, points, controlPoint ){
 function triangleTee( context, trianglePoints, teePoints ){
   if( context.beginPath ){ context.beginPath(); }
 
-  var triPts = trianglePoints;
-  for( var i = 0; i < triPts.length; i++ ){
-    var pt = triPts[ i ];
+  const triPts = trianglePoints;
+  for (let i = 0; i < triPts.length; i++ ){
+    const pt = triPts[ i ];
 
     context.lineTo( pt.x, pt.y );
   }
 
-  var teePts = teePoints;
-  var firstTeePt = teePoints[0];
+  const teePts = teePoints;
+  const firstTeePt = teePoints[0];
   context.moveTo( firstTeePt.x, firstTeePt.y );
 
-  for( var i = 1; i < teePts.length; i++ ){
-    var pt = teePts[ i ];
+  for (let i = 1; i < teePts.length; i++ ){
+    const pt = teePts[ i ];
 
     context.lineTo( pt.x, pt.y );
   }
@@ -52,11 +52,11 @@ function triangleTee( context, trianglePoints, teePoints ){
 function circleTriangle(context, trianglePoints, rx, ry, r) {
   if (context.beginPath) { context.beginPath(); }
   context.arc(rx, ry, r, 0, Math.PI * 2, false);    
-  var triPts = trianglePoints;
-  var firstTrPt = triPts[0];
+  const triPts = trianglePoints;
+  const firstTrPt = triPts[0];
   context.moveTo(firstTrPt.x, firstTrPt.y);
-  for (var i = 0; i < triPts.length; i++) {
-    var pt = triPts[i];
+  for (let i = 0; i < triPts.length; i++) {
+    const pt = triPts[i];
     context.lineTo(pt.x, pt.y);
   }
   if (context.closePath) {

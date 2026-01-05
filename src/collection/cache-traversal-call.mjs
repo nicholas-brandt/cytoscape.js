@@ -1,10 +1,10 @@
 import * as is from '../is.mjs';
 import * as util from '../util/index.mjs';
 
-let cache = function( fn, name ){
+const cache = function( fn, name ){
   return function traversalCache( arg1, arg2, arg3, arg4 ){
-    let selectorOrEles = arg1;
-    let eles = this;
+    const selectorOrEles = arg1;
+    const eles = this;
     let key;
 
     if( selectorOrEles == null ){
@@ -14,11 +14,11 @@ let cache = function( fn, name ){
     }
 
     if( eles.length === 1 && key ){
-      let _p = eles[0]._private;
-      let tch = _p.traversalCache = _p.traversalCache || {};
-      let ch = tch[ name ] = tch[ name ] || [];
-      let hash = util.hashString( key );
-      let cacheHit = ch[ hash ];
+      const _p = eles[0]._private;
+      const tch = _p.traversalCache = _p.traversalCache || {};
+      const ch = tch[ name ] = tch[ name ] || [];
+      const hash = util.hashString( key );
+      const cacheHit = ch[ hash ];
 
       if( cacheHit ){
         return cacheHit;

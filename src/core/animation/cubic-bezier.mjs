@@ -2,7 +2,7 @@
 
 /*! Bezier curve function generator. Copyright Gaetan Renaudeau. MIT License: http://en.wikipedia.org/wiki/MIT_License */
 function generateCubicBezier(mX1, mY1, mX2, mY2) {
-  let NEWTON_ITERATIONS = 4,
+  const NEWTON_ITERATIONS = 4,
     NEWTON_MIN_SLOPE = 0.001,
     SUBDIVISION_PRECISION = 0.0000001,
     SUBDIVISION_MAX_ITERATIONS = 10,
@@ -28,7 +28,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
   mX1 = Math.max(mX1, 0);
   mX2 = Math.max(mX2, 0);
 
-  let mSampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
+  const mSampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
 
   function A(aA1, aA2) {
     return 1.0 - 3.0 * aA2 + 3.0 * aA1;
@@ -52,13 +52,13 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
 
   function newtonRaphsonIterate(aX, aGuessT) {
     for (let i = 0; i < NEWTON_ITERATIONS; ++i) {
-      let currentSlope = getSlope(aGuessT, mX1, mX2);
+      const currentSlope = getSlope(aGuessT, mX1, mX2);
 
       if (currentSlope === 0.0) {
         return aGuessT;
       }
 
-      let currentX = calcBezier(aGuessT, mX1, mX2) - aX;
+      const currentX = calcBezier(aGuessT, mX1, mX2) - aX;
       aGuessT -= currentX / currentSlope;
     }
 
@@ -88,7 +88,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
   }
 
   function getTForX(aX) {
-    let intervalStart = 0.0,
+    const intervalStart = 0.0,
       currentSample = 1,
       lastSample = kSplineTableSize - 1;
 
@@ -98,7 +98,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
 
     --currentSample;
 
-    let dist = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample + 1] - mSampleValues[currentSample]),
+    const dist = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample + 1] - mSampleValues[currentSample]),
       guessForT = intervalStart + dist * kSampleStepSize,
       initialSlope = getSlope(guessForT, mX1, mX2);
 
@@ -111,7 +111,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     }
   }
 
-  let _precomputed = false;
+  const _precomputed = false;
 
   function precompute() {
     _precomputed = true;
@@ -120,7 +120,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     }
   }
 
-  let f = function(aX) {
+  const f = function(aX) {
     if (!_precomputed) {
       precompute();
     }
@@ -147,7 +147,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     }];
   };
 
-  let str = "generateBezier(" + [mX1, mY1, mX2, mY2] + ")";
+  const str = "generateBezier(" + [mX1, mY1, mX2, mY2] + ")";
   f.toString = function() {
     return str;
   };

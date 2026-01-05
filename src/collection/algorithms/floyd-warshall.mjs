@@ -6,28 +6,28 @@ const floydWarshallDefaults = defaults({
   directed: false
 });
 
-let elesfn = ({
+const elesfn = ({
 
   // Implemented from pseudocode from wikipedia
   floydWarshall: function( options ){
-    let cy = this.cy();
+    const cy = this.cy();
 
     let { weight, directed } = floydWarshallDefaults(options);
-    let weightFn = weight;
+    const weightFn = weight;
 
     let { nodes, edges } = this.byGroup();
 
-    let N = nodes.length;
-    let Nsq = N * N;
+    const N = nodes.length;
+    const Nsq = N * N;
 
-    let indexOf = node => nodes.indexOf(node);
-    let atIndex = i => nodes[i];
+    const indexOf = node => nodes.indexOf(node);
+    const atIndex = i => nodes[i];
 
     // Initialize distance matrix
-    let dist = new Array(Nsq);
-    for( let n = 0; n < Nsq; n++ ){
-      let j = n % N;
-      let i = (n - j) / N;
+    const dist = new Array(Nsq);
+    for (let n = 0; n < Nsq; n++ ){
+      const j = n % N;
+      const i = (n - j) / N;
 
       if( i === j ){
         dist[n] = 0;
@@ -38,21 +38,21 @@ let elesfn = ({
 
     // Initialize matrix used for path reconstruction
     // Initialize distance matrix
-    let next = new Array(Nsq);
-    let edgeNext = new Array(Nsq);
+    const next = new Array(Nsq);
+    const edgeNext = new Array(Nsq);
 
     // Process edges
-    for( let i = 0; i < edges.length; i++ ){
-      let edge = edges[i];
-      let src = edge.source()[0];
-      let tgt = edge.target()[0];
+    for (let i = 0; i < edges.length; i++ ){
+      const edge = edges[i];
+      const src = edge.source()[0];
+      const tgt = edge.target()[0];
 
       if( src === tgt ){ continue; } // exclude loops
 
-      let s = indexOf( src );
-      let t = indexOf( tgt );
-      let st = s * N + t; // source to target index
-      let weight = weightFn( edge );
+      const s = indexOf( src );
+      const t = indexOf( tgt );
+      const st = s * N + t; // source to target index
+      const weight = weightFn( edge );
 
       // Check if already process another edge between same 2 nodes
       if( dist[st] > weight ){
@@ -63,7 +63,7 @@ let elesfn = ({
 
       // If undirected graph, process 'reversed' edge
       if( !directed ){
-        let ts = t * N + s; // target to source index
+        const ts = t * N + s; // target to source index
 
         if( !directed && dist[ts] > weight ){
           dist[ts] = weight;
@@ -74,14 +74,14 @@ let elesfn = ({
     }
 
     // Main loop
-    for( let k = 0; k < N; k++ ){
+    for (let k = 0; k < N; k++ ){
 
-      for( let i = 0; i < N; i++ ){
-        let ik = i * N + k;
+      for (let i = 0; i < N; i++ ){
+        const ik = i * N + k;
 
-        for( let j = 0; j < N; j++ ){
-          let ij = i * N + j;
-          let kj = k * N + j;
+        for (let j = 0; j < N; j++ ){
+          const ij = i * N + j;
+          const kj = k * N + j;
 
           if( dist[ik] + dist[kj] < dist[ij] ){
             dist[ij] = dist[ik] + dist[kj];
@@ -91,29 +91,29 @@ let elesfn = ({
       }
     }
 
-    let getArgEle = ele => ( is.string(ele) ? cy.filter(ele) : ele )[0];
-    let indexOfArgEle = ele => indexOf(getArgEle(ele));
+    const getArgEle = ele => ( is.string(ele) ? cy.filter(ele) : ele )[0];
+    const indexOfArgEle = ele => indexOf(getArgEle(ele));
 
-    let res = {
+    const res = {
       distance: function( from, to ){
-        let i = indexOfArgEle(from);
-        let j = indexOfArgEle(to);
+        const i = indexOfArgEle(from);
+        const j = indexOfArgEle(to);
 
         return dist[ i * N + j ];
       },
 
       path: function( from, to ){
-        let i = indexOfArgEle(from);
-        let j = indexOfArgEle(to);
+        const i = indexOfArgEle(from);
+        const j = indexOfArgEle(to);
 
-        let fromNode = atIndex(i);
+        const fromNode = atIndex(i);
 
         if( i === j ){ return fromNode.collection(); }
 
         if( next[i * N + j] == null ){ return cy.collection(); }
 
-        let path = cy.collection();
-        let prev = i;
+        const path = cy.collection();
+        const prev = i;
         let edge;
 
         path.merge( fromNode );

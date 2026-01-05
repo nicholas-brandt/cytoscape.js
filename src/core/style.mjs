@@ -1,11 +1,11 @@
 import * as is from '../is.mjs';
 import Style from '../style/index.mjs';
 
-let corefn = ({
+const corefn = ({
 
   style: function( newStyle ){
     if( newStyle ){
-      let s = this.setStyle( newStyle );
+      const s = this.setStyle( newStyle );
 
       s.update();
     }
@@ -14,7 +14,7 @@ let corefn = ({
   },
 
   setStyle: function( style ){
-    let _p = this._private;
+    const _p = this._private;
 
     if( is.stylesheet( style ) ){
       _p.style = style.generateStyle( this );

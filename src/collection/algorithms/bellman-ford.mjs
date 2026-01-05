@@ -8,28 +8,28 @@ const bellmanFordDefaults = defaults({
   root: null
 });
 
-let elesfn = ({
+const elesfn = ({
 
   // Implemented from pseudocode from wikipedia
   bellmanFord: function( options ){
     let { weight, directed, root } = bellmanFordDefaults(options);
-    let weightFn = weight;
-    let eles = this;
-    let cy = this.cy();
+    const weightFn = weight;
+    const eles = this;
+    const cy = this.cy();
     let { edges, nodes } = this.byGroup();
-    let numNodes = nodes.length;
-    let infoMap = new Map();
-    let hasNegativeWeightCycle = false;
-    let negativeWeightCycles = [];
+    const numNodes = nodes.length;
+    const infoMap = new Map();
+    const hasNegativeWeightCycle = false;
+    const negativeWeightCycles = [];
 
     root = cy.collection(root)[0]; // in case selector passed
 
     edges.unmergeBy( edge => edge.isLoop() );
 
-    let numEdges = edges.length;
+    const numEdges = edges.length;
 
-    let getInfo = node => {
-      let obj = infoMap.get( node.id() );
+    const getInfo = node => {
+      const obj = infoMap.get( node.id() );
 
       if( !obj ){
         obj = {};
@@ -40,14 +40,14 @@ let elesfn = ({
       return obj;
     };
 
-    let getNodeFromTo = to => (is.string(to) ? cy.$(to) : to)[0];
+    const getNodeFromTo = to => (is.string(to) ? cy.$(to) : to)[0];
 
-    let distanceTo = to => getInfo( getNodeFromTo(to) ).dist;
+    const distanceTo = to => getInfo( getNodeFromTo(to) ).dist;
 
-    let pathTo = (to, thisStart = root) => {
-      let end = getNodeFromTo(to);
-      let path = [];
-      let node = end;
+    const pathTo = (to, thisStart = root) => {
+      const end = getNodeFromTo(to);
+      const path = [];
+      const node = end;
 
       for( ;; ){
         if( node == null ){ return this.spawn(); }
@@ -69,9 +69,9 @@ let elesfn = ({
     };
 
     // Initializations { dist, pred, edge }
-    for( let i = 0; i < numNodes; i++ ){
-      let node = nodes[i];
-      let info = getInfo( node );
+    for (let i = 0; i < numNodes; i++ ){
+      const node = nodes[i];
+      const info = getInfo( node );
 
       if( node.same(root) ){
         info.dist = 0;
@@ -84,10 +84,10 @@ let elesfn = ({
     }
 
     // Edges relaxation
-    let replacedEdge = false;
+    const replacedEdge = false;
 
-    let checkForEdgeReplacement = (node1, node2, edge, info1, info2, weight) => {
-      let dist = info1.dist + weight;
+    const checkForEdgeReplacement = (node1, node2, edge, info1, info2, weight) => {
+      const dist = info1.dist + weight;
 
       if( dist < info2.dist && !edge.same(info1.edge) ){
         info2.dist = dist;
@@ -97,16 +97,16 @@ let elesfn = ({
       }
     };
 
-    for( let i = 1; i < numNodes; i++ ){
+    for (let i = 1; i < numNodes; i++ ){
       replacedEdge = false;
 
-      for( let e = 0; e < numEdges; e++ ){
-        let edge = edges[e];
-        let src = edge.source();
-        let tgt = edge.target();
-        let weight = weightFn(edge);
-        let srcInfo = getInfo(src);
-        let tgtInfo = getInfo(tgt);
+      for (let e = 0; e < numEdges; e++ ){
+        const edge = edges[e];
+        const src = edge.source();
+        const tgt = edge.target();
+        const weight = weightFn(edge);
+        const srcInfo = getInfo(src);
+        const tgtInfo = getInfo(tgt);
 
         checkForEdgeReplacement(src, tgt, edge, srcInfo, tgtInfo, weight);
 
@@ -122,13 +122,13 @@ let elesfn = ({
     if( replacedEdge ){
       // Check for negative weight cycles
       const negativeWeightCycleIds = [];
-      for( let e = 0; e < numEdges; e++ ){
-        let edge = edges[e];
-        let src = edge.source();
-        let tgt = edge.target();
-        let weight = weightFn(edge);
-        let srcDist = getInfo(src).dist;
-        let tgtDist = getInfo(tgt).dist;
+      for (let e = 0; e < numEdges; e++ ){
+        const edge = edges[e];
+        const src = edge.source();
+        const tgt = edge.target();
+        const weight = weightFn(edge);
+        const srcDist = getInfo(src).dist;
+        const tgtDist = getInfo(tgt).dist;
 
         if( srcDist + weight < tgtDist || (!directed && tgtDist + weight < srcDist) ){
           if( !hasNegativeWeightCycle ){
@@ -149,13 +149,13 @@ let elesfn = ({
             }
 
             const numNegativeNodes = negativeNodes.length;
-            for( let n = 0; n < numNegativeNodes; n++ ){
+            for (let n = 0; n < numNegativeNodes; n++ ){
               const start = negativeNodes[n];
               let cycle = [start];
               
               cycle.push(getInfo(start).edge);
 
-              let node = getInfo(start).pred;
+              const node = getInfo(start).pred;
               while( cycle.indexOf(node) === -1 ){
                 cycle.push(node);
                 cycle.push(getInfo(node).edge);
@@ -163,9 +163,9 @@ let elesfn = ({
               }
               cycle = cycle.slice(cycle.indexOf(node));
 
-              let smallestId = cycle[0].id();
-              let smallestIndex = 0;
-              for( let c = 2; c < cycle.length; c+=2 ){
+              const smallestId = cycle[0].id();
+              const smallestIndex = 0;
+              for (let c = 2; c < cycle.length; c+=2 ){
                 if( cycle[c].id() < smallestId ){
                   smallestId = cycle[c].id();
                   smallestIndex = c;

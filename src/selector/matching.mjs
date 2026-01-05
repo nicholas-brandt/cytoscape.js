@@ -2,17 +2,17 @@ import { matches as queryMatches } from './query-type-match.mjs';
 import Type from './type.mjs';
 
 // filter an existing collection
-let filter = function( collection ){
-  let self = this;
+const filter = function( collection ){
+  const self = this;
 
   // for 1 id #foo queries, just get the element
   if( self.length === 1 && self[0].checks.length === 1 && self[0].checks[0].type === Type.ID ){
     return collection.getElementById( self[0].checks[0].value ).collection();
   }
 
-  let selectorFunction = function( element ){
-    for( let j = 0; j < self.length; j++ ){
-      let query = self[ j ];
+  const selectorFunction = function( element ){
+    for (let j = 0; j < self.length; j++ ){
+      const query = self[ j ];
 
       if( queryMatches( query, element ) ){
         return true;
@@ -30,11 +30,11 @@ let filter = function( collection ){
 }; // filter
 
 // does selector match a single element?
-let matches = function( ele ){
-  let self = this;
+const matches = function( ele ){
+  const self = this;
 
-  for( let j = 0; j < self.length; j++ ){
-    let query = self[ j ];
+  for (let j = 0; j < self.length; j++ ){
+    const query = self[ j ];
 
     if( queryMatches( query, ele ) ){
       return true;

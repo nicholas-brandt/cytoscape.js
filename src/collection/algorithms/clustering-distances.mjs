@@ -3,18 +3,18 @@
 
 import * as is from '../../is.mjs';
 
-let identity = x => x;
-let absDiff = ( p, q ) => Math.abs( q - p );
-let addAbsDiff = ( total, p, q ) => total + absDiff(p, q);
-let addSquaredDiff = ( total, p, q ) => total + Math.pow( q - p, 2 );
-let sqrt = x => Math.sqrt(x);
-let maxAbsDiff = ( currentMax, p, q ) => Math.max( currentMax, absDiff(p, q) );
+const identity = x => x;
+const absDiff = ( p, q ) => Math.abs( q - p );
+const addAbsDiff = ( total, p, q ) => total + absDiff(p, q);
+const addSquaredDiff = ( total, p, q ) => total + Math.pow( q - p, 2 );
+const sqrt = x => Math.sqrt(x);
+const maxAbsDiff = ( currentMax, p, q ) => Math.max( currentMax, absDiff(p, q) );
 
-let getDistance = function( length, getP, getQ, init, visit, post = identity ){
-  let ret = init;
+const getDistance = function( length, getP, getQ, init, visit, post = identity ){
+  const ret = init;
   let p, q;
 
-  for ( let dim = 0; dim < length; dim++ ) {
+  for ( const dim = 0; dim < length; dim++ ) {
     p = getP(dim);
     q = getQ(dim);
 
@@ -24,7 +24,7 @@ let getDistance = function( length, getP, getQ, init, visit, post = identity ){
   return post( ret );
 };
 
-let distances = {
+const distances = {
   euclidean: function ( length, getP, getQ ) {
     if( length >= 2 ){
       return getDistance( length, getP, getQ, 0, addSquaredDiff, sqrt );

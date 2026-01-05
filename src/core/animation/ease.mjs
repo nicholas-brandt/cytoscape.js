@@ -9,7 +9,7 @@ function getEasedValue( type, start, end, percent, easingFn ){
     return end;
   }
 
-  let val = easingFn( start, end, percent );
+  const val = easingFn( start, end, percent );
 
   if( type == null ){
     return val;
@@ -43,7 +43,7 @@ function getValue( prop, spec ){
 }
 
 function ease( startProp, endProp, percent, easingFn, propSpec ){
-  let type = propSpec != null ? propSpec.type : null;
+  const type = propSpec != null ? propSpec.type : null;
 
   if( percent < 0 ){
     percent = 0;
@@ -51,21 +51,21 @@ function ease( startProp, endProp, percent, easingFn, propSpec ){
     percent = 1;
   }
 
-  let start = getValue( startProp, propSpec );
-  let end = getValue( endProp, propSpec );
+  const start = getValue( startProp, propSpec );
+  const end = getValue( endProp, propSpec );
 
   if( is.number( start ) && is.number( end ) ){
     return getEasedValue( type, start, end, percent, easingFn );
 
   } else if( is.array( start ) && is.array( end ) ){
-    let easedArr = [];
+    const easedArr = [];
 
-    for( let i = 0; i < end.length; i++ ){
-      let si = start[ i ];
-      let ei = end[ i ];
+    for (let i = 0; i < end.length; i++ ){
+      const si = start[ i ];
+      const ei = end[ i ];
 
       if( si != null && ei != null ){
-        let val = getEasedValue( type, si, ei, percent, easingFn );
+        const val = getEasedValue( type, si, ei, percent, easingFn );
 
         easedArr.push( val );
       } else {

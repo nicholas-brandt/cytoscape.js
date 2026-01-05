@@ -6,7 +6,7 @@ https://tldrlegal.com/license/mit-license
 https://github.com/jquery/jquery/blob/master/src/event.js
 */
 
-let Event = function( src, props ){
+const Event = function( src, props ){
   this.recycle( src, props );
 };
 
@@ -56,9 +56,9 @@ Event.prototype = {
 
     if( this.cy != null && this.position != null && this.renderedPosition == null ){
       // create a rendered position based on the passed position
-      let pos = this.position;
-      let zoom = this.cy.zoom();
-      let pan = this.cy.pan();
+      const pos = this.position;
+      const zoom = this.cy.zoom();
+      const pan = this.cy.pan();
 
       this.renderedPosition = {
         x: pos.x * zoom + pan.x,
@@ -73,7 +73,7 @@ Event.prototype = {
   preventDefault: function(){
     this.isDefaultPrevented = returnTrue;
 
-    let e = this.originalEvent;
+    const e = this.originalEvent;
     if( !e ){
       return;
     }
@@ -87,7 +87,7 @@ Event.prototype = {
   stopPropagation: function(){
     this.isPropagationStopped = returnTrue;
 
-    let e = this.originalEvent;
+    const e = this.originalEvent;
     if( !e ){
       return;
     }

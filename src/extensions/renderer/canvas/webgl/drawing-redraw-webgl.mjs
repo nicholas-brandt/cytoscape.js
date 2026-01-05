@@ -162,7 +162,7 @@ CRp.initWebgl = function(opts, fns) {
 
   // Event listener checks if style keys are no longer in use.
   r.onUpdateEleCalcs((willDraw, eles) => {
-    let gcNeeded = false;
+    const gcNeeded = false;
     if(eles && eles.length > 0) {
       gcNeeded |= r.drawing.invalidate(eles);
     }
@@ -364,7 +364,7 @@ function drawAtlases(r) { // For debugging the atlases, this doesn't work for At
     const context = r.data.contexts[r.NODE];
   
     const atlases = collection.atlases;
-    for(let i = 0; i < atlases.length; i++) {
+    for (let i = 0; i < atlases.length; i++) {
       const atlas = atlases[i];
       const canvas = atlas.canvas;
       if(canvas) {
@@ -384,7 +384,7 @@ function drawAtlases(r) { // For debugging the atlases, this doesn't work for At
       }
     }
   };
-  let i = 0;
+  const i = 0;
   draw(r.drawing, 'node',  i++);
   draw(r.drawing, 'label', i++);
 }
@@ -437,7 +437,7 @@ function getPickingIndexes(r, mX1, mY1, mX2, mY2) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
   const indexes = new Set();
-  for(let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     const pixel = data.slice(i*4, i*4 + 4);
     const index = util.vec4ToIndex(pixel) - 1; // The framebuffer is cleared with 0s, so z-indexes are offset by 1
     if(index >= 0) {
@@ -457,7 +457,7 @@ function findNearestElementsWebgl(r, x, y) { // model coordinates
 
   let node, edge;
 
-  for(const index of indexes) {
+  for (let index of indexes) {
     const ele = eles[index];
     if(!node && ele.isNode()) {
       node = ele;
@@ -505,7 +505,7 @@ function renderWebgl(r, options, renderTarget) {
   }
   
   const { drawing } = r;
-  let eleCount = 0;
+  const eleCount = 0;
 
   if(renderTarget.screen) {
     if(r.data.canvasNeedsRedraw[r.SELECT_BOX]) {
@@ -535,14 +535,14 @@ function renderWebgl(r, options, renderTarget) {
     drawing.startFrame(panZoomMatrix, renderTarget);
 
     if(renderTarget.screen) {
-      for(let i = 0; i < eles.nondrag.length; i++) {
+      for (let i = 0; i < eles.nondrag.length; i++) {
         drawEle(r, i, eles.nondrag[i]);
       }
-      for(let i = 0; i < eles.drag.length; i++) {
+      for (let i = 0; i < eles.drag.length; i++) {
         drawEle(r, i, eles.drag[i]);
       }
     } else if(renderTarget.picking) {
-      for(let i = 0; i < eles.length; i++) {
+      for (let i = 0; i < eles.length; i++) {
         drawEle(r, i, eles[i]);
       }
     }
@@ -583,7 +583,7 @@ function renderWebgl(r, options, renderTarget) {
       console.log(`  ${report}`);
       console.log('Texture Atlases Used:');
       const atlasInfo = debugInfo.atlasInfo;
-      for(const info of atlasInfo) {
+      for (let info of atlasInfo) {
         console.log(`  ${info.type}: ${info.keyCount} keys, ${info.atlasCount} atlases`);
       }
       console.log('');

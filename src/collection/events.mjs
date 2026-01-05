@@ -3,7 +3,7 @@ import define from '../define/index.mjs';
 import * as is from '../is.mjs';
 import Selector from '../selector/index.mjs';
 
-let emitterOptions = {
+const emitterOptions = {
   qualifierCompare: function( selector1, selector2 ){
     if( selector1 == null || selector2 == null ){
       return selector1 == null && selector2 == null;
@@ -12,7 +12,7 @@ let emitterOptions = {
     }
   },
   eventMatches: function( ele, listener, eventObj ){
-    let selector = listener.qualifier;
+    const selector = listener.qualifier;
 
     if( selector != null ){
       return ele !== eventObj.target && is.element( eventObj.target ) && selector.matches( eventObj.target );
@@ -40,7 +40,7 @@ let emitterOptions = {
   }
 };
 
-let argSelector = function( arg ){
+const argSelector = function( arg ){
   if( is.string(arg) ){
     return new Selector( arg );
   } else {
@@ -48,11 +48,11 @@ let argSelector = function( arg ){
   }
 };
 
-let elesfn = ({
+const elesfn = ({
   createEmitter: function(){
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
-      let _p = ele._private;
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
+      const _p = ele._private;
 
       if( !_p.emitter ){
         _p.emitter = new Emitter( emitterOptions, ele );
@@ -67,10 +67,10 @@ let elesfn = ({
   },
 
   on: function( events, selector, callback ){
-    let argSel = argSelector(selector);
+    const argSel = argSelector(selector);
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().on( events, argSel, callback );
     }
@@ -79,10 +79,10 @@ let elesfn = ({
   },
 
   removeListener: function( events, selector, callback ){
-    let argSel = argSelector(selector);
+    const argSel = argSelector(selector);
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().removeListener( events, argSel, callback );
     }
@@ -91,8 +91,8 @@ let elesfn = ({
   },
 
   removeAllListeners: function(){
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().removeAllListeners();
     }
@@ -101,10 +101,10 @@ let elesfn = ({
   },
 
   one: function( events, selector, callback ){
-    let argSel = argSelector(selector);
+    const argSel = argSelector(selector);
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().one( events, argSel, callback );
     }
@@ -113,10 +113,10 @@ let elesfn = ({
   },
 
   once: function( events, selector, callback ){
-    let argSel = argSelector(selector);
+    const argSel = argSelector(selector);
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().on( events, argSel, callback, {
         once: true,
@@ -126,8 +126,8 @@ let elesfn = ({
   },
 
   emit: function( events, extraParams ){
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       ele.emitter().emit( events, extraParams );
     }

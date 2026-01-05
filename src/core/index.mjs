@@ -16,12 +16,12 @@ import style from './style.mjs';
 import viewport from './viewport.mjs';
 import data from './data.mjs';
 
-let Core = function( opts ){
-  let cy = this;
+const Core = function( opts ){
+  const cy = this;
 
   opts = util.extend( {}, opts );
 
-  let container = opts.container;
+  const container = opts.container;
 
   // allow for passing a wrapped jquery object
   // e.g. cytoscape({ container: $('#cy') })
@@ -38,17 +38,17 @@ let Core = function( opts ){
     reg = {}; // old instance => replace reg completely
   }
 
-  let readies = reg.readies = reg.readies || [];
+  const readies = reg.readies = reg.readies || [];
 
   if( container ){ container._cyreg = reg; } // make sure container assoc'd reg points to this cy
   reg.cy = cy;
 
-  let head = window !== undefined && container !== undefined && !opts.headless;
-  let options = opts;
+  const head = window !== undefined && container !== undefined && !opts.headless;
+  const options = opts;
   options.layout = util.extend( { name: head ? 'grid' : 'null' }, options.layout );
   options.renderer = util.extend( { name: head ? 'canvas' : 'null' }, options.renderer );
 
-  let defVal = function( def, val, altVal ){
+  const defVal = function( def, val, altVal ){
     if( val !== undefined ){
       return val;
     } else if( altVal !== undefined ){
@@ -58,7 +58,7 @@ let Core = function( opts ){
     }
   };
 
-  let _p = this._private = {
+  const _p = this._private = {
     container: container, // html dom ele container
     ready: false, // whether ready has been triggered
     options: options, // cached options
@@ -103,8 +103,8 @@ let Core = function( opts ){
   // init zoom bounds
   this.zoomRange({ min: options.minZoom, max: options.maxZoom });
 
-  let loadExtData = function( extData, next ){
-    let anyIsPromise = extData.some( is.promise );
+  const loadExtData = function( extData, next ){
+    const anyIsPromise = extData.some( is.promise );
 
     if( anyIsPromise ){
       return Promise.all( extData ).then( next ); // load all data asynchronously, then exec rest of init
@@ -119,14 +119,14 @@ let Core = function( opts ){
   }
 
   // create the renderer
-  let rendererOptions = util.assign({}, options, options.renderer); // allow rendering hints in top level options
+  const rendererOptions = util.assign({}, options, options.renderer); // allow rendering hints in top level options
   cy.initRenderer( rendererOptions );
 
-  let setElesAndLayout = function( elements, onload, ondone ){
+  const setElesAndLayout = function( elements, onload, ondone ){
     cy.notifications( false );
 
     // remove old elements
-    let oldEles = cy.mutableElements();
+    const oldEles = cy.mutableElements();
     if( oldEles.length > 0 ){
       oldEles.remove();
     }
@@ -148,15 +148,15 @@ let Core = function( opts ){
       cy.emit( 'done' );
     } );
 
-    let layoutOpts = util.extend( {}, cy._private.options.layout );
+    const layoutOpts = util.extend( {}, cy._private.options.layout );
     layoutOpts.eles = cy.elements();
 
     cy.layout( layoutOpts ).run();
   };
 
   loadExtData([ options.style, options.elements ], function( thens ){
-    let initStyle = thens[0];
-    let initEles = thens[1];
+    const initStyle = thens[0];
+    const initEles = thens[1];
 
     // init style
     if( _p.styleEnabled ){
@@ -174,8 +174,8 @@ let Core = function( opts ){
       }
 
       // bind all the ready handlers registered before creating this instance
-      for( let i = 0; i < readies.length; i++ ){
-        let fn = readies[ i ];
+      for (let i = 0; i < readies.length; i++ ){
+        const fn = readies[ i ];
         cy.on( 'ready', fn );
       }
       if( reg ){ reg.readies = []; } // clear b/c we've bound them all and don't want to keep it around in case a new core uses the same div etc
@@ -186,7 +186,7 @@ let Core = function( opts ){
   } );
 };
 
-let corefn = Core.prototype; // short alias
+const corefn = Core.prototype; // short alias
 
 util.extend( corefn, {
   instanceString: function(){
@@ -212,7 +212,7 @@ util.extend( corefn, {
   },
 
   destroy: function(){
-    let cy = this;
+    const cy = this;
     if( cy.destroyed() ) return;
 
     cy.stopAnimationLoop();
@@ -263,10 +263,10 @@ util.extend( corefn, {
   },
 
   window: function() {
-    let container = this._private.container;
+    const container = this._private.container;
     if (container == null) return window;
 
-    let ownerDocument = this._private.container.ownerDocument;
+    const ownerDocument = this._private.container.ownerDocument;
 
     if (ownerDocument === undefined || ownerDocument == null) {
       return window;
@@ -278,9 +278,9 @@ util.extend( corefn, {
   mount: function( container ){
     if( container == null ){ return; }
 
-    let cy = this;
-    let _p = cy._private;
-    let options = _p.options;
+    const cy = this;
+    const _p = cy._private;
+    const options = _p.options;
 
     if( !is.htmlElement( container ) && is.htmlElement( container[0] ) ){
       container = container[0];
@@ -310,7 +310,7 @@ util.extend( corefn, {
   },
 
   unmount: function(){
-    let cy = this;
+    const cy = this;
 
     cy.stopAnimationLoop();
 
@@ -328,32 +328,32 @@ util.extend( corefn, {
   },
 
   json: function( obj ){
-    let cy = this;
-    let _p = cy._private;
-    let eles = cy.mutableElements();
-    let getFreshRef = ele => cy.getElementById(ele.id());
+    const cy = this;
+    const _p = cy._private;
+    const eles = cy.mutableElements();
+    const getFreshRef = ele => cy.getElementById(ele.id());
 
     if( is.plainObject( obj ) ){ // set
 
       cy.startBatch();
 
       if( obj.elements ){
-        let idInJson = {};
+        const idInJson = {};
 
-        let updateEles = function( jsons, gr ){
-          let toAdd = [];
-          let toMod = [];
+        const updateEles = function( jsons, gr ){
+          const toAdd = [];
+          const toMod = [];
 
-          for( let i = 0; i < jsons.length; i++ ){
-            let json = jsons[ i ];
+          for (let i = 0; i < jsons.length; i++ ){
+            const json = jsons[ i ];
 
             if( !json.data.id ){
               util.warn( 'cy.json() cannot handle elements without an ID attribute' );
               continue;
             }
 
-            let id = '' + json.data.id; // id must be string
-            let ele = cy.getElementById( id );
+            const id = '' + json.data.id; // id must be string
+            const ele = cy.getElementById( id );
 
             idInJson[ id ] = true;
 
@@ -372,7 +372,7 @@ util.extend( corefn, {
 
           cy.add( toAdd );
 
-          for( let i = 0; i < toMod.length; i++ ){
+          for (let i = 0; i < toMod.length; i++ ){
             let { ele, json } = toMod[i];
 
             ele.json(json);
@@ -383,10 +383,10 @@ util.extend( corefn, {
           updateEles( obj.elements );
 
         } else { // elements: { nodes: [], edges: [] }
-          let grs = [ 'nodes', 'edges' ];
-          for( let i = 0; i < grs.length; i++ ){
-            let gr = grs[ i ];
-            let elements = obj.elements[ gr ];
+          const grs = [ 'nodes', 'edges' ];
+          for (let i = 0; i < grs.length; i++ ){
+            const gr = grs[ i ];
+            const elements = obj.elements[ gr ];
 
             if( is.array( elements ) ){
               updateEles( elements, gr );
@@ -394,7 +394,7 @@ util.extend( corefn, {
           }
         }
 
-        let parentsToRemove = cy.collection();
+        const parentsToRemove = cy.collection();
 
         (eles
           .filter(ele => !idInJson[ ele.id() ])
@@ -432,7 +432,7 @@ util.extend( corefn, {
         cy.data( obj.data );
       }
 
-      let fields = [
+      const fields = [
         'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled',
         'panningEnabled', 'userPanningEnabled',
         'boxSelectionEnabled',
@@ -440,8 +440,8 @@ util.extend( corefn, {
         'multiClickDebounceTime'
       ];
 
-      for( let i = 0; i < fields.length; i++ ){
-        let f = fields[ i ];
+      for (let i = 0; i < fields.length; i++ ){
+        const f = fields[ i ];
 
         if( obj[ f ] != null ){
           cy[ f ]( obj[ f ] );
@@ -452,8 +452,8 @@ util.extend( corefn, {
 
       return this; // chaining
     } else { // get
-      let flat = !!obj;
-      let json = {};
+      const flat = !!obj;
+      const json = {};
 
       if( flat ){
         json.elements = this.elements().map( ele => ele.json() );
@@ -461,7 +461,7 @@ util.extend( corefn, {
         json.elements = {};
 
         eles.forEach( function( ele ){
-          let group = ele.group();
+          const group = ele.group();
 
           if( !json.elements[ group ] ){
             json.elements[ group ] = [];
@@ -477,7 +477,7 @@ util.extend( corefn, {
 
       json.data =  util.copy( cy.data() );
 
-      let options = _p.options;
+      const options = _p.options;
 
       json.zoomingEnabled = _p.zoomingEnabled;
       json.userZoomingEnabled = _p.userZoomingEnabled;

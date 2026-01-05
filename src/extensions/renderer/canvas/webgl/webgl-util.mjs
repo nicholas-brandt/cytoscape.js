@@ -73,7 +73,7 @@ export function getEffectiveZoom(r) {
 }
 
 export function modelToRenderedPosition(r, pan, zoom, x, y) {
-  let rx = x * zoom + pan.x;
+  const rx = x * zoom + pan.x;
   let ry = y * zoom + pan.y;
   ry = Math.round(r.canvasHeight - ry); // adjust for webgl
   return [ rx, ry ];
@@ -103,7 +103,7 @@ export function arrayEqual(a1, a2) {
   if(a1.length !== a2.length) {
     return false;
   }
-  for(let i = 0; i < a1.length; i++) {
+  for (let i = 0; i < a1.length; i++) {
     if(a1[i] !== a2[i]) {
       return false;
     }
@@ -251,7 +251,7 @@ export function createBufferDynamicDraw(gl, instances, type, attributeLoc) {
 
   // use array views to set values directly into the buffer array
   const views = new Array(instances);
-  for(let i = 0; i < instances; i++) {
+  for (let i = 0; i < instances; i++) {
     views[i] = createTypedArrayView(gl, glType, dataArray, stride, size, i);
   }
 
@@ -291,7 +291,7 @@ export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
 
   // use matrix views to set values directly into the matrixData array
   const matrixViews = new Array(instances);
-  for(let i = 0; i < instances; i++) {
+  for (let i = 0; i < instances; i++) {
     const byteOffset = i * matrixSize * 4; // 4 bytes per float
     matrixViews[i] = new Float32Array(matrixData.buffer, byteOffset, matrixSize); // array view
   }
@@ -301,7 +301,7 @@ export function create3x3MatrixBufferDynamicDraw(gl, instances, attributeLoc) {
   gl.bufferData(gl.ARRAY_BUFFER, matrixData.byteLength, gl.DYNAMIC_DRAW);
 
   // each row of the matrix needs to be a separate attribute
-  for(let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++) {
     const loc = attributeLoc + i;
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 3 * 12, i * 12);

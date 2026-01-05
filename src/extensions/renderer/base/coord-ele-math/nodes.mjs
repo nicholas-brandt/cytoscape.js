@@ -1,14 +1,14 @@
-var BRp = {};
+const BRp = {};
 
 import { warn } from '../../../../util/index.mjs';
 
 const TOO_SMALL_CUT_RECT = 28;
 
-let warnedCutRect = false;
+const warnedCutRect = false;
 
 BRp.getNodeShape = function( node ){
-  var r = this;
-  var shape = node.pstyle( 'shape' ).value;
+  const r = this;
+  const shape = node.pstyle( 'shape' ).value;
 
   if( shape === 'cutrectangle' && (node.width() < TOO_SMALL_CUT_RECT || node.height() < TOO_SMALL_CUT_RECT) ){
     if( !warnedCutRect ){
@@ -34,7 +34,7 @@ BRp.getNodeShape = function( node ){
   }
 
   if( shape === 'polygon' ){
-    var points = node.pstyle( 'shape-polygon-points' ).value;
+    const points = node.pstyle( 'shape-polygon-points' ).value;
 
     return r.nodeShapes.makePolygon( points ).name;
   }

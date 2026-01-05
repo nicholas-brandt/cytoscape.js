@@ -4,11 +4,11 @@ import get from 'lodash/get.js';
 import set from 'lodash/set.js';
 import toPath from 'lodash/toPath.js';
 
-let define = {
+const define = {
 
   // access data field
   data: function( params ){
-    let defaults = {
+    const defaults = {
       field: 'data',
       bindingEvent: 'data',
       allowBinding: false,
@@ -27,16 +27,16 @@ let define = {
     params = util.extend( {}, defaults, params );
 
     return function dataImpl( name, value ){
-      let p = params;
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let single = selfIsArrayLike ? self[0] : self;
+      const p = params;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const single = selfIsArrayLike ? self[0] : self;
 
       // .data('foo', ...)
       if (is.string(name)) { // set or get property
-        let isPathLike = name.indexOf('.') !== -1; // there might be a normal field with a dot 
-        let path = isPathLike && toPath(name);
+        const isPathLike = name.indexOf('.') !== -1; // there might be a normal field with a dot 
+        const path = isPathLike && toPath(name);
 
         // .data('foo')
         if( p.allowGetting && value === undefined ){ // get
@@ -56,14 +56,14 @@ let define = {
 
         // .data('foo', 'bar')
         } else if( p.allowSetting && value !== undefined ){ // set
-          let valid = !p.immutableKeys[ name ];
+          const valid = !p.immutableKeys[ name ];
           if( valid ){
-            let change = { [name]: value };
+            const change = { [name]: value };
 
             p.beforeSet( self, change );
 
-            for( let i = 0, l = all.length; i < l; i++ ){
-              let ele = all[i];
+            for (let i = 0, l = all.length; i < l; i++ ){
+              const ele = all[i];
 
               if( p.canSet( ele ) ){
                 if (path && single._private[ p.field ][ name ] === undefined) {
@@ -88,20 +88,20 @@ let define = {
 
       // .data({ 'foo': 'bar' })
       } else if( p.allowSetting && is.plainObject( name ) ){ // extend
-        let obj = name;
+        const obj = name;
         let k, v;
-        let keys = Object.keys( obj );
+        const keys = Object.keys( obj );
 
         p.beforeSet( self, obj );
 
-        for( let i = 0; i < keys.length; i++ ){
+        for (let i = 0; i < keys.length; i++ ){
           k = keys[ i ];
           v = obj[ k ];
 
-          let valid = !p.immutableKeys[ k ];
+          const valid = !p.immutableKeys[ k ];
           if( valid ){
-            for( let j = 0; j < all.length; j++ ){
-              let ele = all[j];
+            for (let j = 0; j < all.length; j++ ){
+              const ele = all[j];
 
               if( p.canSet( ele ) ){
                 ele._private[ p.field ][ k ] = v;
@@ -122,7 +122,7 @@ let define = {
 
       // .data(function(){ ... })
       } else if( p.allowBinding && is.fn( name ) ){ // bind to event
-        let fn = name;
+        const fn = name;
         self.on( p.bindingEvent, fn );
 
       // .data()
@@ -142,7 +142,7 @@ let define = {
 
   // remove data field
   removeData: function( params ){
-    let defaults = {
+    const defaults = {
       field: 'data',
       event: 'data',
       triggerFnName: 'trigger',
@@ -152,23 +152,23 @@ let define = {
     params = util.extend( {}, defaults, params );
 
     return function removeDataImpl( names ){
-      let p = params;
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const p = params;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
 
       // .removeData('foo bar')
       if( is.string( names ) ){ // then get the list of keys, and delete them
-        let keys = names.split( /\s+/ );
-        let l = keys.length;
+        const keys = names.split( /\s+/ );
+        const l = keys.length;
 
-        for( let i = 0; i < l; i++ ){ // delete each non-empty key
-          let key = keys[ i ];
+        for (let i = 0; i < l; i++ ){ // delete each non-empty key
+          const key = keys[ i ];
           if( is.emptyString( key ) ){ continue; }
 
-          let valid = !p.immutableKeys[ key ]; // not valid if immutable
+          const valid = !p.immutableKeys[ key ]; // not valid if immutable
           if( valid ){
-            for( let i_a = 0, l_a = all.length; i_a < l_a; i_a++ ){
+            for (let i_a = 0, l_a = all.length; i_a < l_a; i_a++ ){
               all[ i_a ]._private[ p.field ][ key ] = undefined;
             }
           }
@@ -181,13 +181,13 @@ let define = {
       // .removeData()
       } else if( names === undefined ){ // then delete all keys
 
-        for( let i_a = 0, l_a = all.length; i_a < l_a; i_a++ ){
-          let _privateFields = all[ i_a ]._private[ p.field ];
-          let keys = Object.keys( _privateFields );
+        for (let i_a = 0, l_a = all.length; i_a < l_a; i_a++ ){
+          const _privateFields = all[ i_a ]._private[ p.field ];
+          const keys = Object.keys( _privateFields );
 
-          for( let i = 0; i < keys.length; i++ ){
-            let key = keys[i];
-            let validKeyToDelete = !p.immutableKeys[ key ];
+          for (let i = 0; i < keys.length; i++ ){
+            const key = keys[i];
+            const validKeyToDelete = !p.immutableKeys[ key ];
 
             if( validKeyToDelete ){
               _privateFields[ key ] = undefined;

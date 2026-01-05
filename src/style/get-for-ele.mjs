@@ -1,7 +1,7 @@
 import * as util from '../util/index.mjs';
 import * as is from '../is.mjs';
 
-let styfn = {};
+const styfn = {};
 
 // gets the rendered style for an element
 styfn.getRenderedStyle = function( ele, prop ){
@@ -14,16 +14,16 @@ styfn.getRenderedStyle = function( ele, prop ){
 
 // gets the raw style for an element
 styfn.getRawStyle = function( ele, isRenderedVal ){
-  let self = this;
+  const self = this;
 
   ele = ele[0]; // insure it's an element
 
   if( ele ){
-    let rstyle = {};
+    const rstyle = {};
 
-    for( let i = 0; i < self.properties.length; i++ ){
-      let prop = self.properties[ i ];
-      let val = self.getStylePropertyValue( ele, prop.name, isRenderedVal );
+    for (let i = 0; i < self.properties.length; i++ ){
+      const prop = self.properties[ i ];
+      const val = self.getStylePropertyValue( ele, prop.name, isRenderedVal );
 
       if( val != null ){
         rstyle[ prop.name ] = val;
@@ -36,34 +36,34 @@ styfn.getRawStyle = function( ele, isRenderedVal ){
 };
 
 styfn.getIndexedStyle = function( ele, property, subproperty, index ){
-  let pstyle = ele.pstyle( property )[subproperty][index];
+  const pstyle = ele.pstyle( property )[subproperty][index];
   return pstyle != null ? pstyle : ele.cy().style().getDefaultProperty( property )[subproperty][0];
 };
 
 styfn.getStylePropertyValue = function( ele, propName, isRenderedVal ){
-  let self = this;
+  const self = this;
 
   ele = ele[0]; // insure it's an element
 
   if( ele ){
-    let prop = self.properties[ propName ];
+    const prop = self.properties[ propName ];
 
     if( prop.alias ){
       prop = prop.pointsTo;
     }
 
-    let type = prop.type;
-    let styleProp = ele.pstyle( prop.name );
+    const type = prop.type;
+    const styleProp = ele.pstyle( prop.name );
 
     if( styleProp ){
       let { value, units, strValue } = styleProp;
 
       if( isRenderedVal && type.number && value != null && is.number(value) ){
-        let zoom = ele.cy().zoom();
-        let getRenderedValue = val => val * zoom;
-        let getValueStringWithUnits = (val, units) => getRenderedValue(val) + units;
-        let isArrayValue = is.array(value);
-        let haveUnits = isArrayValue ? units.every(u => u != null) : units != null;
+        const zoom = ele.cy().zoom();
+        const getRenderedValue = val => val * zoom;
+        const getValueStringWithUnits = (val, units) => getRenderedValue(val) + units;
+        const isArrayValue = is.array(value);
+        const haveUnits = isArrayValue ? units.every(u => u != null) : units != null;
 
         if( haveUnits ){
           if( isArrayValue ){
@@ -88,13 +88,13 @@ styfn.getStylePropertyValue = function( ele, propName, isRenderedVal ){
 };
 
 styfn.getAnimationStartStyle = function( ele, aniProps ){
-  let rstyle = {};
+  const rstyle = {};
 
-  for( let i = 0; i < aniProps.length; i++ ){
-    let aniProp = aniProps[ i ];
-    let name = aniProp.name;
+  for (let i = 0; i < aniProps.length; i++ ){
+    const aniProp = aniProps[ i ];
+    const name = aniProp.name;
 
-    let styleProp = ele.pstyle( name );
+    const styleProp = ele.pstyle( name );
 
     if( styleProp !== undefined ){ // then make a prop of it
       if( is.plainObject( styleProp ) ){
@@ -113,19 +113,19 @@ styfn.getAnimationStartStyle = function( ele, aniProps ){
 };
 
 styfn.getPropsList = function( propsObj ){
-  let self = this;
-  let rstyle = [];
-  let style = propsObj;
-  let props = self.properties;
+  const self = this;
+  const rstyle = [];
+  const style = propsObj;
+  const props = self.properties;
 
   if( style ){
-    let names = Object.keys( style );
+    const names = Object.keys( style );
 
-    for( let i = 0; i < names.length; i++ ){
-      let name = names[i];
-      let val = style[ name ];
-      let prop = props[ name ] || props[ util.camel2dash( name ) ];
-      let styleProp = this.parse( prop.name, val );
+    for (let i = 0; i < names.length; i++ ){
+      const name = names[i];
+      const val = style[ name ];
+      const prop = props[ name ] || props[ util.camel2dash( name ) ];
+      const styleProp = this.parse( prop.name, val );
 
       if( styleProp ){
         rstyle.push( styleProp );
@@ -137,7 +137,7 @@ styfn.getPropsList = function( propsObj ){
 };
 
 styfn.getNonDefaultPropertiesHash = function( ele, propNames, seed ){
-  let hash = seed.slice();
+  const hash = seed.slice();
   let name, val, strVal, chVal;
   let i, j;
 

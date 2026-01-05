@@ -1,14 +1,14 @@
 import * as math from '../../../../math.mjs';
 
-var BRp = {};
+const BRp = {};
 
 function pushBezierPts( r, edge, pts ){
-  var qbezierAt = function( p1, p2, p3, t ){ return math.qbezierAt( p1, p2, p3, t ); };
-  var _p = edge._private;
-  var bpts = _p.rstyle.bezierPts;
+  const qbezierAt = function( p1, p2, p3, t ){ return math.qbezierAt( p1, p2, p3, t ); };
+  const _p = edge._private;
+  const bpts = _p.rstyle.bezierPts;
 
-  for( var i = 0; i < r.bezierProjPcts.length; i++ ){
-    var p = r.bezierProjPcts[i];
+  for (let i = 0; i < r.bezierProjPcts.length; i++ ){
+    const p = r.bezierProjPcts[i];
 
     bpts.push( {
       x: qbezierAt( pts[0], pts[2], pts[4], p ),
@@ -18,9 +18,9 @@ function pushBezierPts( r, edge, pts ){
 }
 
 BRp.storeEdgeProjections = function( edge ){
-  var _p = edge._private;
-  var rs = _p.rscratch;
-  var et = rs.edgeType;
+  const _p = edge._private;
+  const rs = _p.rscratch;
+  const et = rs.edgeType;
 
   // clear the cached points state
   _p.rstyle.bezierPts = null;
@@ -30,20 +30,20 @@ BRp.storeEdgeProjections = function( edge ){
   if( et === 'multibezier' ||  et === 'bezier' ||  et === 'self' ||  et === 'compound' ){
     _p.rstyle.bezierPts = [];
 
-    for( var i = 0; i + 5 < rs.allpts.length; i += 4 ){
+    for (let i = 0; i + 5 < rs.allpts.length; i += 4 ){
       pushBezierPts( this, edge, rs.allpts.slice( i, i + 6 ) );
     }
   } else if(  et === 'segments' ){
-    var lpts = _p.rstyle.linePts = [];
+    const lpts = _p.rstyle.linePts = [];
 
-    for( var i = 0; i + 1 < rs.allpts.length; i += 2 ){
+    for (let i = 0; i + 1 < rs.allpts.length; i += 2 ){
       lpts.push( {
         x: rs.allpts[ i ],
         y: rs.allpts[ i + 1]
       } );
     }
   } else if( et === 'haystack' ){
-    var hpts = rs.haystackPts;
+    const hpts = rs.haystackPts;
 
     _p.rstyle.haystackPts = [
       { x: hpts[0], y: hpts[1] },

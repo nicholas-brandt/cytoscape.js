@@ -3,18 +3,18 @@ import Animation from '../animation.mjs';
 import * as math from '../math.mjs';
 import * as is from '../is.mjs';
 
-let define = {
+const define = {
 
   animated: function(){
     return function animatedImpl(){
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let cy = this._private.cy || this;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return false; }
 
-      let ele = all[0];
+      const ele = all[0];
 
       if( ele ){
         return ele._private.animation.current.length > 0;
@@ -24,15 +24,15 @@ let define = {
 
   clearQueue: function(){
     return function clearQueueImpl(){
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let cy = this._private.cy || this;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return this; }
 
-      for( let i = 0; i < all.length; i++ ){
-        let ele = all[ i ];
+      for (let i = 0; i < all.length; i++ ){
+        const ele = all[ i ];
         ele._private.animation.queue = [];
       }
 
@@ -42,7 +42,7 @@ let define = {
 
   delay: function(){
     return function delayImpl( time, complete ){
-      let cy = this._private.cy || this;
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return this; }
 
@@ -56,7 +56,7 @@ let define = {
 
   delayAnimation: function(){
     return function delayAnimationImpl( time, complete ){
-      let cy = this._private.cy || this;
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return this; }
 
@@ -70,20 +70,20 @@ let define = {
 
   animation: function(){
     return function animationImpl( properties, params ){
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let cy = this._private.cy || this;
-      let isCore = !selfIsArrayLike;
-      let isEles = !isCore;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const cy = this._private.cy || this;
+      const isCore = !selfIsArrayLike;
+      const isEles = !isCore;
 
       if( !cy.styleEnabled() ){ return this; }
 
-      let style = cy.style();
+      const style = cy.style();
 
       properties = util.assign( {}, properties, params );
 
-      let propertiesEmpty = Object.keys( properties ).length === 0;
+      const propertiesEmpty = Object.keys( properties ).length === 0;
 
       if( propertiesEmpty ){
         return new Animation( all[0], properties ); // nothing to animate
@@ -109,17 +109,17 @@ let define = {
       }
 
       if( isEles && properties.renderedPosition != null ){
-        let rpos = properties.renderedPosition;
-        let pan = cy.pan();
-        let zoom = cy.zoom();
+        const rpos = properties.renderedPosition;
+        const pan = cy.pan();
+        const zoom = cy.zoom();
 
         properties.position = math.renderedToModelPosition( rpos, zoom, pan );
       }
 
       // override pan w/ panBy if set
       if( isCore && properties.panBy != null ){
-        let panBy = properties.panBy;
-        let cyPan = cy.pan();
+        const panBy = properties.panBy;
+        const cyPan = cy.pan();
 
         properties.pan = {
           x: cyPan.x + panBy.x,
@@ -128,9 +128,9 @@ let define = {
       }
 
       // override pan w/ center if set
-      let center = properties.center || properties.centre;
+      const center = properties.center || properties.centre;
       if( isCore && center != null ){
-        let centerPan = cy.getCenterPan( center.eles, properties.zoom );
+        const centerPan = cy.getCenterPan( center.eles, properties.zoom );
 
         if( centerPan != null ){
           properties.pan = centerPan;
@@ -139,8 +139,8 @@ let define = {
 
       // override pan & zoom w/ fit if set
       if( isCore && properties.fit != null ){
-        let fit = properties.fit;
-        let fitVp = cy.getFitViewport( fit.eles || fit.boundingBox, fit.padding );
+        const fit = properties.fit;
+        const fitVp = cy.getFitViewport( fit.eles || fit.boundingBox, fit.padding );
 
         if( fitVp != null ){
           properties.pan = fitVp.pan;
@@ -150,7 +150,7 @@ let define = {
 
       // override zoom (& potentially pan) w/ zoom obj if set
       if( isCore && is.plainObject( properties.zoom ) ){
-        let vp = cy.getZoomedViewport( properties.zoom );
+        const vp = cy.getZoomedViewport( properties.zoom );
 
         if( vp != null ){
           if( vp.zoomed ){ properties.zoom = vp.zoom; }
@@ -167,10 +167,10 @@ let define = {
 
   animate: function(){
     return function animateImpl( properties, params ){
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let cy = this._private.cy || this;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return this; }
 
@@ -179,11 +179,11 @@ let define = {
       }
 
       // manually hook and run the animation
-      for( let i = 0; i < all.length; i++ ){
-        let ele = all[ i ];
-        let queue = ele.animated() && (properties.queue === undefined || properties.queue);
+      for (let i = 0; i < all.length; i++ ){
+        const ele = all[ i ];
+        const queue = ele.animated() && (properties.queue === undefined || properties.queue);
 
-        let ani = ele.animation( properties, (queue ? { queue: true } : undefined) );
+        const ani = ele.animation( properties, (queue ? { queue: true } : undefined) );
 
         ani.play();
       }
@@ -194,21 +194,21 @@ let define = {
 
   stop: function(){
     return function stopImpl( clearQueue, jumpToEnd ){
-      let self = this;
-      let selfIsArrayLike = self.length !== undefined;
-      let all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
-      let cy = this._private.cy || this;
+      const self = this;
+      const selfIsArrayLike = self.length !== undefined;
+      const all = selfIsArrayLike ? self : [ self ]; // put in array if not array-like
+      const cy = this._private.cy || this;
 
       if( !cy.styleEnabled() ){ return this; }
 
-      for( let i = 0; i < all.length; i++ ){
-        let ele = all[ i ];
-        let _p = ele._private;
-        let anis = _p.animation.current;
+      for (let i = 0; i < all.length; i++ ){
+        const ele = all[ i ];
+        const _p = ele._private;
+        const anis = _p.animation.current;
 
-        for( let j = 0; j < anis.length; j++ ){
-          let ani = anis[ j ];
-          let ani_p = ani._private;
+        for (let j = 0; j < anis.length; j++ ){
+          const ani = anis[ j ];
+          const ani_p = ani._private;
 
           if( jumpToEnd ){
             // next iteration of the animation loop, the animation

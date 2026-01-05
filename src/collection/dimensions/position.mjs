@@ -5,14 +5,14 @@ import * as util from '../../util/index.mjs';
 
 let fn, elesfn;
 
-let beforePositionSet = function( eles, newPos, silent ){
-  for( let i = 0; i < eles.length; i++ ){
-    let ele = eles[i];
+const beforePositionSet = function( eles, newPos, silent ){
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[i];
 
     if( !ele.locked() ){
-      let oldPos = ele._private.position;
+      const oldPos = ele._private.position;
 
-      let delta = {
+      const delta = {
         x: newPos.x != null ? newPos.x - oldPos.x : 0,
         y: newPos.y != null ? newPos.y - oldPos.y : 0
       };
@@ -26,7 +26,7 @@ let beforePositionSet = function( eles, newPos, silent ){
   }
 };
 
-let positionDef = {
+const positionDef = {
   field: 'position',
   bindingEvent: 'position',
   allowBinding: true,
@@ -77,13 +77,13 @@ fn = elesfn = ({
       }
 
     } else if( is.fn( pos ) ){
-      let fn = pos;
-      let cy = this.cy();
+      const fn = pos;
+      const cy = this.cy();
 
       cy.startBatch();
 
-      for( let i = 0; i < this.length; i++ ){
-        let ele = this[ i ];
+      for (let i = 0; i < this.length; i++ ){
+        const ele = this[ i ];
         let pos;
 
         if( ( pos = fn(ele, i) ) ){
@@ -122,20 +122,20 @@ fn = elesfn = ({
     }
 
     if( delta != null ){
-      let cy = this.cy();
+      const cy = this.cy();
 
       cy.startBatch();
 
-      for( let i = 0; i < this.length; i++ ){
-        let ele = this[i];
+      for (let i = 0; i < this.length; i++ ){
+        const ele = this[i];
 
         // exclude any node that is a descendant of the calling collection
         if (cy.hasCompoundNodes() && ele.isChild() && ele.ancestors().anySame(this)) {
           continue;
         }
 
-        let pos = ele.position();
-        let newPos = {
+        const pos = ele.position();
+        const newPos = {
           x: pos.x + delta.x,
           y: pos.y + delta.y
         };
@@ -165,17 +165,17 @@ fn = elesfn = ({
 
   // get/set the rendered (i.e. on screen) positon of the element
   renderedPosition: function( dim, val ){
-    let ele = this[0];
-    let cy = this.cy();
-    let zoom = cy.zoom();
-    let pan = cy.pan();
-    let rpos = is.plainObject( dim ) ? dim : undefined;
-    let setting = rpos !== undefined || ( val !== undefined && is.string( dim ) );
+    const ele = this[0];
+    const cy = this.cy();
+    const zoom = cy.zoom();
+    const pan = cy.pan();
+    const rpos = is.plainObject( dim ) ? dim : undefined;
+    const setting = rpos !== undefined || ( val !== undefined && is.string( dim ) );
 
     if( ele && ele.isNode() ){ // must have an element and must be a node to return position
       if( setting ){
-        for( let i = 0; i < this.length; i++ ){
-          let ele = this[ i ];
+        for (let i = 0; i < this.length; i++ ){
+          const ele = this[ i ];
 
           if( val !== undefined ){ // set one dimension
             ele.position( dim, ( val - pan[ dim ] ) / zoom );
@@ -184,7 +184,7 @@ fn = elesfn = ({
           }
         }
       } else { // getting
-        let pos = ele.position();
+        const pos = ele.position();
         rpos = math.modelToRenderedPosition( pos, zoom, pan );
 
         if( dim === undefined ){ // then return the whole rendered position
@@ -202,25 +202,25 @@ fn = elesfn = ({
 
   // get/set the position relative to the parent
   relativePosition: function( dim, val ){
-    let ele = this[0];
-    let cy = this.cy();
-    let ppos = is.plainObject( dim ) ? dim : undefined;
-    let setting = ppos !== undefined || ( val !== undefined && is.string( dim ) );
-    let hasCompoundNodes = cy.hasCompoundNodes();
+    const ele = this[0];
+    const cy = this.cy();
+    const ppos = is.plainObject( dim ) ? dim : undefined;
+    const setting = ppos !== undefined || ( val !== undefined && is.string( dim ) );
+    const hasCompoundNodes = cy.hasCompoundNodes();
 
     if( ele && ele.isNode() ){ // must have an element and must be a node to return position
       if( setting ){
-        for( let i = 0; i < this.length; i++ ){
-          let ele = this[ i ];
-          let parent = hasCompoundNodes ? ele.parent() : null;
-          let hasParent = parent && parent.length > 0;
-          let relativeToParent = hasParent;
+        for (let i = 0; i < this.length; i++ ){
+          const ele = this[ i ];
+          const parent = hasCompoundNodes ? ele.parent() : null;
+          const hasParent = parent && parent.length > 0;
+          const relativeToParent = hasParent;
 
           if( hasParent ){
             parent = parent[0];
           }
 
-          let origin = relativeToParent ? parent.position() : { x: 0, y: 0 };
+          const origin = relativeToParent ? parent.position() : { x: 0, y: 0 };
 
           if( val !== undefined ){ // set one dimension
             ele.position( dim, val + origin[ dim ] );
@@ -233,16 +233,16 @@ fn = elesfn = ({
         }
 
       } else { // getting
-        let pos = ele.position();
-        let parent = hasCompoundNodes ? ele.parent() : null;
-        let hasParent = parent && parent.length > 0;
-        let relativeToParent = hasParent;
+        const pos = ele.position();
+        const parent = hasCompoundNodes ? ele.parent() : null;
+        const hasParent = parent && parent.length > 0;
+        const relativeToParent = hasParent;
 
         if( hasParent ){
           parent = parent[0];
         }
 
-        let origin = relativeToParent ? parent.position() : { x: 0, y: 0 };
+        const origin = relativeToParent ? parent.position() : { x: 0, y: 0 };
 
         ppos = {
           x: pos.x - origin.x,

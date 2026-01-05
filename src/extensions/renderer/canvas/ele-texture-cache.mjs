@@ -42,12 +42,12 @@ const initDefaults = defaults({
 });
 
 const ElementTextureCache = function( renderer, initOptions ){
-  let self = this;
+  const self = this;
 
   self.renderer = renderer;
   self.onDequeues = [];
 
-  let opts = initDefaults(initOptions);
+  const opts = initDefaults(initOptions);
 
   assign(self, opts);
 
@@ -62,7 +62,7 @@ ETCp.reasons = getTxrReasons;
 
 // the list of textures in which new subtextures for elements can be placed
 ETCp.getTextureQueue = function( txrH ){
-  let self = this;
+  const self = this;
   self.eleImgCaches = self.eleImgCaches || {};
 
   return ( self.eleImgCaches[ txrH ] = self.eleImgCaches[ txrH ] || [] );
@@ -70,19 +70,19 @@ ETCp.getTextureQueue = function( txrH ){
 
 // the list of usused textures which can be recycled (in use in texture queue)
 ETCp.getRetiredTextureQueue = function( txrH ){
-  let self = this;
+  const self = this;
 
-  let rtxtrQs = self.eleImgCaches.retired = self.eleImgCaches.retired || {};
-  let rtxtrQ = rtxtrQs[ txrH ] = rtxtrQs[ txrH ] || [];
+  const rtxtrQs = self.eleImgCaches.retired = self.eleImgCaches.retired || {};
+  const rtxtrQ = rtxtrQs[ txrH ] = rtxtrQs[ txrH ] || [];
 
   return rtxtrQ;
 };
 
 // queue of element draw requests at different scale levels
 ETCp.getElementQueue = function(){
-  let self = this;
+  const self = this;
 
-  let q = self.eleCacheQueue = self.eleCacheQueue || new Heap(function( a, b ){
+  const q = self.eleCacheQueue = self.eleCacheQueue || new Heap(function( a, b ){
     return b.reqs - a.reqs;
   });
 
@@ -91,18 +91,18 @@ ETCp.getElementQueue = function(){
 
 // queue of element draw requests at different scale levels (element id lookup)
 ETCp.getElementKeyToQueue = function(){
-  let self = this;
+  const self = this;
 
-  let k2q = self.eleKeyToCacheQueue = self.eleKeyToCacheQueue || {};
+  const k2q = self.eleKeyToCacheQueue = self.eleKeyToCacheQueue || {};
 
   return k2q;
 };
 
 ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
-  let self = this;
-  let r = this.renderer;
-  let zoom = r.cy.zoom();
-  let lookup = this.lookup;
+  const self = this;
+  const r = this.renderer;
+  const zoom = r.cy.zoom();
+  const lookup = this.lookup;
 
   if( !bb || bb.w === 0 || bb.h === 0 || isNaN(bb.w) || isNaN(bb.h) || !ele.visible() || ele.removed() ){ return null; }
 
@@ -123,10 +123,10 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
     return null;
   }
 
-  let scale = Math.pow( 2, lvl );
-  let eleScaledH = bb.h * scale;
-  let eleScaledW = bb.w * scale;
-  let scaledLabelShown = r.eleTextBiggerThanMin( ele, scale );
+  const scale = Math.pow( 2, lvl );
+  const eleScaledH = bb.h * scale;
+  const eleScaledW = bb.w * scale;
+  const scaledLabelShown = r.eleTextBiggerThanMin( ele, scale );
 
   if( !this.isVisible(ele, scaledLabelShown) ){ return null; }
 
@@ -156,12 +156,12 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
     return null; // caching large elements is not efficient
   }
 
-  let txrQ = self.getTextureQueue( txrH );
+  const txrQ = self.getTextureQueue( txrH );
 
   // first try the second last one in case it has space at the end
-  let txr = txrQ[ txrQ.length - 2 ];
+  const txr = txrQ[ txrQ.length - 2 ];
 
-  let addNewTxr = function(){
+  const addNewTxr = function(){
     return self.recycleTexture( txrH, eleScaledW ) || self.addTexture( txrH, eleScaledW );
   };
 
@@ -180,24 +180,24 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
     txr = addNewTxr();
   }
 
-  let scalableFrom = function( otherCache ){
+  const scalableFrom = function( otherCache ){
     return otherCache && otherCache.scaledLabelShown === scaledLabelShown;
   };
 
-  let deqing = reason && reason === getTxrReasons.dequeue;
-  let highQualityReq = reason && reason === getTxrReasons.highQuality;
-  let downscaleReq = reason && reason === getTxrReasons.downscale;
+  const deqing = reason && reason === getTxrReasons.dequeue;
+  const highQualityReq = reason && reason === getTxrReasons.highQuality;
+  const downscaleReq = reason && reason === getTxrReasons.downscale;
 
   let higherCache; // the nearest cache with a higher level
-  for( let l = lvl + 1; l <= maxLvl; l++ ){
-    let c = lookup.get( ele, l );
+  for (let l = lvl + 1; l <= maxLvl; l++ ){
+    const c = lookup.get( ele, l );
 
     if( c ){ higherCache = c; break; }
   }
 
-  let oneUpCache = higherCache && higherCache.level === lvl + 1 ? higherCache : null;
+  const oneUpCache = higherCache && higherCache.level === lvl + 1 ? higherCache : null;
 
-  let downscale = function(){
+  const downscale = function(){
     txr.context.drawImage(
       oneUpCache.texture.canvas,
       oneUpCache.x, 0,
@@ -220,7 +220,7 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
     // to cheaply scale towards the smaller level
 
     if( highQualityReq ){
-      for( let l = higherCache.level; l > lvl; l-- ){
+      for (let l = higherCache.level; l > lvl; l-- ){
         oneUpCache = self.getElement( ele, bb, pxRatio, l, getTxrReasons.downscale );
       }
 
@@ -235,8 +235,8 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
 
     let lowerCache; // the nearest cache with a lower level
     if( !deqing && !highQualityReq && !downscaleReq ){
-      for( let l = lvl - 1; l >= minLvl; l-- ){
-        let c = lookup.get( ele, l );
+      for (let l = lvl - 1; l >= minLvl; l-- ){
+        const c = lookup.get( ele, l );
 
         if( c ){ lowerCache = c; break; }
       }
@@ -281,35 +281,35 @@ ETCp.getElement = function( ele, bb, pxRatio, lvl, reason ){
 };
 
 ETCp.invalidateElements = function( eles ){
-  for( let i = 0; i < eles.length; i++ ){
+  for (let i = 0; i < eles.length; i++ ){
     this.invalidateElement(eles[i]);
   }
 };
 
 ETCp.invalidateElement = function( ele ){
-  let self = this;
-  let lookup = self.lookup;
-  let caches = [];
-  let invalid = lookup.isInvalid(ele);
+  const self = this;
+  const lookup = self.lookup;
+  const caches = [];
+  const invalid = lookup.isInvalid(ele);
 
   if( !invalid ){
     return; // override the invalidation request if the element key has not changed
   }
 
-  for( let lvl = minLvl; lvl <= maxLvl; lvl++ ){
-    let cache = lookup.getForCachedKey( ele, lvl );
+  for (let lvl = minLvl; lvl <= maxLvl; lvl++ ){
+    const cache = lookup.getForCachedKey( ele, lvl );
 
     if( cache ){
       caches.push( cache );
     }
   }
 
-  let noOtherElesUseCache = lookup.invalidate(ele);
+  const noOtherElesUseCache = lookup.invalidate(ele);
 
   if( noOtherElesUseCache ){
-    for( let i = 0; i < caches.length; i++ ){
-      let cache = caches[i];
-      let txr = cache.texture;
+    for (let i = 0; i < caches.length; i++ ){
+      const cache = caches[i];
+      const txr = cache.texture;
 
       // remove space from the texture it belongs to
       txr.invalidatedWidth += cache.width;
@@ -337,8 +337,8 @@ ETCp.checkTextureFullness = function( txr ){
   // if texture has been mostly filled and passed over several times, remove
   // it from the queue so we don't need to waste time looking at it to put new things
 
-  let self = this;
-  let txrQ = self.getTextureQueue( txr.height );
+  const self = this;
+  const txrQ = self.getTextureQueue( txr.height );
 
   if( txr.usedWidth / txr.width > maxFullness && txr.fullnessChecks >= maxFullnessChecks ){
     removeFromArray( txrQ, txr );
@@ -348,10 +348,10 @@ ETCp.checkTextureFullness = function( txr ){
 };
 
 ETCp.retireTexture = function( txr ){
-  let self = this;
-  let txrH = txr.height;
-  let txrQ = self.getTextureQueue( txrH );
-  let lookup = this.lookup;
+  const self = this;
+  const txrH = txr.height;
+  const txrQ = self.getTextureQueue( txrH );
+  const lookup = this.lookup;
 
   // retire the texture from the active / searchable queue:
 
@@ -361,10 +361,10 @@ ETCp.retireTexture = function( txr ){
 
   // remove the refs from the eles to the caches:
 
-  let eleCaches = txr.eleCaches;
+  const eleCaches = txr.eleCaches;
 
-  for( let i = 0; i < eleCaches.length; i++ ){
-    let eleCache = eleCaches[i];
+  for (let i = 0; i < eleCaches.length; i++ ){
+    const eleCache = eleCaches[i];
 
     lookup.deleteCache( eleCache.key, eleCache.level );
   }
@@ -373,15 +373,15 @@ ETCp.retireTexture = function( txr ){
 
   // add the texture to a retired queue so it can be recycled in future:
 
-  let rtxtrQ = self.getRetiredTextureQueue( txrH );
+  const rtxtrQ = self.getRetiredTextureQueue( txrH );
 
   rtxtrQ.push( txr );
 };
 
 ETCp.addTexture = function( txrH, minW ){
-  let self = this;
-  let txrQ = self.getTextureQueue( txrH );
-  let txr = {};
+  const self = this;
+  const txrQ = self.getTextureQueue( txrH );
+  const txr = {};
 
   txrQ.push( txr );
 
@@ -401,12 +401,12 @@ ETCp.addTexture = function( txrH, minW ){
 };
 
 ETCp.recycleTexture = function( txrH, minW ){
-  let self = this;
-  let txrQ = self.getTextureQueue( txrH );
-  let rtxtrQ = self.getRetiredTextureQueue( txrH );
+  const self = this;
+  const txrQ = self.getTextureQueue( txrH );
+  const rtxtrQ = self.getRetiredTextureQueue( txrH );
 
-  for( let i = 0; i < rtxtrQ.length; i++ ){
-    let txr = rtxtrQ[i];
+  for (let i = 0; i < rtxtrQ.length; i++ ){
+    const txr = rtxtrQ[i];
 
     if( txr.width >= minW ){
       txr.retired = false;
@@ -429,11 +429,11 @@ ETCp.recycleTexture = function( txrH, minW ){
 };
 
 ETCp.queueElement = function( ele, lvl ){
-  let self = this;
-  let q = self.getElementQueue();
-  let k2q = self.getElementKeyToQueue();
-  let key = this.getKey(ele);
-  let existingReq = k2q[key];
+  const self = this;
+  const q = self.getElementQueue();
+  const k2q = self.getElementKeyToQueue();
+  const key = this.getKey(ele);
+  const existingReq = k2q[key];
 
   if( existingReq ){
     // use the max lvl b/c in between lvls are cheap to make
@@ -445,7 +445,7 @@ ETCp.queueElement = function( ele, lvl ){
 
     q.updateItem( existingReq );
   } else {
-    let req = {
+    const req = {
       eles: ele.spawn().merge(ele),
       level: lvl,
       reqs: 1,
@@ -459,18 +459,18 @@ ETCp.queueElement = function( ele, lvl ){
 };
 
 ETCp.dequeue = function( pxRatio /*, extent*/ ){
-  let self = this;
-  let q = self.getElementQueue();
-  let k2q = self.getElementKeyToQueue();
-  let dequeued = [];
-  let lookup = self.lookup;
+  const self = this;
+  const q = self.getElementQueue();
+  const k2q = self.getElementKeyToQueue();
+  const dequeued = [];
+  const lookup = self.lookup;
 
-  for( let i = 0; i < maxDeqSize; i++ ){
+  for (let i = 0; i < maxDeqSize; i++ ){
     if( q.size() > 0 ){
-      let req = q.pop();
-      let key = req.key;
-      let ele = req.eles[0]; // all eles have the same key
-      let cacheExists = lookup.hasCache(ele, req.level);
+      const req = q.pop();
+      const key = req.key;
+      const ele = req.eles[0]; // all eles have the same key
+      const cacheExists = lookup.hasCache(ele, req.level);
 
       // clear out the key to req lookup
       k2q[key] = null;
@@ -480,7 +480,7 @@ ETCp.dequeue = function( pxRatio /*, extent*/ ){
 
       dequeued.push( req );
 
-      let bb = self.getBoundingBox( ele );
+      const bb = self.getBoundingBox( ele );
 
       self.getElement( ele, bb, pxRatio, req.level, getTxrReasons.dequeue );
     } else {
@@ -492,11 +492,11 @@ ETCp.dequeue = function( pxRatio /*, extent*/ ){
 };
 
 ETCp.removeFromQueue = function( ele ){
-  let self = this;
-  let q = self.getElementQueue();
-  let k2q = self.getElementKeyToQueue();
-  let key = this.getKey(ele);
-  let req = k2q[key];
+  const self = this;
+  const q = self.getElementQueue();
+  const k2q = self.getElementKeyToQueue();
+  const key = this.getKey(ele);
+  const req = k2q[key];
 
   if( req != null ){
     if( req.eles.length === 1 ){ // remove if last ele in the req
@@ -526,18 +526,18 @@ ETCp.setupDequeueing = defs.setupDequeueing({
     return self.dequeue( pxRatio, extent );
   },
   onDeqd: function( self, deqd ){
-    for( let i = 0; i < self.onDequeues.length; i++ ){
-      let fn = self.onDequeues[i];
+    for (let i = 0; i < self.onDequeues.length; i++ ){
+      const fn = self.onDequeues[i];
 
       fn( deqd );
     }
   },
   shouldRedraw: function( self, deqd, pxRatio, extent ){
-    for( let i = 0; i < deqd.length; i++ ){
-      let eles = deqd[i].eles;
+    for (let i = 0; i < deqd.length; i++ ){
+      const eles = deqd[i].eles;
 
-      for( let j = 0; j < eles.length; j++ ){
-        let bb = eles[j].boundingBox();
+      for (let j = 0; j < eles.length; j++ ){
+        const bb = eles[j].boundingBox();
 
         if( math.boundingBoxesIntersect( bb, extent ) ){
           return true;

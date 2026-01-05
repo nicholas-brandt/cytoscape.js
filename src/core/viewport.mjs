@@ -1,9 +1,9 @@
 import * as is from '../is.mjs';
 import * as math from '../math.mjs';
 
-let defaultSelectionType = 'single';
+const defaultSelectionType = 'single';
 
-let corefn = ({
+const corefn = ({
 
   autolock: function( bool ){
     if( bool !== undefined ){
@@ -36,7 +36,7 @@ let corefn = ({
   },
 
   selectionType: function( selType ){
-    let _p = this._private;
+    const _p = this._private;
 
     if( _p.selectionType == null ){
       _p.selectionType = defaultSelectionType;
@@ -104,8 +104,8 @@ let corefn = ({
   },
 
   pan: function(){
-    let args = arguments;
-    let pan = this._private.pan;
+    const args = arguments;
+    const pan = this._private.pan;
     let dim, val, dims, x, y;
 
     switch( args.length ){
@@ -164,8 +164,8 @@ let corefn = ({
   },
 
   panBy: function( arg0, arg1 ){
-    let args = arguments;
-    let pan = this._private.pan;
+    const args = arguments;
+    const pan = this._private.pan;
     let dim, val, dims, x, y;
 
     if( !this._private.panningEnabled ){
@@ -217,10 +217,10 @@ let corefn = ({
   },
 
   fit: function( elements, padding ){
-    let viewportState = this.getFitViewport( elements, padding );
+    const viewportState = this.getFitViewport( elements, padding );
 
     if( viewportState ){
-      let _p = this._private;
+      const _p = this._private;
       _p.zoom = viewportState.zoom;
       _p.pan = viewportState.pan;
 
@@ -245,11 +245,11 @@ let corefn = ({
     let bb;
 
     if( is.string( elements ) ){
-      let sel = elements;
+      const sel = elements;
       elements = this.$( sel );
 
     } else if( is.boundingBox( elements ) ){ // assume bb
-      let bbe = elements;
+      const bbe = elements;
       bb = {
         x1: bbe.x1,
         y1: bbe.y1,
@@ -268,8 +268,8 @@ let corefn = ({
 
     bb = bb || elements.boundingBox();
 
-    let w = this.width();
-    let h = this.height();
+    const w = this.width();
+    const h = this.height();
     let zoom;
     padding = is.number( padding ) ? padding : 0;
 
@@ -280,7 +280,7 @@ let corefn = ({
       zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
       zoom = zoom < this._private.minZoom ? this._private.minZoom : zoom;
 
-      let pan = { // now pan to middle
+      const pan = { // now pan to middle
         x: (w - zoom * ( bb.x1 + bb.x2 )) / 2,
         y: (h - zoom * ( bb.y1 + bb.y2 )) / 2
       };
@@ -295,10 +295,10 @@ let corefn = ({
   },
 
   zoomRange: function( min, max ){
-    let _p = this._private;
+    const _p = this._private;
 
     if( max == null ){
-      let opts = min;
+      const opts = min;
 
       min = opts.min;
       max = opts.max;
@@ -333,12 +333,12 @@ let corefn = ({
   },
 
   getZoomedViewport: function( params ){
-    let _p = this._private;
-    let currentPan = _p.pan;
-    let currentZoom = _p.zoom;
+    const _p = this._private;
+    const currentPan = _p.pan;
+    const currentZoom = _p.zoom;
     let pos; // in rendered px
     let zoom;
-    let bail = false;
+    const bail = false;
 
     if( !_p.zoomingEnabled ){ // zooming disabled
       bail = true;
@@ -371,11 +371,11 @@ let corefn = ({
     }
 
     if( pos != null ){ // set zoom about position
-      let pan1 = currentPan;
-      let zoom1 = currentZoom;
-      let zoom2 = zoom;
+      const pan1 = currentPan;
+      const zoom1 = currentZoom;
+      const zoom2 = zoom;
 
-      let pan2 = {
+      const pan2 = {
         x: -zoom2 / zoom1 * (pos.x - pan1.x) + pos.x,
         y: -zoom2 / zoom1 * (pos.y - pan1.y) + pos.y
       };
@@ -401,8 +401,8 @@ let corefn = ({
     if( params === undefined ){ // get
       return this._private.zoom;
     } else { // set
-      let vp = this.getZoomedViewport( params );
-      let _p = this._private;
+      const vp = this.getZoomedViewport( params );
+      const _p = this._private;
 
       if( vp == null || !vp.zoomed ){ return this; }
 
@@ -422,12 +422,12 @@ let corefn = ({
   },
 
   viewport: function( opts ){
-    let _p = this._private;
-    let zoomDefd = true;
-    let panDefd = true;
-    let events = []; // to trigger
-    let zoomFailed = false;
-    let panFailed = false;
+    const _p = this._private;
+    const zoomDefd = true;
+    const panDefd = true;
+    const events = []; // to trigger
+    const zoomFailed = false;
+    const panFailed = false;
 
     if( !opts ){ return this; }
     if( !is.number( opts.zoom ) ){ zoomDefd = false; }
@@ -435,7 +435,7 @@ let corefn = ({
     if( !zoomDefd && !panDefd ){ return this; }
 
     if( zoomDefd ){
-      let z = opts.zoom;
+      const z = opts.zoom;
 
       if( z < _p.minZoom || z > _p.maxZoom || !_p.zoomingEnabled ){
         zoomFailed = true;
@@ -448,7 +448,7 @@ let corefn = ({
     }
 
     if( panDefd && (!zoomFailed || !opts.cancelOnFailedZoom) && _p.panningEnabled ){
-      let p = opts.pan;
+      const p = opts.pan;
 
       if( is.number( p.x ) ){
         _p.pan.x = p.x;
@@ -476,7 +476,7 @@ let corefn = ({
   },
 
   center: function( elements ){
-    let pan = this.getCenterPan( elements );
+    const pan = this.getCenterPan( elements );
 
     if( pan ){
       this._private.pan = pan;
@@ -495,7 +495,7 @@ let corefn = ({
     }
 
     if( is.string( elements ) ){
-      let selector = elements;
+      const selector = elements;
       elements = this.mutableElements().filter( selector );
     } else if( !is.elementOrCollection( elements ) ){
       elements = this.mutableElements();
@@ -503,12 +503,12 @@ let corefn = ({
 
     if( elements.length === 0 ){ return; } // can't centre pan to nothing
 
-    let bb = elements.boundingBox();
-    let w = this.width();
-    let h = this.height();
+    const bb = elements.boundingBox();
+    const w = this.width();
+    const h = this.height();
     zoom = zoom === undefined ? this._private.zoom : zoom;
 
-    let pan = { // middle
+    const pan = { // middle
       x: (w - zoom * ( bb.x1 + bb.x2 )) / 2,
       y: (h - zoom * ( bb.y1 + bb.y2 )) / 2
     };
@@ -534,13 +534,13 @@ let corefn = ({
   },
 
   size: function(){
-    let _p = this._private;
-    let container = _p.container;
-    let cy = this;
+    const _p = this._private;
+    const container = _p.container;
+    const cy = this;
 
     return ( _p.sizeCache = _p.sizeCache || ( container ? (function(){
-      let style = cy.window().getComputedStyle( container );
-      let val = function( name ){ return parseFloat( style.getPropertyValue( name ) ); };
+      const style = cy.window().getComputedStyle( container );
+      const val = function( name ){ return parseFloat( style.getPropertyValue( name ) ); };
 
       return {
         width: container.clientWidth - val('padding-left') - val('padding-right'),
@@ -561,11 +561,11 @@ let corefn = ({
   },
 
   extent: function(){
-    let pan = this._private.pan;
-    let zoom = this._private.zoom;
-    let rb = this.renderedExtent();
+    const pan = this._private.pan;
+    const zoom = this._private.zoom;
+    const rb = this.renderedExtent();
 
-    let b = {
+    const b = {
       x1: ( rb.x1 - pan.x ) / zoom,
       x2: ( rb.x2 - pan.x ) / zoom,
       y1: ( rb.y1 - pan.y ) / zoom,
@@ -579,8 +579,8 @@ let corefn = ({
   },
 
   renderedExtent: function(){
-    let width = this.width();
-    let height = this.height();
+    const width = this.width();
+    const height = this.height();
 
     return {
       x1: 0,

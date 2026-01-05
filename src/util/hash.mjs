@@ -3,7 +3,7 @@ const K = 65599; // 37 also works pretty well
 export const DEFAULT_HASH_SEED_ALT = 5381;
 
 export const hashIterableInts = function( iterator, seed = DEFAULT_HASH_SEED ){ // sdbm/string-hash
-  let hash = seed;
+  const hash = seed;
   let entry;
 
   for( ;; ){
@@ -41,11 +41,11 @@ export const hashArrays = function(hashes1, hashes2){
 };
 
 export const hashIntsArray = function( ints, seed ){
-  let entry = { value: 0, done: false };
-  let i = 0;
-  let length = ints.length;
+  const entry = { value: 0, done: false };
+  const i = 0;
+  const length = ints.length;
 
-  let iterator = {
+  const iterator = {
     next(){
       if( i < length ){
         entry.value = ints[i++];
@@ -61,11 +61,11 @@ export const hashIntsArray = function( ints, seed ){
 };
 
 export const hashString = function( str, seed ){
-  let entry = { value: 0, done: false };
-  let i = 0;
-  let length = str.length;
+  const entry = { value: 0, done: false };
+  const i = 0;
+  const length = str.length;
 
-  let iterator = {
+  const iterator = {
     next(){
       if( i < length ){
         entry.value = str.charCodeAt(i++);
@@ -87,8 +87,8 @@ export const hashStrings = function(){
 export const hashStringsArray = function( strs ){
   let hash;
 
-  for( let i = 0; i < strs.length; i++ ){
-    let str = strs[i];
+  for (let i = 0; i < strs.length; i++ ){
+    const str = strs[i];
 
     if( i === 0 ){
       hash = hashString( str );

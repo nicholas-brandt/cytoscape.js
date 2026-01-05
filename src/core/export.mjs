@@ -1,14 +1,14 @@
-let corefn = ({
+const corefn = ({
 
   png: function( options ){
-    let renderer = this._private.renderer;
+    const renderer = this._private.renderer;
     options = options || {};
 
     return renderer.png( options );
   },
 
   jpg: function( options ){
-    let renderer = this._private.renderer;
+    const renderer = this._private.renderer;
     options = options || {};
 
     options.bg = options.bg || '#fff';

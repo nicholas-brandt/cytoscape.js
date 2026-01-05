@@ -22,14 +22,14 @@ import switchFunctions from './switch-functions.mjs';
 import traversing from './traversing.mjs';
 
 // represents a set of nodes, edges, or both together
-let Collection = function( cy, elements, unique = false, removed = false ){
+const Collection = function( cy, elements, unique = false, removed = false ){
   if( cy === undefined ){
     util.error( 'A collection must have a reference to the core' );
     return;
   }
 
-  let map = new Map();
-  let createdElements = false;
+  const map = new Map();
+  const createdElements = false;
 
   if( !elements ){
     elements = [];
@@ -37,17 +37,17 @@ let Collection = function( cy, elements, unique = false, removed = false ){
     createdElements = true;
 
     // make elements from json and restore all at once later
-    let eles = [];
-    let elesIds = new Set();
+    const eles = [];
+    const elesIds = new Set();
 
-    for( let i = 0, l = elements.length; i < l; i++ ){
-      let json = elements[ i ];
+    for (let i = 0, l = elements.length; i < l; i++ ){
+      const json = elements[ i ];
 
       if( json.data == null ){
         json.data = {};
       }
 
-      let data = json.data;
+      const data = json.data;
 
       // make sure newly created elements have valid ids
       if( data.id == null ){
@@ -56,7 +56,7 @@ let Collection = function( cy, elements, unique = false, removed = false ){
         continue; // can't create element if prior id already exists
       }
 
-      let ele = new Element( cy, json, false );
+      const ele = new Element( cy, json, false );
       eles.push( ele );
       elesIds.add( data.id );
     }
@@ -66,11 +66,11 @@ let Collection = function( cy, elements, unique = false, removed = false ){
 
   this.length = 0;
 
-  for( let i = 0, l = elements.length; i < l; i++ ){
-    let element = elements[i][0]; // [0] in case elements is an array of collections, rather than array of elements
+  for (let i = 0, l = elements.length; i < l; i++ ){
+    const element = elements[i][0]; // [0] in case elements is an array of collections, rather than array of elements
     if( element == null ){  continue; }
 
-    let id = element._private.data.id;
+    const id = element._private.data.id;
 
     if( !unique || !map.has(id) ){
       if( unique ){
@@ -102,7 +102,7 @@ let Collection = function( cy, elements, unique = false, removed = false ){
       const m = this.lazyMap = new Map();
       const eles = this.eles;
 
-      for( let i = 0; i < eles.length; i++ ){
+      for (let i = 0; i < eles.length; i++ ){
         const ele = eles[i];
 
         m.set(ele.id(), { index: i, ele });
@@ -125,7 +125,7 @@ let Collection = function( cy, elements, unique = false, removed = false ){
 
 // keep the prototypes in sync (an element has the same functions as a collection)
 // and use elefn and elesfn as shorthands to the prototypes
-let elesfn = Element.prototype = Collection.prototype = Object.create(Array.prototype);
+const elesfn = Element.prototype = Collection.prototype = Object.create(Array.prototype);
 
 elesfn.instanceString = function(){
   return 'collection';
@@ -172,8 +172,8 @@ elesfn.hasElementWithId = function( id ){
 elesfn.getElementById = function( id ){
   id = '' + id; // id must be string
 
-  let cy = this._private.cy;
-  let entry = this._private.map.get( id );
+  const cy = this._private.cy;
+  const entry = this._private.map.get( id );
 
   return entry ? entry.ele : new Collection( cy ); // get ele or empty collection
 };
@@ -181,15 +181,15 @@ elesfn.getElementById = function( id ){
 elesfn.$id = elesfn.getElementById;
 
 elesfn.poolIndex = function(){
-  let cy = this._private.cy;
-  let eles = cy._private.elements;
-  let id = this[0]._private.data.id;
+  const cy = this._private.cy;
+  const eles = cy._private.elements;
+  const id = this[0]._private.data.id;
 
   return eles._private.map.get( id ).index;
 };
 
 elesfn.indexOf = function( ele ){
-  let id = ele[0]._private.data.id;
+  const id = ele[0]._private.data.id;
 
   return this._private.map.get( id ).index;
 };
@@ -201,14 +201,14 @@ elesfn.indexOfId = function( id ){
 };
 
 elesfn.json = function( obj ){
-  let ele = this.element();
-  let cy = this.cy();
+  const ele = this.element();
+  const cy = this.cy();
 
   if( ele == null && obj ){ return this; } // can't set to no eles
 
   if( ele == null ){ return undefined; } // can't get from no eles
 
-  let p = ele._private;
+  const p = ele._private;
 
   if( is.plainObject( obj ) ){ // set
 
@@ -217,13 +217,13 @@ elesfn.json = function( obj ){
     if( obj.data ){
       ele.data( obj.data );
 
-      let data = p.data;
+      const data = p.data;
 
       if( ele.isEdge() ){ // source and target are immutable via data()
-        let move = false;
-        let spec = {};
-        let src = obj.data.source;
-        let tgt = obj.data.target;
+        const move = false;
+        const spec = {};
+        const src = obj.data.source;
+        const tgt = obj.data.target;
 
         if( src != null && src != data.source ){
           spec.source = '' + src; // id must be string
@@ -239,8 +239,8 @@ elesfn.json = function( obj ){
           ele = ele.move(spec);
         }
       } else { // parent is immutable via data()
-        let newParentValSpecd = 'parent' in obj.data;
-        let parent = obj.data.parent;
+        const newParentValSpecd = 'parent' in obj.data;
+        const parent = obj.data.parent;
 
         if( newParentValSpecd && (parent != null || data.parent != null) && parent != data.parent ){
           if( parent === undefined ){ // can't set undefined imperatively, so use null
@@ -262,8 +262,8 @@ elesfn.json = function( obj ){
 
     // ignore group -- immutable
 
-    let checkSwitch = function( k, trueFnName, falseFnName ){
-      let obj_k = obj[ k ];
+    const checkSwitch = function( k, trueFnName, falseFnName ){
+      const obj_k = obj[ k ];
 
       if( obj_k != null && obj_k !== p[ k ] ){
         if( obj_k ){
@@ -296,7 +296,7 @@ elesfn.json = function( obj ){
 
   } else if( obj === undefined ){ // get
 
-    let json = {
+    const json = {
       data: util.copy( p.data ),
       position: util.copy( p.position ),
       group: p.group,
@@ -311,7 +311,7 @@ elesfn.json = function( obj ){
 
     json.classes = '';
 
-    let i = 0;
+    const i = 0;
     p.classes.forEach( cls => json.classes += ( i++ === 0 ? cls : ' ' + cls ) );
 
     return json;
@@ -319,11 +319,11 @@ elesfn.json = function( obj ){
 };
 
 elesfn.jsons = function(){
-  let jsons = [];
+  const jsons = [];
 
-  for( let i = 0; i < this.length; i++ ){
-    let ele = this[ i ];
-    let json = ele.json();
+  for (let i = 0; i < this.length; i++ ){
+    const ele = this[ i ];
+    const json = ele.json();
 
     jsons.push( json );
   }
@@ -332,13 +332,13 @@ elesfn.jsons = function(){
 };
 
 elesfn.clone = function(){
-  let cy = this.cy();
-  let elesArr = [];
+  const cy = this.cy();
+  const elesArr = [];
 
-  for( let i = 0; i < this.length; i++ ){
-    let ele = this[ i ];
-    let json = ele.json();
-    let clone = new Element( cy, json, false ); // NB no restore
+  for (let i = 0; i < this.length; i++ ){
+    const ele = this[ i ];
+    const json = ele.json();
+    const clone = new Element( cy, json, false ); // NB no restore
 
     elesArr.push( clone );
   }
@@ -348,17 +348,17 @@ elesfn.clone = function(){
 elesfn.copy = elesfn.clone;
 
 elesfn.restore = function( notifyRenderer = true, addToPool = true ){
-  let self = this;
-  let cy = self.cy();
-  let cy_p = cy._private;
+  const self = this;
+  const cy = self.cy();
+  const cy_p = cy._private;
 
   // create arrays of nodes and edges, since we need to
   // restore the nodes first
-  let nodes = [];
-  let edges = [];
+  const nodes = [];
+  const edges = [];
   let elements;
-  for( let i = 0, l = self.length; i < l; i++ ){
-    let ele = self[ i ];
+  for (let i = 0, l = self.length; i < l; i++ ){
+    const ele = self[ i ];
 
     if( addToPool && !ele.removed() ){
       // don't need to handle this ele
@@ -376,17 +376,17 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
   elements = nodes.concat( edges );
 
   let i;
-  let removeFromElements = function(){
+  const removeFromElements = function(){
     elements.splice( i, 1 );
     i--;
   };
 
   // now, restore each element
   for( i = 0; i < elements.length; i++ ){
-    let ele = elements[ i ];
+    const ele = elements[ i ];
 
-    let _private = ele._private;
-    let data = _private.data;
+    const _private = ele._private;
+    const data = _private.data;
 
     // the traversal cache should start fresh when ele is added
     ele.clearTraversalCache();
@@ -415,10 +415,10 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
       continue;
     }
 
-    let id = data.id; // id is finalised, now let's keep a ref
+    const id = data.id; // id is finalised, now let's keep a ref
 
     if( ele.isNode() ){ // extra checks for nodes
-      let pos = _private.position;
+      const pos = _private.position;
 
       // make sure the nodes have a defined position
 
@@ -433,14 +433,14 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
 
     if( ele.isEdge() ){ // extra checks for edges
 
-      let edge = ele;
-      let fields = [ 'source', 'target' ];
-      let fieldsLength = fields.length;
-      let badSourceOrTarget = false;
-      for( let j = 0; j < fieldsLength; j++ ){
+      const edge = ele;
+      const fields = [ 'source', 'target' ];
+      const fieldsLength = fields.length;
+      const badSourceOrTarget = false;
+      for (let j = 0; j < fieldsLength; j++ ){
 
-        let field = fields[ j ];
-        let val = data[ field ];
+        const field = fields[ j ];
+        const val = data[ field ];
 
         if( is.number( val ) ){
           val = data[ field ] = '' + data[ field ]; // now string
@@ -459,8 +459,8 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
 
       if( badSourceOrTarget ){ removeFromElements(); continue; } // can't create this
 
-      let src = cy.getElementById( data.source );
-      let tgt = cy.getElementById( data.target );
+      const src = cy.getElementById( data.source );
+      const tgt = cy.getElementById( data.target );
 
       // only one edge in node if loop
       if (src.same(tgt)) {
@@ -486,21 +486,21 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
   } // for each element
 
   // do compound node sanity checks
-  for( let i = 0; i < nodes.length; i++ ){ // each node
-    let node = nodes[ i ];
-    let data = node._private.data;
+  for (let i = 0; i < nodes.length; i++ ){ // each node
+    const node = nodes[ i ];
+    const data = node._private.data;
 
     if( is.number( data.parent ) ){ // then automake string
       data.parent = '' + data.parent;
     }
 
-    let parentId = data.parent;
+    const parentId = data.parent;
 
-    let specifiedParent = parentId != null;
+    const specifiedParent = parentId != null;
 
     if( specifiedParent || node._private.parent ){
 
-      let parent = node._private.parent ? cy.collection().merge(node._private.parent) : cy.getElementById( parentId );
+      const parent = node._private.parent ? cy.collection().merge(node._private.parent) : cy.getElementById( parentId );
 
       if( parent.empty() ){
         // non-existant parent; just remove it
@@ -510,8 +510,8 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
         data.parent = undefined;
         node._private.parent = null;
       } else {
-        let selfAsParent = false;
-        let ancestor = parent;
+        const selfAsParent = false;
+        const ancestor = parent;
         while( !ancestor.empty() ){
           if( node.same( ancestor ) ){
             // mark self as parent and remove from data
@@ -538,10 +538,10 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
   } // for each node
 
   if( elements.length > 0 ){
-    let restored = elements.length === self.length ? self : new Collection( cy, elements );
+    const restored = elements.length === self.length ? self : new Collection( cy, elements );
 
-    for( let i = 0; i < restored.length; i++ ){
-      let ele = restored[i];
+    for (let i = 0; i < restored.length; i++ ){
+      const ele = restored[i];
 
       if( ele.isNode() ){ continue; }
 
@@ -574,40 +574,40 @@ elesfn.restore = function( notifyRenderer = true, addToPool = true ){
 };
 
 elesfn.removed = function(){
-  let ele = this[0];
+  const ele = this[0];
   return ele && ele._private.removed;
 };
 
 elesfn.inside = function(){
-  let ele = this[0];
+  const ele = this[0];
   return ele && !ele._private.removed;
 };
 
 elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
-  let self = this;
-  let elesToRemove = [];
-  let elesToRemoveIds = {};
-  let cy = self._private.cy;
+  const self = this;
+  const elesToRemove = [];
+  const elesToRemoveIds = {};
+  const cy = self._private.cy;
 
   // add connected edges
   function addConnectedEdges( node ){
-    let edges = node._private.edges;
-    for( let i = 0; i < edges.length; i++ ){
+    const edges = node._private.edges;
+    for (let i = 0; i < edges.length; i++ ){
       add( edges[ i ] );
     }
   }
 
   // add descendant nodes
   function addChildren( node ){
-    let children = node._private.children;
+    const children = node._private.children;
 
-    for( let i = 0; i < children.length; i++ ){
+    for (let i = 0; i < children.length; i++ ){
       add( children[ i ] );
     }
   }
 
   function add( ele ){
-    let alreadyAdded =  elesToRemoveIds[ ele.id() ];
+    const alreadyAdded =  elesToRemoveIds[ ele.id() ];
     if( (removeFromPool && ele.removed()) || alreadyAdded ){
       return;
     } else {
@@ -627,14 +627,14 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
   // make the list of elements to remove
   // (may be removing more than specified due to connected edges etc)
 
-  for( let i = 0, l = self.length; i < l; i++ ){
-    let ele = self[ i ];
+  for (let i = 0, l = self.length; i < l; i++ ){
+    const ele = self[ i ];
 
     add( ele );
   }
 
   function removeEdgeRef( node, edge ){
-    let connectedEdges = node._private.edges;
+    const connectedEdges = node._private.edges;
 
     util.removeFromArray( connectedEdges, edge );
 
@@ -647,15 +647,15 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
     pllEdge.clearTraversalCache();
   }
 
-  let alteredParents = [];
+  const alteredParents = [];
   alteredParents.ids = {};
 
   function removeChildRef( parent, ele ){
     ele = ele[0];
     parent = parent[0];
 
-    let children = parent._private.children;
-    let pid = parent.id();
+    const children = parent._private.children;
+    const pid = parent.id();
 
     util.removeFromArray( children, ele ); // remove parent => child ref
 
@@ -673,20 +673,20 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
     cy.removeFromPool( elesToRemove ); // remove from core pool
   }
 
-  for( let i = 0; i < elesToRemove.length; i++ ){
-    let ele = elesToRemove[ i ];
+  for (let i = 0; i < elesToRemove.length; i++ ){
+    const ele = elesToRemove[ i ];
 
     if( ele.isEdge() ){ // remove references to this edge in its connected nodes
-      let src = ele.source()[0];
-      let tgt = ele.target()[0];
+      const src = ele.source()[0];
+      const tgt = ele.target()[0];
 
       removeEdgeRef( src, ele );
       removeEdgeRef( tgt, ele );
 
-      let pllEdges = ele.parallelEdges();
+      const pllEdges = ele.parallelEdges();
 
-      for( let j = 0; j < pllEdges.length; j++ ){
-        let pllEdge = pllEdges[j];
+      for (let j = 0; j < pllEdges.length; j++ ){
+        const pllEdge = pllEdges[j];
 
         removeParallelRef(pllEdge);
 
@@ -696,7 +696,7 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
       }
 
     } else { // remove reference to parent
-      let parent = ele.parent();
+      const parent = ele.parent();
 
       if( parent.length !== 0 ){
         removeChildRef( parent, ele );
@@ -710,10 +710,10 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
   }
 
   // check to see if we have a compound graph or not
-  let elesStillInside = cy._private.elements;
+  const elesStillInside = cy._private.elements;
   cy._private.hasCompoundNodes = false;
-  for( let i = 0; i < elesStillInside.length; i++ ){
-    let ele = elesStillInside[ i ];
+  for (let i = 0; i < elesStillInside.length; i++ ){
+    const ele = elesStillInside[ i ];
 
     if( ele.isParent() ){
       cy._private.hasCompoundNodes = true;
@@ -721,7 +721,7 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
     }
   }
 
-  let removedElements = new Collection( this.cy(), elesToRemove );
+  const removedElements = new Collection( this.cy(), elesToRemove );
 
   if( removedElements.size() > 0 ){
     // must manually notify since trigger won't do this automatically once removed
@@ -734,8 +734,8 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
   }
 
   // the parents who were modified by the removal need their style updated
-  for( let i = 0; i < alteredParents.length; i++ ){
-    let ele = alteredParents[ i ];
+  for (let i = 0; i < alteredParents.length; i++ ){
+    const ele = alteredParents[ i ];
 
     if( !removeFromPool || !ele.removed() ){
       ele.updateStyle();
@@ -746,30 +746,30 @@ elesfn.remove = function( notifyRenderer = true, removeFromPool = true ){
 };
 
 elesfn.move = function( struct ){
-  let cy = this._private.cy;
-  let eles = this;
+  const cy = this._private.cy;
+  const eles = this;
 
   // just clean up refs, caches, etc. in the same way as when removing and then restoring
   // (our calls to remove/restore do not remove from the graph or make events)
-  let notifyRenderer = false;
-  let modifyPool = false;
+  const notifyRenderer = false;
+  const modifyPool = false;
 
-  let toString = id => id == null ? id : '' + id; // id must be string
+  const toString = id => id == null ? id : '' + id; // id must be string
 
   if( struct.source !== undefined || struct.target !== undefined ){
-    let srcId = toString(struct.source);
-    let tgtId = toString(struct.target);
-    let srcExists = srcId != null && cy.hasElementWithId( srcId );
-    let tgtExists = tgtId != null && cy.hasElementWithId( tgtId );
+    const srcId = toString(struct.source);
+    const tgtId = toString(struct.target);
+    const srcExists = srcId != null && cy.hasElementWithId( srcId );
+    const tgtExists = tgtId != null && cy.hasElementWithId( tgtId );
 
     if( srcExists || tgtExists ){
       cy.batch(() => { // avoid duplicate style updates
         eles.remove( notifyRenderer, modifyPool ); // clean up refs etc.
         eles.emitAndNotify('moveout');
 
-        for( let i = 0; i < eles.length; i++ ){
-          let ele = eles[i];
-          let data = ele._private.data;
+        for (let i = 0; i < eles.length; i++ ){
+          const ele = eles[i];
+          const data = ele._private.data;
 
           if( ele.isEdge() ){
             if( srcExists ){ data.source = srcId; }
@@ -785,19 +785,19 @@ elesfn.move = function( struct ){
     }
 
   } else if( struct.parent !== undefined ){ // move node to new parent
-    let parentId = toString(struct.parent);
-    let parentExists = parentId === null || cy.hasElementWithId( parentId );
+    const parentId = toString(struct.parent);
+    const parentExists = parentId === null || cy.hasElementWithId( parentId );
 
     if( parentExists ){
-      let pidToAssign = parentId === null ? undefined : parentId;
+      const pidToAssign = parentId === null ? undefined : parentId;
 
       cy.batch(() => { // avoid duplicate style updates
-        let updated = eles.remove( notifyRenderer, modifyPool ); // clean up refs etc.
+        const updated = eles.remove( notifyRenderer, modifyPool ); // clean up refs etc.
         updated.emitAndNotify('moveout');
 
-        for( let i = 0; i < eles.length; i++ ){
-          let ele = eles[i];
-          let data = ele._private.data;
+        for (let i = 0; i < eles.length; i++ ){
+          const ele = eles[i];
+          const data = ele._private.data;
 
           if( ele.isNode() ){
             data.parent = pidToAssign;

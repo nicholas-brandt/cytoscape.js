@@ -1,11 +1,11 @@
 import window from '../window.mjs';
 import debounce from 'lodash/debounce.js';
 
-var performance = window ? window.performance : null;
+const performance = window ? window.performance : null;
 
-var pnow = performance && performance.now ? () => performance.now() : () => Date.now();
+const pnow = performance && performance.now ? () => performance.now() : () => Date.now();
 
-var raf = (function(){
+const raf = (function(){
   if( window ) {
     if( window.requestAnimationFrame ){
       return function( fn ){ window.requestAnimationFrame( fn ); };

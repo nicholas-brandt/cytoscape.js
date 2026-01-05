@@ -1,20 +1,20 @@
 import * as math from '../../../../math.mjs';
 import * as util from '../../../../util/index.mjs';
 
-var BRp = {};
+const BRp = {};
 
 // Project mouse
 BRp.projectIntoViewport = function( clientX, clientY ){
-  var cy = this.cy;
-  var offsets = this.findContainerClientCoords();
-  var offsetLeft = offsets[0];
-  var offsetTop = offsets[1];
-  var scale = offsets[4];
-  var pan = cy.pan();
-  var zoom = cy.zoom();
+  const cy = this.cy;
+  const offsets = this.findContainerClientCoords();
+  const offsetLeft = offsets[0];
+  const offsetTop = offsets[1];
+  const scale = offsets[4];
+  const pan = cy.pan();
+  const zoom = cy.zoom();
 
-  var x = ( (clientX - offsetLeft)/scale - pan.x ) / zoom;
-  var y = ( (clientY - offsetTop)/scale - pan.y ) / zoom;
+  const x = ( (clientX - offsetLeft)/scale - pan.x ) / zoom;
+  const y = ( (clientY - offsetTop)/scale - pan.y ) / zoom;
 
   return [ x, y ];
 };
@@ -24,40 +24,40 @@ BRp.findContainerClientCoords = function(){
     return this.containerBB;
   }
 
-  var container = this.container;
-  var rect = container.getBoundingClientRect();
-  var style = this.cy.window().getComputedStyle( container );
-  var styleValue = function( name ){ return parseFloat( style.getPropertyValue( name ) ); };
+  const container = this.container;
+  const rect = container.getBoundingClientRect();
+  const style = this.cy.window().getComputedStyle( container );
+  const styleValue = function( name ){ return parseFloat( style.getPropertyValue( name ) ); };
 
-  var padding = {
+  const padding = {
     left: styleValue('padding-left'),
     right: styleValue('padding-right'),
     top: styleValue('padding-top'),
     bottom: styleValue('padding-bottom')
   };
 
-  var border = {
+  const border = {
     left: styleValue('border-left-width'),
     right: styleValue('border-right-width'),
     top: styleValue('border-top-width'),
     bottom: styleValue('border-bottom-width')
   };
 
-  var clientWidth = container.clientWidth;
-  var clientHeight = container.clientHeight;
+  const clientWidth = container.clientWidth;
+  const clientHeight = container.clientHeight;
 
-  var paddingHor =  padding.left + padding.right;
-  var paddingVer = padding.top + padding.bottom;
+  const paddingHor =  padding.left + padding.right;
+  const paddingVer = padding.top + padding.bottom;
 
-  var borderHor = border.left + border.right;
+  const borderHor = border.left + border.right;
 
-  var scale = rect.width / ( clientWidth + borderHor );
+  const scale = rect.width / ( clientWidth + borderHor );
 
-  var unscaledW = clientWidth - paddingHor;
-  var unscaledH = clientHeight - paddingVer;
+  const unscaledW = clientWidth - paddingHor;
+  const unscaledH = clientHeight - paddingVer;
 
-  var left = rect.left + padding.left + border.left;
-  var top = rect.top + padding.top + border.top;
+  const left = rect.left + padding.left + border.left;
+  const top = rect.top + padding.top + border.top;
 
   return ( this.containerBB = [
     left,
@@ -77,18 +77,18 @@ BRp.findNearestElement = function( x, y, interactiveElementsOnly, isTouch ){
 };
 
 BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
-  var self = this;
-  var r = this;
-  var eles = r.getCachedZSortedEles();
-  var near = []; // 1 node max, 1 edge max
-  var zoom = r.cy.zoom();
-  var hasCompounds = r.cy.hasCompoundNodes();
-  var edgeThreshold = (isTouch ? 24 : 8) / zoom;
-  var nodeThreshold = (isTouch ? 8 : 2) / zoom;
-  var labelThreshold = (isTouch ? 8 : 2) / zoom;
-  var minSqDist = Infinity;
-  var nearEdge;
-  var nearNode;
+  const self = this;
+  const r = this;
+  const eles = r.getCachedZSortedEles();
+  const near = []; // 1 node max, 1 edge max
+  const zoom = r.cy.zoom();
+  const hasCompounds = r.cy.hasCompoundNodes();
+  const edgeThreshold = (isTouch ? 24 : 8) / zoom;
+  const nodeThreshold = (isTouch ? 8 : 2) / zoom;
+  const labelThreshold = (isTouch ? 8 : 2) / zoom;
+  const minSqDist = Infinity;
+  let nearEdge;
+  let nearNode;
 
   if( interactiveElementsOnly ){
     eles = eles.interactive;
@@ -111,7 +111,7 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
           nearEdge.pstyle('z-compound-depth').value === ele.pstyle('z-compound-depth').value
           && nearEdge.pstyle('z-compound-depth').value === ele.pstyle('z-compound-depth').value
         ){
-          for( var i = 0; i < near.length; i++ ){
+          for (let i = 0; i < near.length; i++ ){
             if( near[i].isEdge() ){
               near[i] = ele;
               nearEdge = ele;
@@ -129,20 +129,20 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
   }
 
   function checkNode( node ){
-    var width = node.outerWidth() + 2 * nodeThreshold;
-    var height = node.outerHeight() + 2 * nodeThreshold;
-    var hw = width / 2;
-    var hh = height / 2;
-    var pos = node.position();
-    var cornerRadius = node.pstyle('corner-radius').value === 'auto' ? 'auto' : node.pstyle('corner-radius').pfValue;
-    var rs = node._private.rscratch;
+    const width = node.outerWidth() + 2 * nodeThreshold;
+    const height = node.outerHeight() + 2 * nodeThreshold;
+    const hw = width / 2;
+    const hh = height / 2;
+    const pos = node.position();
+    const cornerRadius = node.pstyle('corner-radius').value === 'auto' ? 'auto' : node.pstyle('corner-radius').pfValue;
+    const rs = node._private.rscratch;
 
     if(
       pos.x - hw <= x && x <= pos.x + hw // bb check x
         &&
       pos.y - hh <= y && y <= pos.y + hh // bb check y
     ){
-      var shape = r.nodeShapes[ self.getNodeShape( node ) ];
+      const shape = r.nodeShapes[ self.getNodeShape( node ) ];
 
       if(
         shape.checkPoint( x, y, 0, width, height, pos.x, pos.y, cornerRadius, rs )
@@ -155,22 +155,22 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
   }
 
   function checkEdge( edge ){
-    var _p = edge._private;
+    const _p = edge._private;
 
-    var rs = _p.rscratch;
-    var styleWidth = edge.pstyle( 'width' ).pfValue;
-    var scale = edge.pstyle( 'arrow-scale' ).value;
-    var width = styleWidth / 2 + edgeThreshold; // more like a distance radius from centre
-    var widthSq = width * width;
-    var width2 = width * 2;
-    var src = _p.source;
-    var tgt = _p.target;
-    var sqDist;
+    const rs = _p.rscratch;
+    const styleWidth = edge.pstyle( 'width' ).pfValue;
+    const scale = edge.pstyle( 'arrow-scale' ).value;
+    const width = styleWidth / 2 + edgeThreshold; // more like a distance radius from centre
+    const widthSq = width * width;
+    const width2 = width * 2;
+    let src = _p.source;
+    let tgt = _p.target;
+    let sqDist;
 
     if( rs.edgeType === 'segments' || rs.edgeType === 'straight' || rs.edgeType === 'haystack' ){
-      var pts = rs.allpts;
+      const pts = rs.allpts;
 
-      for( var i = 0; i + 3 < pts.length; i += 2 ){
+      for (let i = 0; i + 3 < pts.length; i += 2 ){
         if(
           (math.inLineVicinity( x, y, pts[ i ], pts[ i + 1], pts[ i + 2], pts[ i + 3], width2 ))
             &&
@@ -182,8 +182,8 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
       }
 
     } else if( rs.edgeType === 'bezier' || rs.edgeType === 'multibezier' || rs.edgeType === 'self' || rs.edgeType === 'compound' ){
-      var pts = rs.allpts;
-      for( var i = 0; i + 5 < rs.allpts.length; i += 4 ){
+      const pts = rs.allpts;
+      for (let i = 0; i + 5 < rs.allpts.length; i += 4 ){
         if(
           (math.inBezierVicinity( x, y, pts[ i ], pts[ i + 1], pts[ i + 2], pts[ i + 3], pts[ i + 4], pts[ i + 5], width2 ))
             &&
@@ -197,22 +197,22 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
 
     // if we're close to the edge but didn't hit it, maybe we hit its arrows
 
-    var src = src || _p.source;
-    var tgt = tgt || _p.target;
+    src = src || _p.source;
+    tgt = tgt || _p.target;
 
-    var arSize = self.getArrowWidth( styleWidth, scale );
+    const arSize = self.getArrowWidth( styleWidth, scale );
 
-    var arrows = [
+    const arrows = [
       { name: 'source', x: rs.arrowStartX, y: rs.arrowStartY, angle: rs.srcArrowAngle },
       { name: 'target', x: rs.arrowEndX, y: rs.arrowEndY, angle: rs.tgtArrowAngle },
       { name: 'mid-source', x: rs.midX, y: rs.midY, angle: rs.midsrcArrowAngle },
       { name: 'mid-target', x: rs.midX, y: rs.midY, angle: rs.midtgtArrowAngle }
     ];
 
-    for( var i = 0; i < arrows.length; i++ ){
-      var ar = arrows[ i ];
-      var shape = r.arrowShapes[ edge.pstyle( ar.name + '-arrow-shape' ).value ];
-      var edgeWidth = edge.pstyle('width').pfValue;
+    for (let i = 0; i < arrows.length; i++ ){
+      const ar = arrows[ i ];
+      const shape = r.arrowShapes[ edge.pstyle( ar.name + '-arrow-shape' ).value ];
+      const edgeWidth = edge.pstyle('width').pfValue;
       if(
         shape.roughCollide( x, y, arSize, ar.angle, { x: ar.x, y: ar.y }, edgeWidth, edgeThreshold )
          &&
@@ -235,10 +235,10 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
   }
 
   function checkLabel( ele, prefix ){
-    var _p = ele._private;
-    var th = labelThreshold;
+    const _p = ele._private;
+    const th = labelThreshold;
 
-    var prefixDash;
+    let prefixDash;
     if( prefix ){
       prefixDash = prefix + '-';
     } else {
@@ -246,31 +246,31 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
     }
 
     ele.boundingBox();
-    var bb = _p.labelBounds[prefix || 'main'];
+    const bb = _p.labelBounds[prefix || 'main'];
 
-    var text = ele.pstyle( prefixDash + 'label' ).value;
-    var eventsEnabled = ele.pstyle( 'text-events' ).strValue === 'yes';
+    const text = ele.pstyle( prefixDash + 'label' ).value;
+    const eventsEnabled = ele.pstyle( 'text-events' ).strValue === 'yes';
 
     if( !eventsEnabled || !text ){ return; }
 
-    var lx = preprop( _p.rscratch, 'labelX', prefix );
-    var ly = preprop( _p.rscratch, 'labelY', prefix );
+    const lx = preprop( _p.rscratch, 'labelX', prefix );
+    const ly = preprop( _p.rscratch, 'labelY', prefix );
 
-    var theta = preprop( _p.rscratch, 'labelAngle', prefix );
+    const theta = preprop( _p.rscratch, 'labelAngle', prefix );
 
-    var ox = ele.pstyle(prefixDash + 'text-margin-x').pfValue;
-    let oy = ele.pstyle(prefixDash + 'text-margin-y').pfValue;
+    const ox = ele.pstyle(prefixDash + 'text-margin-x').pfValue;
+    const oy = ele.pstyle(prefixDash + 'text-margin-y').pfValue;
 
-    var lx1 = bb.x1 - th - ox; // (-ox, -oy) as bb already includes margin
-    var lx2 = bb.x2 + th - ox; // and rotation is about (lx, ly)
-    var ly1 = bb.y1 - th - oy;
-    var ly2 = bb.y2 + th - oy;
+    const lx1 = bb.x1 - th - ox; // (-ox, -oy) as bb already includes margin
+    const lx2 = bb.x2 + th - ox; // and rotation is about (lx, ly)
+    const ly1 = bb.y1 - th - oy;
+    const ly2 = bb.y2 + th - oy;
 
     if( theta ){
-      var cos = Math.cos( theta );
-      var sin = Math.sin( theta );
+      const cos = Math.cos( theta );
+      const sin = Math.sin( theta );
 
-      var rotate = function( x, y ){
+      const rotate = function( x, y ){
         x = x - lx;
         y = y - ly;
 
@@ -280,12 +280,12 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
         };
       };
 
-      var px1y1 = rotate( lx1, ly1 );
-      var px1y2 = rotate( lx1, ly2 );
-      var px2y1 = rotate( lx2, ly1 );
-      var px2y2 = rotate( lx2, ly2 );
+      const px1y1 = rotate( lx1, ly1 );
+      const px1y2 = rotate( lx1, ly2 );
+      const px2y1 = rotate( lx2, ly1 );
+      const px2y2 = rotate( lx2, ly2 );
 
-      var points = [ // with the margin added after the rotation is applied
+      const points = [ // with the margin added after the rotation is applied
         px1y1.x + ox, px1y1.y + oy,
         px2y1.x + ox, px2y1.y + oy,
         px2y2.x + ox, px2y2.y + oy,
@@ -305,8 +305,8 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
 
   }
 
-  for( var i = eles.length - 1; i >= 0; i-- ){ // reverse order for precedence
-    var ele = eles[ i ];
+  for (let i = eles.length - 1; i >= 0; i-- ){ // reverse order for precedence
+    const ele = eles[ i ];
 
     if( ele.isNode() ){
       checkNode( ele ) || checkLabel( ele );
@@ -321,32 +321,32 @@ BRp.findNearestElements = function( x, y, interactiveElementsOnly, isTouch ){
 
 // 'Give me everything from this box'
 BRp.getAllInBox = function( x1, y1, x2, y2 ){
-  var eles = this.getCachedZSortedEles().interactive;
-  var zoom = this.cy.zoom();
-  var labelThreshold = 2 / zoom;
-  var box = [];
+  const eles = this.getCachedZSortedEles().interactive;
+  const zoom = this.cy.zoom();
+  const labelThreshold = 2 / zoom;
+  const box = [];
 
-  var x1c = Math.min( x1, x2 );
-  var x2c = Math.max( x1, x2 );
-  var y1c = Math.min( y1, y2 );
-  var y2c = Math.max( y1, y2 );
+  const x1c = Math.min( x1, x2 );
+  const x2c = Math.max( x1, x2 );
+  const y1c = Math.min( y1, y2 );
+  const y2c = Math.max( y1, y2 );
 
   x1 = x1c;
   x2 = x2c;
   y1 = y1c;
   y2 = y2c;
 
-  var boxBb = math.makeBoundingBox( {
+  const boxBb = math.makeBoundingBox( {
     x1: x1, y1: y1,
     x2: x2, y2: y2
   } );
-  var selectionBox = [
+  const selectionBox = [
     { x: boxBb.x1, y: boxBb.y1 },
     { x: boxBb.x2, y: boxBb.y1 },
     { x: boxBb.x2, y: boxBb.y2 },
     { x: boxBb.x1, y: boxBb.y2 },
   ];
-  var boxEdges = [
+  const boxEdges = [
     [selectionBox[0], selectionBox[1]],
     [selectionBox[1], selectionBox[2]],
     [selectionBox[2], selectionBox[3]],
@@ -359,12 +359,12 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
   }
 
   function getRotatedLabelBox(ele, prefix) {
-    var _p = ele._private;
-    var th = labelThreshold;
+    const _p = ele._private;
+    const th = labelThreshold;
 
-    var prefixDash = prefix ? prefix + '-' : '';
+    const prefixDash = prefix ? prefix + '-' : '';
     ele.boundingBox();
-    var bb = _p.labelBounds[prefix || 'main'];
+    const bb = _p.labelBounds[prefix || 'main'];
 
     // If the bounding box is not available, return null.
     // This indicates that the label box cannot be calculated, which is consistent
@@ -374,23 +374,23 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
       return null;
     }
 
-    var lx = preprop(_p.rscratch, 'labelX', prefix);
-    var ly = preprop(_p.rscratch, 'labelY', prefix);
-    var theta = preprop(_p.rscratch, 'labelAngle', prefix);
+    const lx = preprop(_p.rscratch, 'labelX', prefix);
+    const ly = preprop(_p.rscratch, 'labelY', prefix);
+    const theta = preprop(_p.rscratch, 'labelAngle', prefix);
 
-    var ox = ele.pstyle(prefixDash + 'text-margin-x').pfValue;
-    var oy = ele.pstyle(prefixDash + 'text-margin-y').pfValue;
+    const ox = ele.pstyle(prefixDash + 'text-margin-x').pfValue;
+    const oy = ele.pstyle(prefixDash + 'text-margin-y').pfValue;
 
-    var lx1 = bb.x1 - th - ox;
-    var lx2 = bb.x2 + th - ox;
-    var ly1 = bb.y1 - th - oy;
-    var ly2 = bb.y2 + th - oy;
+    const lx1 = bb.x1 - th - ox;
+    const lx2 = bb.x2 + th - ox;
+    const ly1 = bb.y1 - th - oy;
+    const ly2 = bb.y2 + th - oy;
 
     if (theta) {
-      var cos = Math.cos(theta);
-      var sin = Math.sin(theta);
+      const cos = Math.cos(theta);
+      const sin = Math.sin(theta);
 
-      var rotate = function (x, y) {
+      const rotate = function (x, y) {
         x = x - lx;
         y = y - ly;
         return {
@@ -417,27 +417,27 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
     return ccw(p1, q1, q2) !== ccw(p2, q1, q2) && ccw(p1, p2, q1) !== ccw(p1, p2, q2);
   }
 
-  for( var e = 0; e < eles.length; e++ ){
-    var ele = eles[e];
+  for (let e = 0; e < eles.length; e++ ){
+    const ele = eles[e];
 
     if( ele.isNode() ){
-      var node = ele;
-      var textEvents = node.pstyle('text-events').strValue === 'yes';
-      var nodeBoxSelectMode = node.pstyle('box-selection').strValue;
-      var labelBoxSelectEnabled = node.pstyle('box-select-labels').strValue === 'yes';
+      const node = ele;
+      const textEvents = node.pstyle('text-events').strValue === 'yes';
+      const nodeBoxSelectMode = node.pstyle('box-selection').strValue;
+      const labelBoxSelectEnabled = node.pstyle('box-select-labels').strValue === 'yes';
 
       if ( nodeBoxSelectMode === 'none' ) {
         continue; 
       }
-      var includeLabels = (nodeBoxSelectMode === 'overlap' || labelBoxSelectEnabled) && textEvents;
-      var nodeBb = node.boundingBox({
+      const includeLabels = (nodeBoxSelectMode === 'overlap' || labelBoxSelectEnabled) && textEvents;
+      const nodeBb = node.boundingBox({
         includeNodes: true,
         includeEdges: false,
         includeLabels,
       });
       
       if ( nodeBoxSelectMode === 'contain' ) {
-        let selected = false;
+        const selected = false;
 
         if (labelBoxSelectEnabled && textEvents) {
           const rotatedLabelBox = getRotatedLabelBox(node);
@@ -481,10 +481,10 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
         }
       }
     } else {
-      var edge = ele;
-      var _p = edge._private;
-      var rs = _p.rscratch;
-      var edgeBoxSelectMode = edge.pstyle('box-selection').strValue;
+      const edge = ele;
+      const _p = edge._private;
+      const rs = _p.rscratch;
+      const edgeBoxSelectMode = edge.pstyle('box-selection').strValue;
 
       if ( edgeBoxSelectMode === 'none' ) {
         continue; 
@@ -496,10 +496,10 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
   
         if( rs.edgeType === 'bezier' || rs.edgeType === 'multibezier' || rs.edgeType === 'self' || rs.edgeType === 'compound' || rs.edgeType === 'segments' || rs.edgeType === 'haystack' ){
   
-          let pts = _p.rstyle.bezierPts || _p.rstyle.linePts || _p.rstyle.haystackPts;
-          let allInside = true;
+          const pts = _p.rstyle.bezierPts || _p.rstyle.linePts || _p.rstyle.haystackPts;
+          const allInside = true;
   
-          for( var i = 0; i < pts.length; i++ ){
+          for (let i = 0; i < pts.length; i++ ){
             if( !math.pointInBoundingBox( boxBb, pts[ i ] ) ){
               allInside = false;
               break;
@@ -514,7 +514,7 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
           box.push( edge );
         }
       } else if ( edgeBoxSelectMode === 'overlap' ) {
-        let selected = false;
+        const selected = false;
 
         // Check: either endpoint inside box
         if (
@@ -540,7 +540,7 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
 
         // Segment intersection check (only if not already selected)
         if (!selected) {
-          let pts = _p.rstyle.bezierPts || _p.rstyle.linePts || _p.rstyle.haystackPts;
+          const pts = _p.rstyle.bezierPts || _p.rstyle.linePts || _p.rstyle.haystackPts;
 
           // straight edges
           if ((!pts || pts.length < 2) && rs.edgeType === 'straight') {
@@ -554,8 +554,8 @@ BRp.getAllInBox = function( x1, y1, x2, y2 ){
           if (!pts || pts.length < 2) continue;
 
           for (let i = 0; i < pts.length - 1; i++) {
-            let segStart = pts[i];
-            let segEnd = pts[i + 1];
+            const segStart = pts[i];
+            const segEnd = pts[i + 1];
 
             for (let b = 0; b < boxEdges.length; b++) {
               let [boxStart, boxEnd] = boxEdges[b];

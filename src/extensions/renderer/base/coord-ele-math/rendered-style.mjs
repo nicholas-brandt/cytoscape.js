@@ -1,18 +1,18 @@
-let BRp = {};
+const BRp = {};
 
 BRp.registerCalculationListeners = function(){
-  let cy = this.cy;
-  let elesToUpdate = cy.collection();
-  let r = this;
+  const cy = this.cy;
+  const elesToUpdate = cy.collection();
+  const r = this;
 
-  let enqueue = function( eles, dirtyStyleCaches = true ){
+  const enqueue = function( eles, dirtyStyleCaches = true ){
     elesToUpdate.merge( eles );
 
     if( dirtyStyleCaches ){
-      for( let i = 0; i < eles.length; i++ ){
-        let ele = eles[i];
-        let _p = ele._private;
-        let rstyle = _p.rstyle;
+      for (let i = 0; i < eles.length; i++ ){
+        const ele = eles[i];
+        const _p = ele._private;
+        const rstyle = _p.rstyle;
 
         rstyle.clean = false;
         rstyle.cleanConnected = false;
@@ -22,29 +22,29 @@ BRp.registerCalculationListeners = function(){
 
   r.binder( cy )
     .on('bounds.* dirty.*', function onDirtyBounds( e ){
-      let ele = e.target;
+      const ele = e.target;
 
       enqueue( ele );
     })
 
     .on('style.* background.*', function onDirtyStyle( e ){
-      let ele = e.target;
+      const ele = e.target;
 
       enqueue( ele, false );
     })
   ;
 
-  let updateEleCalcs = function( willDraw ){
+  const updateEleCalcs = function( willDraw ){
     if( willDraw ){
-      let fns = r.onUpdateEleCalcsFns;
+      const fns = r.onUpdateEleCalcsFns;
 
       // because we need to have up-to-date style (e.g. stylesheet mappers)
       // before calculating rendered style (and pstyle might not be called yet)
       elesToUpdate.cleanStyle();
 
-      for( let i = 0; i < elesToUpdate.length; i++ ){
-        let ele = elesToUpdate[i];
-        let rstyle = ele._private.rstyle;
+      for (let i = 0; i < elesToUpdate.length; i++ ){
+        const ele = elesToUpdate[i];
+        const rstyle = ele._private.rstyle;
 
         if( ele.isNode() && !rstyle.cleanConnected ){
           enqueue( ele.connectedEdges() );
@@ -53,8 +53,8 @@ BRp.registerCalculationListeners = function(){
         }
       }
 
-      if( fns ){ for( let i = 0; i < fns.length; i++ ){
-        let fn = fns[i];
+      if( fns ){ for (let i = 0; i < fns.length; i++ ){
+        const fn = fns[i];
 
         fn( willDraw, elesToUpdate );
       } }
@@ -73,18 +73,18 @@ BRp.registerCalculationListeners = function(){
 };
 
 BRp.onUpdateEleCalcs = function( fn ){
-  let fns = this.onUpdateEleCalcsFns = this.onUpdateEleCalcsFns || [];
+  const fns = this.onUpdateEleCalcsFns = this.onUpdateEleCalcsFns || [];
 
   fns.push( fn );
 };
 
 BRp.recalculateRenderedStyle = function( eles, useCache ){
-  let isCleanConnected = ele => ele._private.rstyle.cleanConnected;
+  const isCleanConnected = ele => ele._private.rstyle.cleanConnected;
 
   if (eles.length === 0) { return; }
 
-  let edges = [];
-  let nodes = [];
+  const edges = [];
+  const nodes = [];
 
   // the renderer can't be used for calcs when destroyed, e.g. ele.boundingBox()
   if( this.destroyed ){ return; }
@@ -92,10 +92,10 @@ BRp.recalculateRenderedStyle = function( eles, useCache ){
   // use cache by default for perf
   if( useCache === undefined ){ useCache = true; }
 
-  for( let i = 0; i < eles.length; i++ ){
-    let ele = eles[ i ];
-    let _p = ele._private;
-    let rstyle = _p.rstyle;
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[ i ];
+    const _p = ele._private;
+    const rstyle = _p.rstyle;
 
     // an edge may be implicitly dirty b/c of one of its connected nodes
     // (and a request for recalc may come in between frames)
@@ -125,11 +125,11 @@ BRp.recalculateRenderedStyle = function( eles, useCache ){
   }
 
   // update node data from projections
-  for( let i = 0; i < nodes.length; i++ ){
-    let ele = nodes[i];
-    let _p = ele._private;
-    let rstyle = _p.rstyle;
-    let pos = ele.position();
+  for (let i = 0; i < nodes.length; i++ ){
+    const ele = nodes[i];
+    const _p = ele._private;
+    const rstyle = _p.rstyle;
+    const pos = ele.position();
 
     this.recalculateNodeLabelProjection( ele );
 
@@ -142,11 +142,11 @@ BRp.recalculateRenderedStyle = function( eles, useCache ){
   this.recalculateEdgeProjections( edges );
 
   // update edge data from projections
-  for( let i = 0; i < edges.length; i++ ){
-    let ele = edges[ i ];
-    let _p = ele._private;
-    let rstyle = _p.rstyle;
-    let rs = _p.rscratch;
+  for (let i = 0; i < edges.length; i++ ){
+    const ele = edges[ i ];
+    const _p = ele._private;
+    const rstyle = _p.rstyle;
+    const rs = _p.rscratch;
 
     // update rstyle positions
     rstyle.srcX = rs.arrowStartX;

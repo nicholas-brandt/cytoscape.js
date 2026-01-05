@@ -1,20 +1,20 @@
 import * as math from '../../../math.mjs';
 import * as round from '../../../round.mjs';
 
-var CRp = {};
+const CRp = {};
 
 // @O Polygon drawing
 CRp.drawPolygonPath = function(
   context, x, y, width, height, points ){
 
-  var halfW = width / 2;
-  var halfH = height / 2;
+  const halfW = width / 2;
+  const halfH = height / 2;
 
   if( context.beginPath ){ context.beginPath(); }
 
   context.moveTo( x + halfW * points[0], y + halfH * points[1] );
 
-  for( var i = 1; i < points.length / 2; i++ ){
+  for (let i = 1; i < points.length / 2; i++ ){
     context.lineTo( x + halfW * points[ i * 2], y + halfH * points[ i * 2 + 1] );
   }
 
@@ -31,9 +31,9 @@ CRp.drawRoundPolygonPath = function(
 CRp.drawRoundRectanglePath = function(
   context, x, y, width, height, radius){
 
-  var halfWidth = width / 2;
-  var halfHeight = height / 2;
-  var cornerRadius = radius === 'auto' ? math.getRoundRectangleRadius( width, height ) : Math.min(radius, halfHeight, halfWidth);
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const cornerRadius = radius === 'auto' ? math.getRoundRectangleRadius( width, height ) : Math.min(radius, halfHeight, halfWidth);
 
   if( context.beginPath ){ context.beginPath(); }
 
@@ -57,9 +57,9 @@ CRp.drawRoundRectanglePath = function(
 CRp.drawBottomRoundRectanglePath = function(
   context, x, y, width, height, radius){
 
-  var halfWidth = width / 2;
-  var halfHeight = height / 2;
-  var cornerRadius = radius === 'auto' ? math.getRoundRectangleRadius( width, height ) : radius;
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const cornerRadius = radius === 'auto' ? math.getRoundRectangleRadius( width, height ) : radius;
 
   if( context.beginPath ){ context.beginPath(); }
 
@@ -80,9 +80,9 @@ CRp.drawBottomRoundRectanglePath = function(
 CRp.drawCutRectanglePath = function(
   context, x, y, width, height, points, corners ){
 
-    var halfWidth = width / 2;
-    var halfHeight = height / 2;
-    var cornerLength = corners === 'auto' ? math.getCutRectangleCornerLength() : corners;
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const cornerLength = corners === 'auto' ? math.getCutRectangleCornerLength() : corners;
 
     if( context.beginPath ){ context.beginPath(); }
 
@@ -102,18 +102,18 @@ CRp.drawCutRectanglePath = function(
 CRp.drawBarrelPath = function(
   context, x, y, width, height ){
 
-    var halfWidth = width / 2;
-    var halfHeight = height / 2;
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
 
-    var xBegin = x - halfWidth;
-    var xEnd = x + halfWidth;
-    var yBegin = y - halfHeight;
-    var yEnd = y + halfHeight;
+    const xBegin = x - halfWidth;
+    const xEnd = x + halfWidth;
+    const yBegin = y - halfHeight;
+    const yEnd = y + halfHeight;
 
-    var barrelCurveConstants = math.getBarrelCurveConstants( width, height );
-    var wOffset = barrelCurveConstants.widthOffset;
-    var hOffset = barrelCurveConstants.heightOffset;
-    var ctrlPtXOffset = barrelCurveConstants.ctrlPtOffsetPct * wOffset;
+    const barrelCurveConstants = math.getBarrelCurveConstants( width, height );
+    const wOffset = barrelCurveConstants.widthOffset;
+    const hOffset = barrelCurveConstants.heightOffset;
+    const ctrlPtXOffset = barrelCurveConstants.ctrlPtOffsetPct * wOffset;
 
     if( context.beginPath ){ context.beginPath(); }
 
@@ -135,15 +135,15 @@ CRp.drawBarrelPath = function(
 };
 
 
-var sin0 = Math.sin( 0 );
-var cos0 = Math.cos( 0 );
+const sin0 = Math.sin( 0 );
+const cos0 = Math.cos( 0 );
 
-var sin = {};
-var cos = {};
+const sin = {};
+const cos = {};
 
-var ellipseStepSize = Math.PI / 40;
+const ellipseStepSize = Math.PI / 40;
 
-for( var i = 0 * Math.PI; i < 2 * Math.PI; i += ellipseStepSize ){
+for (let i = 0 * Math.PI; i < 2 * Math.PI; i += ellipseStepSize ){
   sin[ i ] = Math.sin( i );
   cos[ i ] = Math.cos( i );
 }
@@ -154,10 +154,10 @@ CRp.drawEllipsePath = function( context, centerX, centerY, width, height ){
     if( context.ellipse ){
       context.ellipse( centerX, centerY, width / 2, height / 2, 0, 0, 2 * Math.PI );
     } else {
-      var xPos, yPos;
-      var rw = width / 2;
-      var rh = height / 2;
-      for( var i = 0 * Math.PI; i < 2 * Math.PI; i += ellipseStepSize ){
+      let xPos, yPos;
+      const rw = width / 2;
+      const rh = height / 2;
+      for (let i = 0 * Math.PI; i < 2 * Math.PI; i += ellipseStepSize ){
         xPos = centerX - (rw * sin[ i ]) * sin0 + (rw * cos[ i ]) * cos0;
         yPos = centerY + (rh * cos[ i ]) * sin0 + (rh * sin[ i ]) * cos0;
 

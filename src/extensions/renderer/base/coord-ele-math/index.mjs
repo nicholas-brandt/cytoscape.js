@@ -10,7 +10,7 @@ import nodes from './nodes.mjs';
 import renderedStyle from './rendered-style.mjs';
 import zOrdering from './z-ordering.mjs';
 
-var BRp = {};
+const BRp = {};
 
 [
   coords,

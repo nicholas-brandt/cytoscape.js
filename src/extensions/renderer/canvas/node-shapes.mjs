@@ -1,4 +1,4 @@
-var CRp = {};
+const CRp = {};
 
 CRp.nodeShapeImpl = function( name, context, centerX, centerY, width, height, points, corners ){
   switch( name ){

@@ -2,13 +2,13 @@ import * as is from '../is.mjs';
 
 export const valCmp = (fieldVal, operator, value) => {
   let matches;
-  let isFieldStr = is.string( fieldVal );
-  let isFieldNum = is.number( fieldVal );
-  let isValStr = is.string(value);
+  const isFieldStr = is.string( fieldVal );
+  const isFieldNum = is.number( fieldVal );
+  const isValStr = is.string(value);
   let fieldStr, valStr;
-  let caseInsensitive = false;
-  let notExpr = false;
-  let isIneqCmp = false;
+  const caseInsensitive = false;
+  const notExpr = false;
+  const isIneqCmp = false;
 
   if( operator.indexOf( '!' ) >= 0 ){
     operator = operator.replace( '!', '' );

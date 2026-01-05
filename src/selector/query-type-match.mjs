@@ -15,25 +15,25 @@ export const matches = (query, ele) => {
 };
 
 match[Type.GROUP] = (check, ele) => {
-  let group = check.value;
+  const group = check.value;
 
   return group === '*' || group === ele.group();
 };
 
 match[Type.STATE] = (check, ele) => {
-  let stateSelector = check.value;
+  const stateSelector = check.value;
 
   return stateSelectorMatches( stateSelector, ele );
 };
 
 match[Type.ID] = (check, ele) => {
-  let id = check.value;
+  const id = check.value;
 
   return ele.id() === id;
 };
 
 match[Type.CLASS] = (check, ele) => {
-  let cls = check.value;
+  const cls = check.value;
 
   return ele.hasClass(cls);
 };
@@ -63,10 +63,10 @@ match[Type.DATA_EXIST] = (check, ele) => {
 };
 
 match[Type.UNDIRECTED_EDGE] = (check, ele) => {
-  let qA = check.nodes[0];
-  let qB = check.nodes[1];
-  let src = ele.source();
-  let tgt = ele.target();
+  const qA = check.nodes[0];
+  const qB = check.nodes[1];
+  const src = ele.source();
+  const tgt = ele.target();
 
   return ( matches(qA, src) && matches(qB, tgt) ) || ( matches(qB, src) && matches(qA, tgt) );
 };
@@ -110,13 +110,13 @@ match[Type.COMPOUND_SPLIT] = (check, ele) => {
 match[Type.TRUE] = () => true;
 
 match[Type.COLLECTION] = (check, ele) => {
-  let collection = check.value;
+  const collection = check.value;
 
   return collection.has(ele);
 };
 
 match[Type.FILTER] = (check, ele) => {
-  let filter = check.value;
+  const filter = check.value;
 
   return filter(ele);
 };

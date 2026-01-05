@@ -3,7 +3,7 @@ import define from '../define/index.mjs';
 import * as is from '../is.mjs';
 import Selector from '../selector/index.mjs';
 
-let emitterOptions = {
+const emitterOptions = {
   qualifierCompare: function( selector1, selector2 ){
     if( selector1 == null || selector2 == null ){
       return selector1 == null && selector2 == null;
@@ -12,7 +12,7 @@ let emitterOptions = {
     }
   },
   eventMatches: function( cy, listener, eventObj ){
-    let selector = listener.qualifier;
+    const selector = listener.qualifier;
 
     if( selector != null ){
       return cy !== eventObj.target && is.element( eventObj.target ) && selector.matches( eventObj.target );
@@ -29,7 +29,7 @@ let emitterOptions = {
   }
 };
 
-let argSelector = function( arg ){
+const argSelector = function( arg ){
   if( is.string(arg) ){
     return new Selector( arg );
   } else {
@@ -37,9 +37,9 @@ let argSelector = function( arg ){
   }
 };
 
-let elesfn = ({
+const elesfn = ({
   createEmitter: function(){
-    let _p = this._private;
+    const _p = this._private;
 
     if( !_p.emitter ){
       _p.emitter = new Emitter( emitterOptions, this );

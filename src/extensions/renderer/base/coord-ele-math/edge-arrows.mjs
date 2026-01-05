@@ -1,19 +1,19 @@
 import * as math from '../../../../math.mjs';
 
-var BRp = {};
+const BRp = {};
 
 BRp.calculateArrowAngles = function( edge ){
-  var rs = edge._private.rscratch;
-  var isHaystack = rs.edgeType === 'haystack';
-  var isBezier = rs.edgeType === 'bezier';
-  var isMultibezier = rs.edgeType === 'multibezier';
-  var isSegments = rs.edgeType === 'segments';
-  var isCompound = rs.edgeType === 'compound';
-  var isSelf = rs.edgeType === 'self';
+  const rs = edge._private.rscratch;
+  const isHaystack = rs.edgeType === 'haystack';
+  const isBezier = rs.edgeType === 'bezier';
+  const isMultibezier = rs.edgeType === 'multibezier';
+  const isSegments = rs.edgeType === 'segments';
+  const isCompound = rs.edgeType === 'compound';
+  const isSelf = rs.edgeType === 'self';
 
   // Displacement gives direction for arrowhead orientation
-  var dispX, dispY;
-  var startX, startY, endX, endY, midX, midY;
+  let dispX, dispY;
+  let startX, startY, endX, endY, midX, midY;
 
   if( isHaystack ){
     startX = rs.haystackPts[0];
@@ -37,9 +37,9 @@ BRp.calculateArrowAngles = function( edge ){
     dispX = startX - rs.segpts[0];
     dispY = startY - rs.segpts[1];
   } else if( isMultibezier || isCompound || isSelf || isBezier ){
-    var pts = rs.allpts;
-    var bX = math.qbezierAt( pts[0], pts[2], pts[4], 0.1 );
-    var bY = math.qbezierAt( pts[1], pts[3], pts[5], 0.1 );
+    const pts = rs.allpts;
+    const bX = math.qbezierAt( pts[0], pts[2], pts[4], 0.1 );
+    const bY = math.qbezierAt( pts[1], pts[3], pts[5], 0.1 );
 
     dispX = startX - bX;
     dispY = startY - bY;
@@ -53,8 +53,8 @@ BRp.calculateArrowAngles = function( edge ){
   // mid target
   //
 
-  var midX = rs.midX;
-  var midY = rs.midY;
+  midX = rs.midX;
+  midY = rs.midY;
 
   if( isHaystack ){
     midX = ( startX + endX ) / 2;
@@ -65,11 +65,11 @@ BRp.calculateArrowAngles = function( edge ){
   dispY = endY - startY;
 
   if( isSegments ){
-    var pts = rs.allpts;
+    const pts = rs.allpts;
 
     if( pts.length / 2 % 2 === 0 ){
-      var i2 = pts.length / 2;
-      var i1 = i2 - 2;
+      const i2 = pts.length / 2;
+      const i1 = i2 - 2;
 
       dispX = ( pts[ i2 ] - pts[ i1 ] );
       dispY = ( pts[ i2 + 1] - pts[ i1 + 1] );
@@ -77,22 +77,22 @@ BRp.calculateArrowAngles = function( edge ){
      dispX = rs.midVector[1];
      dispY = -rs.midVector[0];
     } else {
-      var i2 = pts.length / 2 - 1;
-      var i1 = i2 - 2;
+      const i2 = pts.length / 2 - 1;
+      const i1 = i2 - 2;
 
       dispX = ( pts[ i2 ] - pts[ i1 ] );
       dispY = ( pts[ i2 + 1] - pts[ i1 + 1] );
     }
   } else if( isMultibezier || isCompound || isSelf ){
-    var pts = rs.allpts;
-    var cpts = rs.ctrlpts;
-    var bp0x, bp0y;
-    var bp1x, bp1y;
+    const pts = rs.allpts;
+    const cpts = rs.ctrlpts;
+    let bp0x, bp0y;
+    let bp1x, bp1y;
 
     if( cpts.length / 2 % 2 === 0 ){
-      var p0 = pts.length / 2 - 1; // startpt
-      var ic = p0 + 2;
-      var p1 = ic + 2;
+      const p0 = pts.length / 2 - 1; // startpt
+      const ic = p0 + 2;
+      const p1 = ic + 2;
 
       bp0x = math.qbezierAt( pts[ p0 ], pts[ ic ], pts[ p1 ], 0.0 );
       bp0y = math.qbezierAt( pts[ p0 + 1], pts[ ic + 1], pts[ p1 + 1], 0.0 );
@@ -100,9 +100,9 @@ BRp.calculateArrowAngles = function( edge ){
       bp1x = math.qbezierAt( pts[ p0 ], pts[ ic ], pts[ p1 ], 0.0001 );
       bp1y = math.qbezierAt( pts[ p0 + 1], pts[ ic + 1], pts[ p1 + 1], 0.0001 );
     } else {
-      var ic = pts.length / 2 - 1; // ctrpt
-      var p0 = ic - 2; // startpt
-      var p1 = ic + 2; // endpt
+      const ic = pts.length / 2 - 1; // ctrpt
+      const p0 = ic - 2; // startpt
+      const p1 = ic + 2; // endpt
 
       bp0x = math.qbezierAt( pts[ p0 ], pts[ ic ], pts[ p1 ], 0.4999 );
       bp0y = math.qbezierAt( pts[ p0 + 1], pts[ ic + 1], pts[ p1 + 1], 0.4999 );
@@ -127,13 +127,13 @@ BRp.calculateArrowAngles = function( edge ){
   dispY *= -1;
 
   if( isSegments ){
-    var pts = rs.allpts;
+    const pts = rs.allpts;
 
     if( pts.length / 2 % 2 === 0 ){
       // already ok
     } else if( !rs.isRound ){
-      var i2 = pts.length / 2 - 1;
-      var i3 = i2 + 2;
+      const i2 = pts.length / 2 - 1;
+      const i3 = i2 + 2;
 
       dispX = -( pts[ i3 ] - pts[ i2 ] );
       dispY = -( pts[ i3 + 1] - pts[ i2 + 1] );
@@ -149,10 +149,10 @@ BRp.calculateArrowAngles = function( edge ){
     dispX = endX - rs.segpts[ rs.segpts.length - 2 ];
     dispY = endY - rs.segpts[ rs.segpts.length - 1 ];
   } else if( isMultibezier || isCompound || isSelf || isBezier ){
-    var pts = rs.allpts;
-    var l = pts.length;
-    var bX = math.qbezierAt( pts[l-6], pts[l-4], pts[l-2], 0.9 );
-    var bY = math.qbezierAt( pts[l-5], pts[l-3], pts[l-1], 0.9 );
+    const pts = rs.allpts;
+    const l = pts.length;
+    const bX = math.qbezierAt( pts[l-6], pts[l-4], pts[l-2], 0.9 );
+    const bY = math.qbezierAt( pts[l-5], pts[l-3], pts[l-1], 0.9 );
 
     dispX = endX - bX;
     dispY = endY - bY;
@@ -165,9 +165,9 @@ BRp.calculateArrowAngles = function( edge ){
 };
 
 BRp.getArrowWidth = BRp.getArrowHeight = function( edgeWidth, scale ){
-  var cache = this.arrowWidthCache = this.arrowWidthCache || {};
+  const cache = this.arrowWidthCache = this.arrowWidthCache || {};
 
-  var cachedVal = cache[ edgeWidth + ', ' + scale ];
+  let cachedVal = cache[ edgeWidth + ', ' + scale ];
   if( cachedVal ){
     return cachedVal;
   }

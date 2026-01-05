@@ -2,14 +2,14 @@ import * as is from '../is.mjs' ;
 import zIndexSort from './zsort.mjs' ;
 import * as util from '../util/index.mjs';
 
-let elesfn = ({
+const elesfn = ({
   forEach: function( fn, thisArg ){
     if( is.fn( fn ) ){
-      let N = this.length;
+      const N = this.length;
 
-      for( let i = 0; i < N; i++ ){
-        let ele = this[ i ];
-        let ret = thisArg ? fn.apply( thisArg, [ ele, i, this ] ) : fn( ele, i, this );
+      for (let i = 0; i < N; i++ ){
+        const ele = this[ i ];
+        const ret = thisArg ? fn.apply( thisArg, [ ele, i, this ] ) : fn( ele, i, this );
 
         if( ret === false ){ break; } // exit each early on return false
       }
@@ -19,9 +19,9 @@ let elesfn = ({
   },
 
   toArray: function(){
-    let array = [];
+    const array = [];
 
-    for( let i = 0; i < this.length; i++ ){
+    for (let i = 0; i < this.length; i++ ){
       array.push( this[ i ] );
     }
 
@@ -29,8 +29,8 @@ let elesfn = ({
   },
 
   slice: function( start, end ){
-    let array = [];
-    let thisSize = this.length;
+    const array = [];
+    const thisSize = this.length;
 
     if( end == null ){
       end = thisSize;
@@ -48,7 +48,7 @@ let elesfn = ({
       end = thisSize + end;
     }
 
-    for( let i = start; i >= 0 && i < end && i < thisSize; i++ ){
+    for (let i = start; i >= 0 && i < end && i < thisSize; i++ ){
       array.push( this[ i ] );
     }
 
@@ -84,7 +84,7 @@ let elesfn = ({
       return this;
     }
 
-    let sorted = this.toArray().sort( sortFn );
+    const sorted = this.toArray().sort( sortFn );
 
     return this.spawn( sorted );
   },
@@ -94,15 +94,15 @@ let elesfn = ({
   },
 
   zDepth: function(){
-    let ele = this[0];
+    const ele = this[0];
     if( !ele ){ return undefined; }
 
-    // let cy = ele.cy();
-    let _p = ele._private;
-    let group = _p.group;
+    // const cy = ele.cy();
+    const _p = ele._private;
+    const group = _p.group;
 
     if( group === 'nodes' ){
-      let depth = _p.data.parent ? ele.parents().size() : 0;
+      const depth = _p.data.parent ? ele.parents().size() : 0;
 
       if( !ele.isParent() ){
         return util.MAX_INT - 1; // childless nodes always on top
@@ -110,10 +110,10 @@ let elesfn = ({
 
       return depth;
     } else {
-      let src = _p.source;
-      let tgt = _p.target;
-      let srcDepth = src.zDepth();
-      let tgtDepth = tgt.zDepth();
+      const src = _p.source;
+      const tgt = _p.target;
+      const srcDepth = src.zDepth();
+      const tgtDepth = tgt.zDepth();
 
       return Math.max( srcDepth, tgtDepth, 0 ); // depth of deepest parent
     }
@@ -128,9 +128,9 @@ const defineSymbolIterator = () => {
 
   if (isIteratorSupported) {
     elesfn[Symbol.iterator] = function() {
-      let entry = { value: undefined, done: false };
-      let i = 0;
-      let length = this.length;
+      const entry = { value: undefined, done: false };
+      const i = 0;
+      const length = this.length;
 
       return {
         next: () => {

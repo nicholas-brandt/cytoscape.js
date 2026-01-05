@@ -23,108 +23,107 @@ const input = './src/index.mjs';
 const name = 'cytoscape';
 
 const envVariables = {
-  'process.env.VERSION': JSON.stringify(VERSION),
-  'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
+    'process.env.VERSION': JSON.stringify(VERSION),
+    'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
 };
 
 const replaceOptions = {
-  values: envVariables,
-  preventAssignment: true
+    values: envVariables,
+    preventAssignment: true
 };
-
 const getBabelOptions = () => ({
-  exclude: '**/node_modules/**',
-  babelHelpers: 'bundled'
+    exclude: '**/node_modules/**',
+    babelHelpers: 'bundled'
 });
 
 // Ignore all node_modules dependencies
 const isExternal = id => !id.startsWith('\0') && !id.startsWith('.') && !id.startsWith('/');
 
 const licenseHeaderOptions = {
-  sourcemap: true,
-  banner: {
-    content: {
-      file: path.join(__dirname, 'LICENSE')
+    sourcemap: true,
+    banner: {
+        content: {
+            file: path.join(__dirname, 'LICENSE')
+        }
     }
-  }
 };
 
 const configs = [
-  {
-    input,
-    output: {
-      file: 'build/cytoscape.umd.js',
-      format: 'umd',
-      name,
-      sourcemap: SOURCEMAPS ? 'inline' : false
+    {
+        input,
+        output: {
+            file: 'build/cytoscape.umd.js',
+            format: 'umd',
+            name,
+            sourcemap: SOURCEMAPS ? 'inline' : false
+        },
+        plugins: [
+            nodeResolve(),
+            commonjs({ include: '**/node_modules/**' }),
+            BABEL ? babel(getBabelOptions()) : {},
+            replace(replaceOptions),
+            license(licenseHeaderOptions)
+        ]
     },
-    plugins: [
-      nodeResolve(),
-      commonjs({ include: '**/node_modules/**' }),
-      BABEL ? babel(getBabelOptions()) : {},
-      replace(replaceOptions),
-      license(licenseHeaderOptions)
-    ]
-  },
 
-  {
-    input,
-    output: {
-      file: 'build/cytoscape.min.js',
-      format: 'umd',
-      name
+    {
+        input,
+        output: {
+            file: 'build/cytoscape.min.js',
+            format: 'umd',
+            name
+        },
+        plugins: [
+            nodeResolve(),
+            commonjs({ include: '**/node_modules/**' }),
+            BABEL ? babel(getBabelOptions()) : {},
+            replace(replaceOptions),
+            terser(),
+            license(licenseHeaderOptions)
+        ]
     },
-    plugins: [
-      nodeResolve(),
-      commonjs({ include: '**/node_modules/**' }),
-      BABEL ? babel(getBabelOptions()) : {},
-      replace(replaceOptions),
-      terser(),
-      license(licenseHeaderOptions)
-    ]
-  },
 
-  {
-    input,
-    output: {
-      file: 'build/cytoscape.esm.min.mjs',
-      format: 'es'
+    {
+        input,
+        output: {
+            file: 'build/cytoscape.esm.min.mjs',
+            format: 'es'
+        },
+        plugins: [
+            nodeResolve(),
+            commonjs({ include: '**/node_modules/**' }),
+            BABEL ? babel(getBabelOptions()) : {},
+            replace(replaceOptions),
+            license(licenseHeaderOptions),
+            terser()
+        ]
     },
-    plugins: [
-      nodeResolve(),
-      commonjs({ include: '**/node_modules/**' }),
-      BABEL ? babel(getBabelOptions()) : {},
-      replace(replaceOptions),
-      license(licenseHeaderOptions),
-      terser()
-    ]
-  },
 
-  {
-    input,
-    output: { file: 'build/cytoscape.cjs.js', format: 'cjs' },
-    plugins: [
-      nodeResolve(),
-      commonjs({ include: '**/node_modules/**' }),
-      BABEL ? babel(getBabelOptions()) : {},
-      replace(replaceOptions),
-      license(licenseHeaderOptions)
-    ]
-  },
+    {
+        input,
+        output: { file: 'build/cytoscape.cjs.js', format: 'cjs' },
+        plugins: [
+            nodeResolve(),
+            commonjs({ include: '**/node_modules/**' }),
+            BABEL ? babel(getBabelOptions()) : {},
+            replace(replaceOptions),
+            license(licenseHeaderOptions)
+        ]
+    },
 
-  {
-    input,
-    output: { file: 'build/cytoscape.esm.mjs', format: 'es' },
-    plugins: [
-      nodeResolve(),
-      commonjs({ include: '**/node_modules/**' }),
-      BABEL ? babel(getBabelOptions()) : {},
-      replace(replaceOptions),
-      license(licenseHeaderOptions)
-    ]
-  }
+    {
+        input,
+        output: { file: 'build/cytoscape.esm.mjs', format: 'es' },
+        plugins: [
+            nodeResolve(),
+            commonjs({ include: '**/node_modules/**' }),
+            BABEL ? babel(getBabelOptions()) : {},
+            replace(replaceOptions),
+            license(licenseHeaderOptions)
+        ]
+    }
 ];
 
 export default FILE
-  ? configs.filter(config => config.output.file.endsWith(FILE + '.js') || config.output.file.endsWith(FILE + '.mjs'))
-  : configs;
+    ? configs.filter(config => config.output.file.endsWith(FILE + '.js') || config.output.file.endsWith(FILE + '.mjs'))
+    : configs;

@@ -5,12 +5,12 @@ Licensed under The MIT License (http://opensource.org/licenses/MIT)
 */
 
 /*  promise states [Promises/A+ 2.1]  */
-var STATE_PENDING   = 0;                                         /*  [Promises/A+ 2.1.1]  */
-var STATE_FULFILLED = 1;                                         /*  [Promises/A+ 2.1.2]  */
-var STATE_REJECTED  = 2;                                         /*  [Promises/A+ 2.1.3]  */
+const STATE_PENDING   = 0;                                         /*  [Promises/A+ 2.1.1]  */
+const STATE_FULFILLED = 1;                                         /*  [Promises/A+ 2.1.2]  */
+const STATE_REJECTED  = 2;                                         /*  [Promises/A+ 2.1.3]  */
 
 /*  promise object constructor  */
-var api = function( executor ){
+const api = function( executor ){
   /*  optionally support non-constructor/plain-function call  */
   if( !(this instanceof api) )
     return new api( executor );
@@ -41,8 +41,8 @@ api.prototype = {
 
   /*  "The then Method" [Promises/A+ 1.1, 1.2, 2.2]  */
   then: function( onFulfilled, onRejected ){
-    var curr = this;
-    var next = new api();                                    /*  [Promises/A+ 2.2.7]  */
+    const curr = this;
+    const next = new api();                                    /*  [Promises/A+ 2.2.7]  */
     curr.onFulfilled.push(
       resolver( onFulfilled, next, 'fulfill' ) );             /*  [Promises/A+ 2.2.2/2.2.6]  */
     curr.onRejected.push(
@@ -53,7 +53,7 @@ api.prototype = {
 };
 
 /*  deliver an action  */
-var deliver = function( curr, state, name, value ){
+const deliver = function( curr, state, name, value ){
   if( curr.state === STATE_PENDING ){
     curr.state = state;                                      /*  [Promises/A+ 2.1.2.1, 2.1.3.1]  */
     curr[ name ] = value;                                      /*  [Promises/A+ 2.1.2.2, 2.1.3.2]  */
@@ -63,7 +63,7 @@ var deliver = function( curr, state, name, value ){
 };
 
 /*  execute all handlers  */
-var execute = function( curr ){
+const execute = function( curr ){
   if( curr.state === STATE_FULFILLED )
     execute_handlers( curr, 'onFulfilled', curr.fulfillValue );
   else if( curr.state === STATE_REJECTED )
@@ -71,7 +71,7 @@ var execute = function( curr ){
 };
 
 /*  execute particular set of handlers  */
-var execute_handlers = function( curr, name, value ){
+const execute_handlers = function( curr, name, value ){
   /* global setImmediate: true */
   /* global setTimeout: true */
 
@@ -80,10 +80,10 @@ var execute_handlers = function( curr, name, value ){
     return;
 
   /*  iterate over all handlers, exactly once  */
-  var handlers = curr[ name ];
+  const handlers = curr[ name ];
   curr[ name ] = [];                                             /*  [Promises/A+ 2.2.2.3, 2.2.3.3]  */
-  var func = function(){
-    for( var i = 0; i < handlers.length; i++ )
+  const func = function(){
+    for (let i = 0; i < handlers.length; i++ )
       handlers[ i ]( value );                                  /*  [Promises/A+ 2.2.5]  */
   };
 
@@ -95,12 +95,12 @@ var execute_handlers = function( curr, name, value ){
 };
 
 /*  generate a resolver function  */
-var resolver = function( cb, next, method ){
+const resolver = function( cb, next, method ){
   return function( value ){
     if( typeof cb !== 'function' )                            /*  [Promises/A+ 2.2.1, 2.2.7.3, 2.2.7.4]  */
       next[ method ].call( next, value );                      /*  [Promises/A+ 2.2.7.3, 2.2.7.4]  */
     else {
-      var result;
+      let result;
       try { result = cb( value ); }                          /*  [Promises/A+ 2.2.2.1, 2.2.3.1, 2.2.5, 3.2]  */
       catch( e ){
         next.reject( e );                                  /*  [Promises/A+ 2.2.7.2]  */
@@ -112,7 +112,7 @@ var resolver = function( cb, next, method ){
 };
 
 /*  "Promise Resolution Procedure"  */                           /*  [Promises/A+ 2.3]  */
-var resolve = function( promise, x ){
+const resolve = function( promise, x ){
   /*  sanity check arguments  */                               /*  [Promises/A+ 2.3.1]  */
   if( promise === x || promise.proxy === x ){
     promise.reject( new TypeError( 'cannot resolve promise with itself' ) );
@@ -121,7 +121,7 @@ var resolve = function( promise, x ){
 
   /*  surgically check for a "then" method
     (mainly to just call the "getter" of "then" only once)  */
-  var then;
+  let then;
   if( (typeof x === 'object' && x !== null) || typeof x === 'function' ){
     try { then = x.then; }                                   /*  [Promises/A+ 2.3.3.1, 3.5]  */
     catch( e ){
@@ -133,7 +133,7 @@ var resolve = function( promise, x ){
   /*  handle own Thenables    [Promises/A+ 2.3.2]
     and similar "thenables" [Promises/A+ 2.3.3]  */
   if( typeof then === 'function' ){
-    var resolved = false;
+    const resolved = false;
     try {
       /*  call retrieved "then" method */                  /*  [Promises/A+ 2.3.3.3]  */
       then.call( x,
@@ -167,10 +167,10 @@ var resolve = function( promise, x ){
 // so we always have Promise.all()
 api.all = function( ps ){
   return new api(function( resolveAll, rejectAll ){
-    var vals = new Array( ps.length );
-    var doneCount = 0;
+    const vals = new Array( ps.length );
+    const doneCount = 0;
 
-    var fulfill = function( i, val ){
+    const fulfill = function( i, val ){
       vals[ i ] = val;
       doneCount++;
 
@@ -179,10 +179,10 @@ api.all = function( ps ){
       }
     };
 
-    for( var i = 0; i < ps.length; i++ ){
+    for (let i = 0; i < ps.length; i++ ){
       (function( i ){
-        var p = ps[i];
-        var isPromise = p != null && p.then != null;
+        const p = ps[i];
+        const isPromise = p != null && p.then != null;
 
         if( isPromise ){
           p.then( function( val ){
@@ -191,7 +191,7 @@ api.all = function( ps ){
             rejectAll( err );
           } );
         } else {
-          var val = p;
+          const val = p;
           fulfill( i, val );
         }
       })( i );

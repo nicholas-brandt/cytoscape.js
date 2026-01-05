@@ -1,6 +1,6 @@
 import * as is from '../../is.mjs';
 
-let defineSearch = function( params ){
+const defineSearch = function( params ){
   params = {
     bfs: params.bfs || !params.dfs,
     dfs: params.dfs || !params.bfs
@@ -19,21 +19,21 @@ let defineSearch = function( params ){
     directed = arguments.length === 2 && !is.fn( fn ) ? fn : directed;
     fn = is.fn( fn ) ? fn : function(){};
 
-    let cy = this._private.cy;
-    let v = roots = is.string( roots ) ? this.filter( roots ) : roots;
-    let Q = [];
-    let connectedNodes = [];
-    let connectedBy = {};
-    let id2depth = {};
-    let V = {};
-    let j = 0;
+    const cy = this._private.cy;
+    const v = roots = is.string( roots ) ? this.filter( roots ) : roots;
+    const Q = [];
+    const connectedNodes = [];
+    const connectedBy = {};
+    const id2depth = {};
+    const V = {};
+    const j = 0;
     let found;
     let { nodes, edges } = this.byGroup();
 
     // enqueue v
-    for( let i = 0; i < v.length; i++ ){
-      let vi = v[i];
-      let viId = vi.id();
+    for (let i = 0; i < v.length; i++ ){
+      const vi = v[i];
+      const viId = vi.id();
 
       if( vi.isNode() ){
         Q.unshift( vi );
@@ -49,8 +49,8 @@ let defineSearch = function( params ){
     }
 
     while( Q.length !== 0 ){
-      let v = params.bfs ? Q.shift() : Q.pop();
-      let vId = v.id();
+      const v = params.bfs ? Q.shift() : Q.pop();
+      const vId = v.id();
 
       if( params.dfs ){
         if( V[ vId ] ){ continue; }
@@ -60,11 +60,11 @@ let defineSearch = function( params ){
         connectedNodes.push( v );
       }
 
-      let depth = id2depth[ vId ];
-      let prevEdge = connectedBy[ vId ];
-      let src = prevEdge != null ? prevEdge.source() : null;
-      let tgt = prevEdge != null ? prevEdge.target() : null;
-      let prevNode = prevEdge == null ? undefined : ( v.same(src) ? tgt[0] : src[0] );
+      const depth = id2depth[ vId ];
+      const prevEdge = connectedBy[ vId ];
+      const src = prevEdge != null ? prevEdge.source() : null;
+      const tgt = prevEdge != null ? prevEdge.target() : null;
+      const prevNode = prevEdge == null ? undefined : ( v.same(src) ? tgt[0] : src[0] );
       let ret;
 
       ret = fn( v, prevEdge, prevNode, j++, depth );
@@ -78,11 +78,11 @@ let defineSearch = function( params ){
         break;
       }
 
-      let vwEdges = v.connectedEdges().filter(e => (!directed || e.source().same(v)) && edges.has(e));
-      for( let i = 0; i < vwEdges.length; i++ ){
-        let e = vwEdges[ i ];
-        let w = e.connectedNodes().filter(n => !n.same(v) && nodes.has(n));
-        let wId = w.id();
+      const vwEdges = v.connectedEdges().filter(e => (!directed || e.source().same(v)) && edges.has(e));
+      for (let i = 0; i < vwEdges.length; i++ ){
+        const e = vwEdges[ i ];
+        const w = e.connectedNodes().filter(n => !n.same(v) && nodes.has(n));
+        const wId = w.id();
 
         if( w.length !== 0 && !V[ wId ] ){
           w = w[0];
@@ -103,11 +103,11 @@ let defineSearch = function( params ){
 
     }
 
-    let connectedEles = cy.collection();
+    const connectedEles = cy.collection();
 
-    for( let i = 0; i < connectedNodes.length; i++ ){
-      let node = connectedNodes[ i ];
-      let edge = connectedBy[ node.id() ];
+    for (let i = 0; i < connectedNodes.length; i++ ){
+      const node = connectedNodes[ i ];
+      const edge = connectedBy[ node.id() ];
 
       if( edge != null ){
         connectedEles.push( edge );
@@ -124,7 +124,7 @@ let defineSearch = function( params ){
 };
 
 // search, spanning trees, etc
-let elesfn = ({
+const elesfn = ({
   breadthFirstSearch: defineSearch( { bfs: true } ),
   depthFirstSearch: defineSearch( { dfs: true } )
 });

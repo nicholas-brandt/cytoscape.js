@@ -1,7 +1,7 @@
 import * as util from '../../util/index.mjs';
 import * as math from '../../math.mjs';
 
-let defaults = {
+const defaults = {
   fit: true, // whether to fit to viewport
   padding: 30, // fit padding
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
@@ -19,16 +19,16 @@ function RandomLayout( options ){
 }
 
 RandomLayout.prototype.run = function(){
-  let options = this.options;
-  let cy = options.cy;
-  let eles = options.eles;
+  const options = this.options;
+  const cy = options.cy;
+  const eles = options.eles;
 
 
-  let bb = math.makeBoundingBox( options.boundingBox ? options.boundingBox : {
+  const bb = math.makeBoundingBox( options.boundingBox ? options.boundingBox : {
     x1: 0, y1: 0, w: cy.width(), h: cy.height()
   } );
 
-  let getPos = function( node, i ){
+  const getPos = function( node, i ){
     return {
       x: bb.x1 + Math.round( Math.random() * bb.w ),
       y: bb.y1 + Math.round( Math.random() * bb.h )

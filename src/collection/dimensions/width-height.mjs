@@ -4,7 +4,7 @@ let fn, elesfn;
 
 fn = elesfn = {};
 
-let defineDimFns = function( opts ){
+const defineDimFns = function( opts ){
   opts.uppercaseName = util.capitalize( opts.name );
   opts.autoName = 'auto' + opts.uppercaseName;
   opts.labelName = 'label' + opts.uppercaseName;
@@ -12,10 +12,10 @@ let defineDimFns = function( opts ){
   opts.uppercaseOuterName = util.capitalize( opts.outerName );
 
   fn[ opts.name ] = function dimImpl(){
-    let ele = this[0];
-    let _p = ele._private;
-    let cy = _p.cy;
-    let styleEnabled = cy._private.styleEnabled;
+    const ele = this[0];
+    const _p = ele._private;
+    const cy = _p.cy;
+    const styleEnabled = cy._private.styleEnabled;
 
     if( ele ){
       if( styleEnabled ){
@@ -25,7 +25,7 @@ let defineDimFns = function( opts ){
           return _p[ opts.autoName ] || 0;
         }
 
-        let d = ele.pstyle( opts.name );
+        const d = ele.pstyle( opts.name );
 
         switch( d.strValue ){
           case 'label':
@@ -43,16 +43,16 @@ let defineDimFns = function( opts ){
   };
 
   fn[ 'outer' + opts.uppercaseName ] = function outerDimImpl(){
-    let ele = this[0];
-    let _p = ele._private;
-    let cy = _p.cy;
-    let styleEnabled = cy._private.styleEnabled;
+    const ele = this[0];
+    const _p = ele._private;
+    const cy = _p.cy;
+    const styleEnabled = cy._private.styleEnabled;
 
     if( ele ){
       if( styleEnabled ){
-        let dim = ele[ opts.name ]();
+        const dim = ele[ opts.name ]();
 
-        let borderPos = ele.pstyle( 'border-position' ).value;
+        const borderPos = ele.pstyle( 'border-position' ).value;
 
         let border;
         if(borderPos === 'center') {
@@ -63,7 +63,7 @@ let defineDimFns = function( opts ){
           border = 0;
         }
 
-        let padding = 2 * ele.padding();
+        const padding = 2 * ele.padding();
 
         return dim + border + padding;
       } else {
@@ -73,19 +73,19 @@ let defineDimFns = function( opts ){
   };
 
   fn[ 'rendered' + opts.uppercaseName ] = function renderedDimImpl(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
-      let d = ele[ opts.name ]();
+      const d = ele[ opts.name ]();
       return d * this.cy().zoom();
     }
   };
 
   fn[ 'rendered' + opts.uppercaseOuterName ] = function renderedOuterDimImpl(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
-      let od = ele[ opts.outerName ]();
+      const od = ele[ opts.outerName ]();
       return od * this.cy().zoom();
     }
   };
@@ -100,8 +100,8 @@ defineDimFns( {
 } );
 
 elesfn.padding = function(){
-  let ele = this[0];
-  let _p = ele._private;
+  const ele = this[0];
+  const _p = ele._private;
   if( ele.isParent() ){
     ele.updateCompoundBounds();
 
@@ -116,13 +116,13 @@ elesfn.padding = function(){
 };
 
 elesfn.paddedHeight = function(){
-  let ele = this[0];
+  const ele = this[0];
 
   return ele.height() + (2 * ele.padding());
 };
 
 elesfn.paddedWidth = function(){
-  let ele = this[0];
+  const ele = this[0];
 
   return ele.width() + (2 * ele.padding());
 };

@@ -1,7 +1,7 @@
 import * as util from '../../util/index.mjs';
 
 // default layout options
-let defaults = {
+const defaults = {
   ready: function(){}, // on layoutready
   stop: function(){} // on layoutstop
 };
@@ -14,14 +14,14 @@ function NullLayout( options ){
 
 // runs the layout
 NullLayout.prototype.run = function(){
-  let options = this.options;
-  let eles = options.eles; // elements to consider in the layout
-  let layout = this;
+  const options = this.options;
+  const eles = options.eles; // elements to consider in the layout
+  const layout = this;
 
   // cy is automatically populated for us in the constructor
   // (disable eslint for next line as this serves as example layout code to external developers)
   // eslint-disable-next-line no-unused-vars
-  let cy = options.cy;
+  const cy = options.cy;
 
   layout.emit( 'layoutstart' );
 

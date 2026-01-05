@@ -3,10 +3,10 @@
 import * as is from '../../../is.mjs';
 import Promise from '../../../promise.mjs';
 
-var CRp = {};
+const CRp = {};
 
 CRp.createBuffer = function( w, h ){
-  var buffer = document.createElement( 'canvas' ); // eslint-disable-line no-undef
+  const buffer = document.createElement( 'canvas' ); // eslint-disable-line no-undef
   buffer.width = w;
   buffer.height = h;
 
@@ -14,15 +14,15 @@ CRp.createBuffer = function( w, h ){
 };
 
 CRp.bufferCanvasImage = function( options ){
-  var cy = this.cy;
-  var eles = cy.mutableElements();
-  var bb = eles.boundingBox();
-  var ctrRect = this.findContainerClientCoords();
-  var width = options.full ? Math.ceil( bb.w ) : ctrRect[2];
-  var height = options.full ? Math.ceil( bb.h ) : ctrRect[3];
-  var specdMaxDims = is.number( options.maxWidth ) || is.number( options.maxHeight );
-  var pxRatio = this.getPixelRatio();
-  var scale = 1;
+  const cy = this.cy;
+  const eles = cy.mutableElements();
+  const bb = eles.boundingBox();
+  const ctrRect = this.findContainerClientCoords();
+  const width = options.full ? Math.ceil( bb.w ) : ctrRect[2];
+  const height = options.full ? Math.ceil( bb.h ) : ctrRect[3];
+  const specdMaxDims = is.number( options.maxWidth ) || is.number( options.maxHeight );
+  const pxRatio = this.getPixelRatio();
+  const scale = 1;
 
   if( options.scale !== undefined ){
     width *= options.scale;
@@ -30,8 +30,8 @@ CRp.bufferCanvasImage = function( options ){
 
     scale = options.scale;
   } else if( specdMaxDims ){
-    var maxScaleW = Infinity;
-    var maxScaleH = Infinity;
+    const maxScaleW = Infinity;
+    const maxScaleH = Infinity;
 
     if( is.number( options.maxWidth ) ){
       maxScaleW = scale * options.maxWidth / width;
@@ -53,7 +53,7 @@ CRp.bufferCanvasImage = function( options ){
     scale *= pxRatio;
   }
 
-  var buffCanvas = document.createElement( 'canvas' ); // eslint-disable-line no-undef
+  const buffCanvas = document.createElement( 'canvas' ); // eslint-disable-line no-undef
 
   buffCanvas.width = width;
   buffCanvas.height = height;
@@ -61,7 +61,7 @@ CRp.bufferCanvasImage = function( options ){
   buffCanvas.style.width = width + 'px';
   buffCanvas.style.height = height + 'px';
 
-  var buffCxt = buffCanvas.getContext( '2d' );
+  const buffCxt = buffCanvas.getContext( '2d' );
 
   // Rasterize the layers, but only if container has nonzero size
   if( width > 0 && height > 0 ){
@@ -70,7 +70,7 @@ CRp.bufferCanvasImage = function( options ){
 
     buffCxt.globalCompositeOperation = 'source-over';
 
-    var zsortedEles = this.getCachedZSortedEles();
+    const zsortedEles = this.getCachedZSortedEles();
 
     if( options.full ){ // draw the full bounds of the graph
       buffCxt.translate( -bb.x1 * scale, -bb.y1 * scale );
@@ -81,9 +81,9 @@ CRp.bufferCanvasImage = function( options ){
       buffCxt.scale( 1/scale, 1/scale );
       buffCxt.translate( bb.x1 * scale, bb.y1 * scale );
     } else { // draw the current view
-      var pan = cy.pan();
+      const pan = cy.pan();
 
-      var translation = {
+      const translation = {
         x: pan.x * scale,
         y: pan.y * scale
       };
@@ -113,11 +113,11 @@ CRp.bufferCanvasImage = function( options ){
 };
 
 function b64ToBlob( b64, mimeType ){
-  var bytes = atob( b64 );
-  var buff = new ArrayBuffer( bytes.length );
-  var buffUint8 = new Uint8Array( buff );
+  const bytes = atob( b64 );
+  const buff = new ArrayBuffer( bytes.length );
+  const buffUint8 = new Uint8Array( buff );
 
-  for( var i = 0; i < bytes.length; i++ ){
+  for (let i = 0; i < bytes.length; i++ ){
     buffUint8[i] = bytes.charCodeAt(i);
   }
 
@@ -125,13 +125,13 @@ function b64ToBlob( b64, mimeType ){
 }
 
 function b64UriToB64( b64uri ){
-  var i = b64uri.indexOf(',');
+  const i = b64uri.indexOf(',');
 
   return b64uri.substr( i + 1 );
 }
 
 function output( options, canvas, mimeType ){
-  let getB64Uri = () => canvas.toDataURL( mimeType, options.quality );
+  const getB64Uri = () => canvas.toDataURL( mimeType, options.quality );
 
   switch( options.output ){
     case 'blob-promise':

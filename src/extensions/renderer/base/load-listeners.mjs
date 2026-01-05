@@ -2,41 +2,41 @@ import * as is from '../../../is.mjs';
 import * as util from '../../../util/index.mjs';
 import * as math from '../../../math.mjs';
 
-var BRp = {};
+const BRp = {};
 
 /* global document, ResizeObserver, MutationObserver */
 
 BRp.registerBinding = function( target, event, handler, useCapture ){ // eslint-disable-line no-unused-vars
-  var args = Array.prototype.slice.apply( arguments, [1] ); // copy
+  const args = Array.prototype.slice.apply( arguments, [1] ); // copy
 
   if( Array.isArray(target) ){
-    let res = [];
-    for( var i = 0; i < target.length; i++ ){
-      let t = target[i];
+    const res = [];
+    for (let i = 0; i < target.length; i++ ){
+      const t = target[i];
       if( t !== undefined ){
-        var b = this.binder( t );
+        const b = this.binder( t );
         res.push( b.on.apply( b, args ) );
       }
     }
     return res;
   }
 
-  var b = this.binder( target );
+  const b = this.binder( target );
   return b.on.apply( b, args );
 };
 
 BRp.binder = function( tgt ){
-  var r = this;
-  var containerWindow = r.cy.window();
+  const r = this;
+  const containerWindow = r.cy.window();
 
-  var tgtIsDom = tgt === containerWindow || tgt === containerWindow.document || tgt === containerWindow.document.body || is.domElement( tgt );
+  const tgtIsDom = tgt === containerWindow || tgt === containerWindow.document || tgt === containerWindow.document.body || is.domElement( tgt );
 
   if( r.supportsPassiveEvents == null ){
 
     // from https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
-    var supportsPassive = false;
+    const supportsPassive = false;
     try {
-      var opts = Object.defineProperty( {}, 'passive', {
+      const opts = Object.defineProperty( {}, 'passive', {
         get: function(){
           supportsPassive = true;
 
@@ -52,8 +52,8 @@ BRp.binder = function( tgt ){
     r.supportsPassiveEvents = supportsPassive;
   }
 
-  var on = function( event, handler, useCapture ){
-    var args = Array.prototype.slice.call( arguments );
+  const on = function( event, handler, useCapture ){
+    const args = Array.prototype.slice.call( arguments );
 
     if( tgtIsDom && r.supportsPassiveEvents ){ // replace useCapture w/ opts obj
       args[2] = {
@@ -98,11 +98,11 @@ BRp.nodeIsGrabbable = function( node ){
 };
 
 BRp.load = function(){
-  var r = this;
-  var containerWindow = r.cy.window();
-  var isSelected = ele => ele.selected();
+  const r = this;
+  const containerWindow = r.cy.window();
+  const isSelected = ele => ele.selected();
 
-  var getShadowRoot = function( element ){
+  const getShadowRoot = function( element ){
     const rootNode = element.getRootNode();
     // Check if the root node is a shadow root
     if ( rootNode && rootNode.nodeType === 11 && rootNode.host !== undefined ) {
@@ -110,13 +110,13 @@ BRp.load = function(){
     }
   };
 
-  var triggerEvents = function( target, names, e, position ){
+  const triggerEvents = function( target, names, e, position ){
     if( target == null ){
       target = r.cy;
     }
 
-    for( var i = 0; i < names.length; i++ ){
-      var name = names[ i ];
+    for (let i = 0; i < names.length; i++ ){
+      const name = names[ i ];
 
       target.emit({
         originalEvent: e,
@@ -126,17 +126,17 @@ BRp.load = function(){
     }
   };
 
-  var isMultSelKeyDown = function( e ){
+  const isMultSelKeyDown = function( e ){
     return e.shiftKey || e.metaKey || e.ctrlKey; // maybe e.altKey
   };
 
-  var allowPanningPassthrough = function( down, downs ){
-    var allowPassthrough = true;
+  const allowPanningPassthrough = function( down, downs ){
+    const allowPassthrough = true;
 
     if( r.cy.hasCompoundNodes() && down && down.pannable() ){
       // a grabbable compound node below the ele => no passthrough panning
-      for( var i = 0; downs && i < downs.length; i++ ){
-        var down = downs[i];
+      for (let i = 0; downs && i < downs.length; i++ ){
+        const down = downs[i];
 
         //if any parent node in event hierarchy isn't pannable, reject passthrough
         if( down.isNode() && down.isParent() && !down.pannable() ){
@@ -151,33 +151,33 @@ BRp.load = function(){
     return allowPassthrough;
   };
 
-  var setGrabbed = function( ele ){
+  const setGrabbed = function( ele ){
     ele[0]._private.grabbed = true;
   };
 
-  var setFreed = function( ele ){
+  const setFreed = function( ele ){
     ele[0]._private.grabbed = false;
   };
 
-  var setInDragLayer = function( ele ){
+  const setInDragLayer = function( ele ){
     ele[0]._private.rscratch.inDragLayer = true;
   };
 
-  var setOutDragLayer = function( ele ){
+  const setOutDragLayer = function( ele ){
     ele[0]._private.rscratch.inDragLayer = false;
   };
 
-  var setGrabTarget = function( ele ){
+  const setGrabTarget = function( ele ){
     ele[0]._private.rscratch.isGrabTarget = true;
   };
 
-  var removeGrabTarget = function( ele ){
+  const removeGrabTarget = function( ele ){
     ele[0]._private.rscratch.isGrabTarget = false;
   };
 
-  var addToDragList = function( ele, opts ){
-    var list = opts.addToList;
-    var listHasEle = list.has(ele);
+  const addToDragList = function( ele, opts ){
+    const list = opts.addToList;
+    const listHasEle = list.has(ele);
 
     if( !listHasEle && ele.grabbable() && !ele.locked() ){
       list.merge( ele );
@@ -187,14 +187,14 @@ BRp.load = function(){
 
   // helper function to determine which child nodes and inner edges
   // of a compound node to be dragged as well as the grabbed and selected nodes
-  var addDescendantsToDrag = function( node, opts ){
+  const addDescendantsToDrag = function( node, opts ){
     if( !node.cy().hasCompoundNodes() ){
       return;
     }
 
     if( opts.inDragLayer == null && opts.addToList == null ){ return; } // nothing to do
 
-    var innerNodes = node.descendants();
+    const innerNodes = node.descendants();
 
     if( opts.inDragLayer ){
       innerNodes.forEach( setInDragLayer );
@@ -207,10 +207,10 @@ BRp.load = function(){
   };
 
   // adds the given nodes and its neighbourhood to the drag layer
-  var addNodesToDrag = function( nodes, opts ){
+  const addNodesToDrag = function( nodes, opts ){
     opts = opts || {};
 
-    var hasCompoundNodes = nodes.cy().hasCompoundNodes();
+    const hasCompoundNodes = nodes.cy().hasCompoundNodes();
 
     if( opts.inDragLayer ){
       nodes.forEach( setInDragLayer );
@@ -236,9 +236,9 @@ BRp.load = function(){
     r.updateCachedGrabbedEles();
   };
 
-  var addNodeToDrag = addNodesToDrag;
+  const addNodeToDrag = addNodesToDrag;
 
-  var freeDraggedElements = function( grabbedEles ){
+  const freeDraggedElements = function( grabbedEles ){
     if( !grabbedEles ){ return; }
 
     // just go over all elements rather than doing a bunch of (possibly expensive) traversals
@@ -253,7 +253,7 @@ BRp.load = function(){
 
   // helper function to determine which ancestor nodes and edges should go
   // to the drag layer (or should be removed from drag layer).
-  var updateAncestorsInDragLayer = function( node, opts ){
+  const updateAncestorsInDragLayer = function( node, opts ){
 
     if( opts.inDragLayer == null && opts.addToList == null ){ return; } // nothing to do
 
@@ -262,20 +262,20 @@ BRp.load = function(){
     }
 
     // find top-level parent
-    var parent = node.ancestors().orphans();
+    const parent = node.ancestors().orphans();
 
     // no parent node: no nodes to add to the drag layer
     if( parent.same( node ) ){
       return;
     }
 
-    var nodes = parent.descendants().spawnSelf()
+    const nodes = parent.descendants().spawnSelf()
       .merge( parent )
       .unmerge( node )
       .unmerge( node.descendants() )
     ;
 
-    var edges = nodes.connectedEdges();
+    const edges = nodes.connectedEdges();
 
     if( opts.inDragLayer ){
       edges.forEach( setInDragLayer );
@@ -289,24 +289,24 @@ BRp.load = function(){
     }
   };
 
-  var blurActiveDomElement = function(){
+  const blurActiveDomElement = function(){
     if( document.activeElement != null && document.activeElement.blur != null ){
       document.activeElement.blur();
     }
   };
 
-  var haveMutationsApi = typeof MutationObserver !== 'undefined';
-  var haveResizeObserverApi = typeof ResizeObserver !== 'undefined';
+  const haveMutationsApi = typeof MutationObserver !== 'undefined';
+  const haveResizeObserverApi = typeof ResizeObserver !== 'undefined';
 
   // watch for when the cy container is removed from the dom
   if( haveMutationsApi ){
     r.removeObserver = new MutationObserver( function( mutns ){ // eslint-disable-line no-undef
-      for( var i = 0; i < mutns.length; i++ ){
-        var mutn = mutns[ i ];
-        var rNodes = mutn.removedNodes;
+      for (let i = 0; i < mutns.length; i++ ){
+        const mutn = mutns[ i ];
+        const rNodes = mutn.removedNodes;
 
-        if( rNodes ){ for( var j = 0; j < rNodes.length; j++ ){
-          var rNode = rNodes[ j ];
+        if( rNodes ){ for (let j = 0; j < rNodes.length; j++ ){
+          const rNode = rNodes[ j ];
 
           if( rNode === r.container ){
             r.destroy();
@@ -325,7 +325,7 @@ BRp.load = function(){
     } );
   }
 
-  var onResize = util.debounce( function(){
+  const onResize = util.debounce( function(){
     r.cy.resize();
   }, 100 );
 
@@ -344,7 +344,7 @@ BRp.load = function(){
     r.resizeObserver.observe( r.container );
   }
 
-  var forEachUp = function( domEle, fn ){
+  const forEachUp = function( domEle, fn ){
     while( domEle != null ){
       fn( domEle );
 
@@ -352,7 +352,7 @@ BRp.load = function(){
     }
   };
 
-  var invalidateCoords = function(){
+  const invalidateCoords = function(){
     r.invalidateContainerClientCoordsCache();
   };
 
@@ -367,23 +367,23 @@ BRp.load = function(){
     e.preventDefault();
   } );
 
-  var inBoxSelection = function(){
+  const inBoxSelection = function(){
     return r.selection[4] !== 0;
   };
 
-  var eventInContainer = function( e ){
+  const eventInContainer = function( e ){
     // save cycles if mouse events aren't to be captured
-    var containerPageCoords = r.findContainerClientCoords();
-    var x = containerPageCoords[0];
-    var y = containerPageCoords[1];
-    var width = containerPageCoords[2];
-    var height = containerPageCoords[3];
+    const containerPageCoords = r.findContainerClientCoords();
+    const x = containerPageCoords[0];
+    const y = containerPageCoords[1];
+    const width = containerPageCoords[2];
+    const height = containerPageCoords[3];
 
-    var positions = e.touches ? e.touches : [ e ];
-    var atLeastOnePosInside = false;
+    const positions = e.touches ? e.touches : [ e ];
+    const atLeastOnePosInside = false;
 
-    for( var i = 0; i < positions.length; i++ ){
-      var p = positions[i];
+    for (let i = 0; i < positions.length; i++ ){
+      const p = positions[i];
 
       if( x <= p.clientX && p.clientX <= x + width
         && y <= p.clientY && p.clientY <= y + height
@@ -395,10 +395,10 @@ BRp.load = function(){
 
     if( !atLeastOnePosInside ){ return false; }
 
-    var container = r.container;
-    var target = e.target;
-    var tParent = target.parentNode;
-    var containerIsTarget = false;
+    const container = r.container;
+    const target = e.target;
+    const tParent = target.parentNode;
+    const containerIsTarget = false;
 
     while( tParent ){
       if( tParent === container ){
@@ -430,24 +430,24 @@ BRp.load = function(){
     r.hoverData.capture = true;
     r.hoverData.which = e.which;
 
-    var cy = r.cy;
-    var gpos = [ e.clientX, e.clientY ];
-    var pos = r.projectIntoViewport( gpos[0], gpos[1] );
-    var select = r.selection;
-    var nears = r.findNearestElements( pos[0], pos[1], true, false );
-    var near = nears[0];
-    var draggedElements = r.dragData.possibleDragElements;
+    const cy = r.cy;
+    const gpos = [ e.clientX, e.clientY ];
+    const pos = r.projectIntoViewport( gpos[0], gpos[1] );
+    const select = r.selection;
+    const nears = r.findNearestElements( pos[0], pos[1], true, false );
+    const near = nears[0];
+    const draggedElements = r.dragData.possibleDragElements;
 
     r.hoverData.mdownPos = pos;
     r.hoverData.mdownGPos = gpos;
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: pos[0], y: pos[1] }
     });
 
-    var checkForTaphold = function(){
+    const checkForTaphold = function(){
       r.hoverData.tapholdCancelled = false;
 
       clearTimeout( r.hoverData.tapholdTimeout );
@@ -457,7 +457,7 @@ BRp.load = function(){
         if( r.hoverData.tapholdCancelled ){
           return;
         } else {
-          var ele = r.hoverData.down;
+          const ele = r.hoverData.down;
 
           if( ele ){
             ele.emit(makeEvent('taphold'));
@@ -474,7 +474,7 @@ BRp.load = function(){
 
       r.hoverData.cxtStarted = true;
 
-      var cxtEvt = {
+      const cxtEvt = {
         originalEvent: e,
         type: 'cxttapstart',
         position: { x: pos[0], y: pos[1] }
@@ -505,7 +505,7 @@ BRp.load = function(){
         if( near != null ){
 
           if( r.nodeIsGrabbable( near ) ){
-            var triggerGrab = function( ele ){
+            const triggerGrab = function( ele ){
               ele.emit( makeEvent('grab') );
             };
 
@@ -521,7 +521,7 @@ BRp.load = function(){
             } else {
               draggedElements = r.dragData.possibleDragElements = cy.collection();
 
-              var selectedNodes = cy.$( function( ele ){ return ele.isNode() && ele.selected() && r.nodeIsGrabbable( ele ); } );
+              const selectedNodes = cy.$( function( ele ){ return ele.isNode() && ele.selected() && r.nodeIsGrabbable( ele ); } );
 
               addNodesToDrag( selectedNodes, { addToList: draggedElements } );
 
@@ -569,52 +569,52 @@ BRp.load = function(){
 
   }, false );
 
-  var shadowRoot = getShadowRoot( r.container );
+  const shadowRoot = getShadowRoot( r.container );
   r.registerBinding( [ containerWindow, shadowRoot ], 'mousemove', function mousemoveHandler( e ){ // eslint-disable-line no-undef
-    var capture = r.hoverData.capture;
+    const capture = r.hoverData.capture;
 
     if( !capture && !eventInContainer(e) ){ return; }
 
-    var preventDefault = false;
-    var cy = r.cy;
-    var zoom = cy.zoom();
-    var gpos = [ e.clientX, e.clientY ];
-    var pos = r.projectIntoViewport( gpos[0], gpos[1] );
-    var mdownPos = r.hoverData.mdownPos;
-    var mdownGPos = r.hoverData.mdownGPos;
-    var select = r.selection;
+    let preventDefault = false;
+    const cy = r.cy;
+    const zoom = cy.zoom();
+    const gpos = [ e.clientX, e.clientY ];
+    const pos = r.projectIntoViewport( gpos[0], gpos[1] );
+    const mdownPos = r.hoverData.mdownPos;
+    const mdownGPos = r.hoverData.mdownGPos;
+    const select = r.selection;
 
-    var near = null;
+    const near = null;
     if( !r.hoverData.draggingEles && !r.hoverData.dragging && !r.hoverData.selecting ){
       near = r.findNearestElement( pos[0], pos[1], true, false );
     }
-    var last = r.hoverData.last;
-    var down = r.hoverData.down;
+    const last = r.hoverData.last;
+    const down = r.hoverData.down;
 
-    var disp = [ pos[0] - select[2], pos[1] - select[3] ];
+    const disp = [ pos[0] - select[2], pos[1] - select[3] ];
 
-    var draggedElements = r.dragData.possibleDragElements;
+    const draggedElements = r.dragData.possibleDragElements;
 
-    var isOverThresholdDrag;
+    let isOverThresholdDrag;
 
     if( mdownGPos ){
-      var dx = gpos[0] - mdownGPos[0];
-      var dx2 = dx * dx;
-      var dy = gpos[1] - mdownGPos[1];
-      var dy2 = dy * dy;
-      var dist2 = dx2 + dy2;
+      const dx = gpos[0] - mdownGPos[0];
+      const dx2 = dx * dx;
+      const dy = gpos[1] - mdownGPos[1];
+      const dy2 = dy * dy;
+      const dist2 = dx2 + dy2;
 
       r.hoverData.isOverThresholdDrag = isOverThresholdDrag = dist2 >= r.desktopTapThreshold2;
     }
 
-    var multSelKeyDown = isMultSelKeyDown( e );
+    const multSelKeyDown = isMultSelKeyDown( e );
 
     if (isOverThresholdDrag) {
       r.hoverData.tapholdCancelled = true;
     }
 
-    var updateDragDelta = function(){
-      var dragDelta = r.hoverData.dragDelta = r.hoverData.dragDelta || [];
+    const updateDragDelta = function(){
+      const dragDelta = r.hoverData.dragDelta = r.hoverData.dragDelta || [];
 
       if( dragDelta.length === 0 ){
         dragDelta.push( disp[0] );
@@ -630,13 +630,13 @@ BRp.load = function(){
 
     triggerEvents( near, [ 'mousemove', 'vmousemove', 'tapdrag' ], e, { x: pos[0], y: pos[1] } );
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: pos[0], y: pos[1] }
     });
     
-    var goIntoBoxMode = function(){
+    const goIntoBoxMode = function(){
       r.data.bgActivePosistion = undefined;
 
       if( !r.hoverData.selecting ){
@@ -654,7 +654,7 @@ BRp.load = function(){
     if( r.hoverData.which === 3 ){
       // but only if over threshold
       if( isOverThresholdDrag ){
-        var cxtEvt = makeEvent('cxtdrag');
+        const cxtEvt = makeEvent('cxtdrag');
 
         if( down ){
           down.emit( cxtEvt );
@@ -684,10 +684,10 @@ BRp.load = function(){
       preventDefault = true;
 
       if( cy.panningEnabled() && cy.userPanningEnabled() ){
-        var deltaP;
+        let deltaP;
 
         if( r.hoverData.justStartedPan ){
-          var mdPos = r.hoverData.mdownPos;
+          const mdPos = r.hoverData.mdownPos;
 
           deltaP = {
             x: ( pos[0] - mdPos[0] ) * zoom,
@@ -724,7 +724,7 @@ BRp.load = function(){
           goIntoBoxMode();
 
         } else if( !r.hoverData.selecting && cy.panningEnabled() && cy.userPanningEnabled() ){
-          var allowPassthrough = allowPanningPassthrough( down, r.hoverData.downs );
+          const allowPassthrough = allowPanningPassthrough( down, r.hoverData.downs );
 
           if( allowPassthrough ){
             r.hoverData.dragging = true;
@@ -778,7 +778,7 @@ BRp.load = function(){
             goIntoBoxMode();
 
           } else if( down && down.grabbed() && r.nodeIsDraggable( down ) ){ // drag node
-            var justStartedDrag = !r.dragData.didDrag;
+            const justStartedDrag = !r.dragData.didDrag;
 
             if( justStartedDrag ){
               r.redrawHint( 'eles', true );
@@ -791,14 +791,14 @@ BRp.load = function(){
               addNodesToDrag( draggedElements, { inDragLayer: true } );
             }
 
-            let totalShift = { x: 0, y: 0 };
+            const totalShift = { x: 0, y: 0 };
 
             if( is.number( disp[0] ) && is.number( disp[1] ) ){
               totalShift.x += disp[0];
               totalShift.y += disp[1];
 
               if( justStartedDrag ){
-                var dragDelta = r.hoverData.dragDelta;
+                const dragDelta = r.hoverData.dragDelta;
 
                 if( dragDelta && is.number( dragDelta[0] ) && is.number( dragDelta[1] ) ){
                   totalShift.x += dragDelta[0];
@@ -844,14 +844,14 @@ BRp.load = function(){
       return;
     }
 
-    var capture = r.hoverData.capture;
+    const capture = r.hoverData.capture;
     if( !capture ){ return; }
     r.hoverData.capture = false;
 
-    var cy = r.cy; var pos = r.projectIntoViewport( e.clientX, e.clientY ); var select = r.selection;
-    var near = r.findNearestElement( pos[0], pos[1], true, false );
-    var draggedElements = r.dragData.possibleDragElements; var down = r.hoverData.down;
-    var multSelKeyDown = isMultSelKeyDown( e );
+    const cy = r.cy; const pos = r.projectIntoViewport( e.clientX, e.clientY ); const select = r.selection;
+    const near = r.findNearestElement( pos[0], pos[1], true, false );
+    const draggedElements = r.dragData.possibleDragElements; const down = r.hoverData.down;
+    const multSelKeyDown = isMultSelKeyDown( e );
 
     if( r.data.bgActivePosistion ){
       r.redrawHint( 'select', true );
@@ -866,14 +866,14 @@ BRp.load = function(){
       down.unactivate();
     }
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: pos[0], y: pos[1] }
     });
 
     if( r.hoverData.which === 3 ){
-      var cxtEvt = (makeEvent('cxttapend'));
+      const cxtEvt = (makeEvent('cxttapend'));
 
       if( down ){
         down.emit( cxtEvt );
@@ -882,7 +882,7 @@ BRp.load = function(){
       }
 
       if( !r.hoverData.cxtDragged ){
-        var cxtTap = makeEvent('cxttap');
+        const cxtTap = makeEvent('cxttap');
 
         if( down ){
           down.emit( cxtTap );
@@ -962,7 +962,7 @@ BRp.load = function(){
       }
 
       if( r.hoverData.selecting ){
-        var box = cy.collection( r.getAllInBox( select[0], select[1], select[2], select[3] ) );
+        const box = cy.collection( r.getAllInBox( select[0], select[1], select[2], select[3] ) );
 
         r.redrawHint( 'select', true );
 
@@ -972,7 +972,7 @@ BRp.load = function(){
 
         cy.emit(makeEvent('boxend'));
 
-        var eleWouldBeSelected = function( ele ){ return ele.selectable() && !ele.selected(); };
+        const eleWouldBeSelected = function( ele ){ return ele.selectable() && !ele.selected(); };
 
         if( cy.selectionType() === 'additive' ){
           box
@@ -1013,7 +1013,7 @@ BRp.load = function(){
         r.redrawHint('drag', true);
         r.redrawHint('eles', true);
 
-        var downWasGrabbed = down && down.grabbed();
+        const downWasGrabbed = down && down.grabbed();
 
         freeDraggedElements( draggedElements );
 
@@ -1045,13 +1045,13 @@ BRp.load = function(){
 
   }, false );
 
-  var wheelDeltas = []; // log of first N wheel deltas
-  var wheelDeltaN = 4; // how many events to log
-  var inaccurateScrollDevice;
-  var inaccurateScrollFactor = 100000; // base of inaccurate wheel deltas (e.g. base 5 could yield wheels of 10, 25, 50, etc.)
+  const wheelDeltas = []; // log of first N wheel deltas
+  const wheelDeltaN = 4; // how many events to log
+  let inaccurateScrollDevice;
+  const inaccurateScrollFactor = 100000; // base of inaccurate wheel deltas (e.g. base 5 could yield wheels of 10, 25, 50, etc.)
 
-  var allAreDivisibleBy = function( list, factor ){
-    for( var i = 0; i < list.length; i++ ){
+  const allAreDivisibleBy = function( list, factor ){
+    for (let i = 0; i < list.length; i++ ){
       if( list[i] % factor !== 0 ){
         return false;
       }
@@ -1060,9 +1060,9 @@ BRp.load = function(){
     return true;
   }
 
-  var allAreSameMagnitude = function(list) {
-    var firstMag = Math.abs(list[0]);
-    for (var i = 1; i < list.length; i++) {
+  const allAreSameMagnitude = function(list) {
+    const firstMag = Math.abs(list[0]);
+    for (let i = 1; i < list.length; i++) {
       if (Math.abs(list[i]) !== firstMag) {
         return false;
       }
@@ -1070,9 +1070,9 @@ BRp.load = function(){
     return true;
   }
       
-  var wheelHandler = function( e ){
-    var clamp = false;
-    var delta = e.deltaY;
+  const wheelHandler = function( e ){
+    const clamp = false;
+    const delta = e.deltaY;
 
     if (delta == null) { // compatibility with old browsers
       if (e.wheelDeltaY != null) {
@@ -1088,17 +1088,17 @@ BRp.load = function(){
 
     if (inaccurateScrollDevice == null) {
       if (wheelDeltas.length >= wheelDeltaN) { // use log to determine if inaccurate
-        var wds = wheelDeltas;
+        const wds = wheelDeltas;
         inaccurateScrollDevice = allAreDivisibleBy(wds, 5);
 
         if (!inaccurateScrollDevice) { // check for all large values of exact same magnitude
-          var firstMag = Math.abs(wds[0]);
+          const firstMag = Math.abs(wds[0]);
 
           inaccurateScrollDevice = allAreSameMagnitude(wds) && firstMag > 5;
         }
         
         if (inaccurateScrollDevice) {
-          for (var i = 0; i < wds.length; i++) {
+          for (let i = 0; i < wds.length; i++) {
             inaccurateScrollFactor = Math.min(Math.abs(wds[i]), inaccurateScrollFactor);
           }
         }
@@ -1118,11 +1118,11 @@ BRp.load = function(){
 
     if( r.scrollingPage ){ return; } // while scrolling, ignore wheel-to-zoom
 
-    var cy = r.cy;
-    var zoom = cy.zoom();
-    var pan = cy.pan();
-    var pos = r.projectIntoViewport( e.clientX, e.clientY );
-    var rpos = [ pos[0] * zoom + pan.x,
+    const cy = r.cy;
+    const zoom = cy.zoom();
+    const pan = cy.pan();
+    const pos = r.projectIntoViewport( e.clientX, e.clientY );
+    const rpos = [ pos[0] * zoom + pan.x,
                   pos[1] * zoom + pan.y ];
 
     if( r.hoverData.draggingEles || r.hoverData.dragging || r.hoverData.cxtStarted || inBoxSelection() ){ // if pan dragging or cxt dragging, wheel movements make no zoom
@@ -1142,7 +1142,7 @@ BRp.load = function(){
         r.redraw();
       }, 150 );
 
-      var diff;
+      let diff;
 
       if (clamp && Math.abs(delta) > 5) {
         delta = math.signum(delta) * 5;
@@ -1160,12 +1160,12 @@ BRp.load = function(){
 
       // console.log(`delta = ${delta}, diff = ${diff}, mode = ${e.deltaMode}`)
 
-      var needsWheelFix = e.deltaMode === 1;
+      const needsWheelFix = e.deltaMode === 1;
       if( needsWheelFix ){ // fixes slow wheel events on ff/linux and ff/windows
         diff *= 33;
       }
 
-      var newZoom = cy.zoom() * Math.pow( 10, diff );
+      const newZoom = cy.zoom() * Math.pow( 10, diff );
 
       if( e.type === 'gesturechange' ){
         newZoom = r.gestureStartZoom * e.scale;
@@ -1221,7 +1221,7 @@ BRp.load = function(){
   // Functions to help with handling mouseout/mouseover on the Cytoscape container
   // Handle mouseout on Cytoscape container
   r.registerBinding( r.container, 'mouseout', function mouseOutHandler( e ){
-    var pos = r.projectIntoViewport( e.clientX, e.clientY );
+    const pos = r.projectIntoViewport( e.clientX, e.clientY );
 
     r.cy.emit( ( {
       originalEvent: e,
@@ -1231,7 +1231,7 @@ BRp.load = function(){
   }, false );
 
   r.registerBinding( r.container, 'mouseover', function mouseOverHandler( e ){
-    var pos = r.projectIntoViewport( e.clientX, e.clientY );
+    const pos = r.projectIntoViewport( e.clientX, e.clientY );
 
     r.cy.emit( ( {
       originalEvent: e,
@@ -1240,22 +1240,22 @@ BRp.load = function(){
     } ) );
   }, false );
 
-  var f1x1, f1y1, f2x1, f2y1; // starting points for pinch-to-zoom
-  var distance1, distance1Sq; // initial distance between finger 1 and finger 2 for pinch-to-zoom
-  var center1, modelCenter1; // center point on start pinch to zoom
-  var offsetLeft, offsetTop;
-  var containerWidth, containerHeight;
-  var twoFingersStartInside;
+  let f1x1, f1y1, f2x1, f2y1; // starting points for pinch-to-zoom
+  let distance1, distance1Sq; // initial distance between finger 1 and finger 2 for pinch-to-zoom
+  let center1, modelCenter1; // center point on start pinch to zoom
+  let offsetLeft, offsetTop;
+  let containerWidth, containerHeight;
+  let twoFingersStartInside;
 
-  var distance = function( x1, y1, x2, y2 ){
+  const distance = function( x1, y1, x2, y2 ){
     return Math.sqrt( (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) );
   };
 
-  var distanceSq = function( x1, y1, x2, y2 ){
+  const distanceSq = function( x1, y1, x2, y2 ){
     return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
   };
 
-  var touchstartHandler;
+  let touchstartHandler;
   r.registerBinding( r.container, 'touchstart', touchstartHandler = function( e ){
     r.hasTouchStarted = true;
     
@@ -1266,15 +1266,15 @@ BRp.load = function(){
     r.touchData.capture = true;
     r.data.bgActivePosistion = undefined;
 
-    var cy = r.cy;
-    var now = r.touchData.now;
-    var earlier = r.touchData.earlier;
+    const cy = r.cy;
+    const now = r.touchData.now;
+    const earlier = r.touchData.earlier;
 
-    if( e.touches[0] ){ var pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
-    if( e.touches[1] ){ var pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
-    if( e.touches[2] ){ var pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
+    if( e.touches[0] ){ const pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
+    if( e.touches[1] ){ const pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
+    if( e.touches[2] ){ const pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: now[0], y: now[1] }
@@ -1287,7 +1287,7 @@ BRp.load = function(){
 
       freeDraggedElements( r.dragData.touchDragEles );
 
-      var offsets = r.findContainerClientCoords();
+      const offsets = r.findContainerClientCoords();
       offsetLeft = offsets[0];
       offsetTop = offsets[1];
       containerWidth = offsets[2];
@@ -1306,8 +1306,8 @@ BRp.load = function(){
         && 0 <= f2y1 && f2y1 <= containerHeight
       ;
 
-      var pan = cy.pan();
-      var zoom = cy.zoom();
+      const pan = cy.pan();
+      const zoom = cy.zoom();
 
       distance1 = distance( f1x1, f1y1, f2x1, f2y1 );
       distance1Sq = distanceSq( f1x1, f1y1, f2x1, f2y1 );
@@ -1318,12 +1318,12 @@ BRp.load = function(){
       ];
 
       // consider context tap
-      var cxtDistThreshold = 200;
-      var cxtDistThresholdSq = cxtDistThreshold * cxtDistThreshold;
+      const cxtDistThreshold = 200;
+      const cxtDistThresholdSq = cxtDistThreshold * cxtDistThreshold;
       if( distance1Sq < cxtDistThresholdSq && !e.touches[2] ){
 
-        var near1 = r.findNearestElement( now[0], now[1], true, true );
-        var near2 = r.findNearestElement( now[2], now[3], true, true );
+        const near1 = r.findNearestElement( now[0], now[1], true, true );
+        const near2 = r.findNearestElement( now[2], now[3], true, true );
 
         if( near1 && near1.isNode() ){
           near1.activate().emit(makeEvent('cxttapstart'));
@@ -1360,8 +1360,8 @@ BRp.load = function(){
     } else if( e.touches[1] ){
       // ignore
     } else if( e.touches[0] ){
-      var nears = r.findNearestElements( now[0], now[1], true, true );
-      var near = nears[0];
+      const nears = r.findNearestElements( now[0], now[1], true, true );
+      const near = nears[0];
 
       if( near != null ){
         near.activate();
@@ -1371,8 +1371,8 @@ BRp.load = function(){
 
         if( r.nodeIsGrabbable( near ) ){
 
-          var draggedEles = r.dragData.touchDragEles = cy.collection();
-          var selectedNodes = null;
+          const draggedEles = r.dragData.touchDragEles = cy.collection();
+          const selectedNodes = null;
 
           r.redrawHint( 'eles', true );
           r.redrawHint( 'drag', true );
@@ -1433,51 +1433,51 @@ BRp.load = function(){
     }
 
     if( e.touches.length >= 1 ){
-      var sPos = r.touchData.startPosition = [null, null, null, null, null, null];
+      const sPos = r.touchData.startPosition = [null, null, null, null, null, null];
 
-      for( var i = 0; i < now.length; i++ ){
+      for (let i = 0; i < now.length; i++ ){
         sPos[i] = earlier[i] = now[i];
       }
 
-      var touch0 = e.touches[0];
+      const touch0 = e.touches[0];
 
       r.touchData.startGPosition = [ touch0.clientX, touch0.clientY ];
     }
 
   }, false );
 
-  var touchmoveHandler;
+  let touchmoveHandler;
   r.registerBinding(containerWindow, 'touchmove', touchmoveHandler = function(e) { // eslint-disable-line no-undef
-    var capture = r.touchData.capture;
+    const capture = r.touchData.capture;
 
     if( !capture && !eventInContainer(e) ){ return; }
 
-    var select = r.selection;
-    var cy = r.cy;
-    var now = r.touchData.now;
-    var earlier = r.touchData.earlier;
-    var zoom = cy.zoom();
+    const select = r.selection;
+    const cy = r.cy;
+    const now = r.touchData.now;
+    const earlier = r.touchData.earlier;
+    const zoom = cy.zoom();
 
-    if( e.touches[0] ){ var pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
-    if( e.touches[1] ){ var pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
-    if( e.touches[2] ){ var pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
+    if( e.touches[0] ){ const pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
+    if( e.touches[1] ){ const pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
+    if( e.touches[2] ){ const pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: now[0], y: now[1] }
     }); 
 
-    var startGPos = r.touchData.startGPosition;
-    var isOverThresholdDrag;
+    const startGPos = r.touchData.startGPosition;
+    let isOverThresholdDrag;
 
     if( capture && e.touches[0] && startGPos ){
-      var disp = []; for (var j=0;j<now.length;j++) { disp[j] = now[j] - earlier[j]; }
-      var dx = e.touches[0].clientX - startGPos[0];
-      var dx2 = dx * dx;
-      var dy = e.touches[0].clientY - startGPos[1];
-      var dy2 = dy * dy;
-      var dist2 = dx2 + dy2;
+      const disp = []; for (let j=0;j<now.length;j++) { disp[j] = now[j] - earlier[j]; }
+      const dx = e.touches[0].clientX - startGPos[0];
+      const dx2 = dx * dx;
+      const dy = e.touches[0].clientY - startGPos[1];
+      const dy2 = dy * dy;
+      const dist2 = dx2 + dy2;
 
       isOverThresholdDrag = dist2 >= r.touchTapThreshold2;
     }
@@ -1486,16 +1486,16 @@ BRp.load = function(){
     if( capture && r.touchData.cxt ){
       e.preventDefault();
 
-      var f1x2 = e.touches[0].clientX - offsetLeft, f1y2 = e.touches[0].clientY - offsetTop;
-      var f2x2 = e.touches[1].clientX - offsetLeft, f2y2 = e.touches[1].clientY - offsetTop;
-      // var distance2 = distance( f1x2, f1y2, f2x2, f2y2 );
-      var distance2Sq = distanceSq( f1x2, f1y2, f2x2, f2y2 );
-      var factorSq = distance2Sq / distance1Sq;
+      const f1x2 = e.touches[0].clientX - offsetLeft, f1y2 = e.touches[0].clientY - offsetTop;
+      const f2x2 = e.touches[1].clientX - offsetLeft, f2y2 = e.touches[1].clientY - offsetTop;
+      // const distance2 = distance( f1x2, f1y2, f2x2, f2y2 );
+      const distance2Sq = distanceSq( f1x2, f1y2, f2x2, f2y2 );
+      const factorSq = distance2Sq / distance1Sq;
 
-      var distThreshold = 150;
-      var distThresholdSq = distThreshold * distThreshold;
-      var factorThreshold = 1.5;
-      var factorThresholdSq = factorThreshold * factorThreshold;
+      const distThreshold = 150;
+      const distThresholdSq = distThreshold * distThreshold;
+      const factorThreshold = 1.5;
+      const factorThresholdSq = factorThreshold * factorThreshold;
 
       // cancel ctx gestures if the distance b/t the fingers increases
       if( factorSq >= factorThresholdSq || distance2Sq >= distThresholdSq ){
@@ -1505,7 +1505,7 @@ BRp.load = function(){
 
         r.redrawHint( 'select', true );
 
-        var cxtEvt = makeEvent('cxttapend');
+        const cxtEvt = makeEvent('cxttapend');
 
         if( r.touchData.start ){
           r.touchData.start
@@ -1523,7 +1523,7 @@ BRp.load = function(){
 
     // context swipe
     if( capture && r.touchData.cxt ){
-      var cxtEvt = makeEvent('cxtdrag');
+      const cxtEvt = makeEvent('cxtdrag');
       r.data.bgActivePosistion = undefined;
       r.redrawHint( 'select', true );
 
@@ -1536,7 +1536,7 @@ BRp.load = function(){
       if( r.touchData.start ){ r.touchData.start._private.grabbed = false; }
       r.touchData.cxtDragged = true;
 
-      var near = r.findNearestElement( now[0], now[1], true, true );
+      const near = r.findNearestElement( now[0], now[1], true, true );
 
       if( !r.touchData.cxtOver || near !== r.touchData.cxtOver ){
 
@@ -1592,61 +1592,61 @@ BRp.load = function(){
       r.data.bgActivePosistion = undefined;
       r.redrawHint( 'select', true );
 
-      var draggedEles = r.dragData.touchDragEles;
+      const draggedEles = r.dragData.touchDragEles;
       if( draggedEles ){
         r.redrawHint( 'drag', true );
 
-        for( var i = 0; i < draggedEles.length; i++ ){
-          var de_p = draggedEles[i]._private;
+        for (let i = 0; i < draggedEles.length; i++ ){
+          const de_p = draggedEles[i]._private;
 
           de_p.grabbed = false;
           de_p.rscratch.inDragLayer = false;
         }
       }
 
-      let start = r.touchData.start;
+      const start = r.touchData.start;
 
       // (x2, y2) for fingers 1 and 2
-      var f1x2 = e.touches[0].clientX - offsetLeft, f1y2 = e.touches[0].clientY - offsetTop;
-      var f2x2 = e.touches[1].clientX - offsetLeft, f2y2 = e.touches[1].clientY - offsetTop;
+      const f1x2 = e.touches[0].clientX - offsetLeft, f1y2 = e.touches[0].clientY - offsetTop;
+      const f2x2 = e.touches[1].clientX - offsetLeft, f2y2 = e.touches[1].clientY - offsetTop;
 
 
-      var distance2 = distance( f1x2, f1y2, f2x2, f2y2 );
-      // var distance2Sq = distanceSq( f1x2, f1y2, f2x2, f2y2 );
-      // var factor = Math.sqrt( distance2Sq ) / Math.sqrt( distance1Sq );
-      var factor = distance2 / distance1;
+      const distance2 = distance( f1x2, f1y2, f2x2, f2y2 );
+      // const distance2Sq = distanceSq( f1x2, f1y2, f2x2, f2y2 );
+      // const factor = Math.sqrt( distance2Sq ) / Math.sqrt( distance1Sq );
+      const factor = distance2 / distance1;
 
       if( twoFingersStartInside ){
         // delta finger1
-        var df1x = f1x2 - f1x1;
-        var df1y = f1y2 - f1y1;
+        const df1x = f1x2 - f1x1;
+        const df1y = f1y2 - f1y1;
 
         // delta finger 2
-        var df2x = f2x2 - f2x1;
-        var df2y = f2y2 - f2y1;
+        const df2x = f2x2 - f2x1;
+        const df2y = f2y2 - f2y1;
 
         // translation is the normalised vector of the two fingers movement
         // i.e. so pinching cancels out and moving together pans
-        var tx = (df1x + df2x) / 2;
-        var ty = (df1y + df2y) / 2;
+        const tx = (df1x + df2x) / 2;
+        const ty = (df1y + df2y) / 2;
 
         // now calculate the zoom
-        var zoom1 = cy.zoom();
-        var zoom2 = zoom1 * factor;
-        var pan1 = cy.pan();
+        const zoom1 = cy.zoom();
+        const zoom2 = zoom1 * factor;
+        const pan1 = cy.pan();
 
         // the model center point converted to the current rendered pos
-        var ctrx = modelCenter1[0] * zoom1 + pan1.x;
-        var ctry = modelCenter1[1] * zoom1 + pan1.y;
+        const ctrx = modelCenter1[0] * zoom1 + pan1.x;
+        const ctry = modelCenter1[1] * zoom1 + pan1.y;
 
-        var pan2 = {
+        const pan2 = {
           x: -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
           y: -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
         };
 
         // remove dragged eles
         if( start && start.active() ){
-          var draggedEles = r.dragData.touchDragEles;
+          const draggedEles = r.dragData.touchDragEles;
 
           freeDraggedElements( draggedEles );
 
@@ -1683,17 +1683,17 @@ BRp.load = function(){
       }
 
       // Re-project
-      if( e.touches[0] ){ var pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
-      if( e.touches[1] ){ var pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
-      if( e.touches[2] ){ var pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
+      if( e.touches[0] ){ const pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
+      if( e.touches[1] ){ const pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
+      if( e.touches[2] ){ const pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
 
     } else if(
       e.touches[0]
       && !r.touchData.didSelect // don't allow box selection to degrade to single finger events like panning
     ){
-      var start = r.touchData.start;
-      var last = r.touchData.last;
-      var near;
+      const start = r.touchData.start;
+      const last = r.touchData.last;
+      let near;
 
       if( !r.hoverData.draggingEles && !r.swipePanning ){
         near = r.findNearestElement( now[0], now[1], true, true );
@@ -1707,8 +1707,8 @@ BRp.load = function(){
       if( capture && start != null && r.nodeIsDraggable( start ) ){
 
         if( isOverThresholdDrag ){ // then dragging can happen
-          var draggedEles = r.dragData.touchDragEles;
-          var justStartedDrag = !r.dragData.didDrag;
+          const draggedEles = r.dragData.touchDragEles;
+          const justStartedDrag = !r.dragData.didDrag;
 
           if( justStartedDrag ){
             addNodesToDrag( draggedEles , { inDragLayer: true } );
@@ -1716,7 +1716,7 @@ BRp.load = function(){
 
           r.dragData.didDrag = true;
 
-          var totalShift = { x: 0, y: 0 };
+          const totalShift = { x: 0, y: 0 };
 
           if( is.number( disp[0] ) && is.number( disp[1] ) ){
             totalShift.x += disp[0];
@@ -1725,7 +1725,7 @@ BRp.load = function(){
             if( justStartedDrag ){
               r.redrawHint( 'eles', true );
 
-              var dragDelta = r.touchData.dragDelta;
+              const dragDelta = r.touchData.dragDelta;
 
               if( dragDelta && is.number( dragDelta[0] ) && is.number( dragDelta[1] ) ){
                 totalShift.x += dragDelta[0];
@@ -1754,7 +1754,7 @@ BRp.load = function(){
 
           r.redraw();
         } else { // otherwise keep track of drag delta for later
-          var dragDelta = r.touchData.dragDelta = r.touchData.dragDelta || [];
+          const dragDelta = r.touchData.dragDelta = r.touchData.dragDelta || [];
 
           if( dragDelta.length === 0 ){
             dragDelta.push( disp[0] );
@@ -1780,7 +1780,7 @@ BRp.load = function(){
 
       // check to cancel taphold
       if( capture ){
-        for( var i = 0; i < now.length; i++ ){
+        for (let i = 0; i < now.length; i++ ){
           if( now[ i ]
             && r.touchData.startPosition[ i ]
             && isOverThresholdDrag ){
@@ -1797,7 +1797,7 @@ BRp.load = function(){
           && cy.panningEnabled() && cy.userPanningEnabled()
       ){
 
-        var allowPassthrough = allowPanningPassthrough( start, r.touchData.starts );
+        const allowPassthrough = allowPanningPassthrough( start, r.touchData.starts );
 
         if( allowPassthrough ){
           e.preventDefault();
@@ -1834,12 +1834,12 @@ BRp.load = function(){
         }
 
         // Re-project
-        var pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY );
+        const pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY );
         now[0] = pos[0]; now[1] = pos[1];
       }
     }
 
-    for( var j = 0; j < now.length; j++ ){ earlier[ j ] = now[ j ]; }
+    for (let j = 0; j < now.length; j++ ){ earlier[ j ] = now[ j ]; }
 
     // the active bg indicator should be removed when making a swipe that is neither for dragging nodes or panning
     if( capture && e.touches.length > 0 && !r.hoverData.draggingEles && !r.swipePanning && r.data.bgActivePosistion != null ){
@@ -1849,9 +1849,9 @@ BRp.load = function(){
     }
 
   }, false );
-  var touchcancelHandler;
+  let touchcancelHandler;
   r.registerBinding( containerWindow, 'touchcancel', touchcancelHandler = function( e ){ // eslint-disable-line no-unused-vars
-    var start = r.touchData.start;
+    const start = r.touchData.start;
 
     r.touchData.capture = false;
 
@@ -1860,11 +1860,11 @@ BRp.load = function(){
     }
   } );
 
-  var touchendHandler, didDoubleTouch, touchTimeout, prevTouchTimeStamp;
+  let touchendHandler, didDoubleTouch, touchTimeout, prevTouchTimeStamp;
   r.registerBinding( containerWindow, 'touchend', touchendHandler = function( e ){ // eslint-disable-line no-unused-vars
-    var start = r.touchData.start;
+    const start = r.touchData.start;
 
-    var capture = r.touchData.capture;
+    const capture = r.touchData.capture;
 
     if( capture ){
       if( e.touches.length === 0 ){
@@ -1876,21 +1876,21 @@ BRp.load = function(){
       return;
     }
 
-    var select = r.selection;
+    const select = r.selection;
 
     r.swipePanning = false;
     r.hoverData.draggingEles = false;
 
-    var cy = r.cy;
-    var zoom = cy.zoom();
-    var now = r.touchData.now;
-    var earlier = r.touchData.earlier;
+    const cy = r.cy;
+    const zoom = cy.zoom();
+    const now = r.touchData.now;
+    const earlier = r.touchData.earlier;
 
-    if( e.touches[0] ){ var pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
-    if( e.touches[1] ){ var pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
-    if( e.touches[2] ){ var pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
+    if( e.touches[0] ){ const pos = r.projectIntoViewport( e.touches[0].clientX, e.touches[0].clientY ); now[0] = pos[0]; now[1] = pos[1]; }
+    if( e.touches[1] ){ const pos = r.projectIntoViewport( e.touches[1].clientX, e.touches[1].clientY ); now[2] = pos[0]; now[3] = pos[1]; }
+    if( e.touches[2] ){ const pos = r.projectIntoViewport( e.touches[2].clientX, e.touches[2].clientY ); now[4] = pos[0]; now[5] = pos[1]; }
 
-    let makeEvent = (type) => ({
+    const makeEvent = (type) => ({
       originalEvent: e,
       type: type,
       position: { x: now[0], y: now[1] }
@@ -1900,7 +1900,7 @@ BRp.load = function(){
       start.unactivate();
     }
 
-    var ctxTapend;
+    let ctxTapend;
     if( r.touchData.cxt ){
       ctxTapend = makeEvent('cxttapend');
 
@@ -1911,7 +1911,7 @@ BRp.load = function(){
       }
 
       if( !r.touchData.cxtDragged ){
-        var ctxTap = makeEvent('cxttap');
+        const ctxTap = makeEvent('cxttap');
 
         if( start ){
           start.emit( ctxTap );
@@ -1933,7 +1933,7 @@ BRp.load = function(){
     if( !e.touches[2] && cy.boxSelectionEnabled() && r.touchData.selecting ){
       r.touchData.selecting = false;
 
-      var box = cy.collection( r.getAllInBox( select[0], select[1], select[2], select[3] ) );
+      const box = cy.collection( r.getAllInBox( select[0], select[1], select[2], select[3] ) );
 
       select[0] = undefined;
       select[1] = undefined;
@@ -1945,7 +1945,7 @@ BRp.load = function(){
 
       cy.emit(makeEvent('boxend'));
 
-      var eleWouldBeSelected = function( ele ){ return ele.selectable() && !ele.selected(); };
+      const eleWouldBeSelected = function( ele ){ return ele.selectable() && !ele.selected(); };
 
       box
         .emit(makeEvent('box'))
@@ -1979,11 +1979,11 @@ BRp.load = function(){
       r.data.bgActivePosistion = undefined;
       r.redrawHint( 'select', true );
 
-      var draggedEles = r.dragData.touchDragEles;
+      const draggedEles = r.dragData.touchDragEles;
 
       if( start != null ){
 
-        var startWasGrabbed = start._private.grabbed;
+        const startWasGrabbed = start._private.grabbed;
 
         freeDraggedElements( draggedEles );
 
@@ -2007,17 +2007,17 @@ BRp.load = function(){
         r.touchData.start = null;
 
       } else {
-        var near = r.findNearestElement( now[0], now[1], true, true );
+        const near = r.findNearestElement( now[0], now[1], true, true );
 
         triggerEvents( near, [ 'touchend', 'tapend', 'vmouseup', 'tapdragout' ], e, { x: now[0], y: now[1] } );
       }
 
-      var dx = r.touchData.startPosition[0] - now[0];
-      var dx2 = dx * dx;
-      var dy = r.touchData.startPosition[1] - now[1];
-      var dy2 = dy * dy;
-      var dist2 = dx2 + dy2;
-      var rdist2 = dist2 * zoom * zoom;
+      const dx = r.touchData.startPosition[0] - now[0];
+      const dx2 = dx * dx;
+      const dy = r.touchData.startPosition[1] - now[1];
+      const dy2 = dy * dy;
+      const dist2 = dx2 + dy2;
+      const rdist2 = dist2 * zoom * zoom;
 
       // Tap event, roughly same as mouse click event for touch
       if( !r.touchData.singleTouchMoved ){
@@ -2067,7 +2067,7 @@ BRp.load = function(){
       r.touchData.singleTouchMoved = true;
     }
 
-    for( var j = 0; j < now.length; j++ ){ earlier[ j ] = now[ j ]; }
+    for (let j = 0; j < now.length; j++ ){ earlier[ j ] = now[ j ]; }
 
     r.dragData.didDrag = false; // reset for next touchstart
 
@@ -2097,9 +2097,9 @@ BRp.load = function(){
   // fallback compatibility layer for ms pointer events
   if( typeof TouchEvent === 'undefined' ){
 
-    var pointers = [];
+    const pointers = [];
 
-    var makeTouch = function( e ){
+    const makeTouch = function( e ){
       return {
         clientX: e.clientX,
         clientY: e.clientY,
@@ -2115,20 +2115,20 @@ BRp.load = function(){
       };
     };
 
-    var makePointer = function( e ){
+    const makePointer = function( e ){
       return {
         event: e,
         touch: makeTouch( e )
       };
     };
 
-    var addPointer = function( e ){
+    const addPointer = function( e ){
       pointers.push( makePointer( e ) );
     };
 
-    var removePointer = function( e ){
-      for( var i = 0; i < pointers.length; i++ ){
-        var p = pointers[ i ];
+    const removePointer = function( e ){
+      for (let i = 0; i < pointers.length; i++ ){
+        const p = pointers[ i ];
 
         if( p.event.pointerId === e.pointerId ){
           pointers.splice( i, 1 );
@@ -2137,8 +2137,8 @@ BRp.load = function(){
       }
     };
 
-    var updatePointer = function( e ){
-      var p = pointers.filter( function( p ){
+    const updatePointer = function( e ){
+      const p = pointers.filter( function( p ){
         return p.event.pointerId === e.pointerId;
       } )[0];
 
@@ -2146,13 +2146,13 @@ BRp.load = function(){
       p.touch = makeTouch( e );
     };
 
-    var addTouchesToEvent = function( e ){
+    const addTouchesToEvent = function( e ){
       e.touches = pointers.map( function( p ){
         return p.touch;
       } );
     };
 
-    var pointerIsMouse = function( e ){
+    const pointerIsMouse = function( e ){
       return e.pointerType === 'mouse' || e.pointerType === 4;
     };
 

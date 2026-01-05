@@ -1,12 +1,12 @@
 import Set from '../set.mjs';
 import * as is from '../is.mjs';
 
-let elesfn = ({
+const elesfn = ({
   classes: function( classes ){
-    let self = this;
+    const self = this;
 
     if( classes === undefined ){
-      let ret = [];
+      const ret = [];
 
       self[0]._private.classes.forEach(cls => ret.push(cls));
 
@@ -16,20 +16,20 @@ let elesfn = ({
       classes = ( classes || '' ).match( /\S+/g ) || [];
     }
 
-    let changed = [];
-    let classesSet = new Set( classes );
+    const changed = [];
+    const classesSet = new Set( classes );
 
     // check and update each ele
-    for( let j = 0; j < self.length; j++ ){
-      let ele = self[ j ];
-      let _p = ele._private;
-      let eleClasses = _p.classes;
-      let changedEle = false;
+    for (let j = 0; j < self.length; j++ ){
+      const ele = self[ j ];
+      const _p = ele._private;
+      const eleClasses = _p.classes;
+      const changedEle = false;
 
       // check if ele has all of the passed classes
-      for( let i = 0; i < classes.length; i++ ){
-        let cls = classes[i];
-        let eleHasClass = eleClasses.has(cls);
+      for (let i = 0; i < classes.length; i++ ){
+        const cls = classes[i];
+        const eleHasClass = eleClasses.has(cls);
 
         if( !eleHasClass ){
           changedEle = true;
@@ -65,7 +65,7 @@ let elesfn = ({
   },
 
   hasClass: function( className ){
-    let ele = this[0];
+    const ele = this[0];
     return ( ele != null && ele._private.classes.has(className) );
   },
 
@@ -74,19 +74,19 @@ let elesfn = ({
       // extract classes from string
       classes = classes.match( /\S+/g ) || [];
     }
-    let self = this;
-    let toggleUndefd = toggle === undefined;
-    let changed = []; // eles who had classes changed
+    const self = this;
+    const toggleUndefd = toggle === undefined;
+    const changed = []; // eles who had classes changed
 
-    for( let i = 0, il = self.length; i < il; i++ ){
-      let ele = self[ i ];
-      let eleClasses = ele._private.classes;
-      let changedEle = false;
+    for (let i = 0, il = self.length; i < il; i++ ){
+      const ele = self[ i ];
+      const eleClasses = ele._private.classes;
+      const changedEle = false;
 
-      for( let j = 0; j < classes.length; j++ ){
-        let cls = classes[ j ];
-        let hasClass = eleClasses.has(cls);
-        let changedNow = false;
+      for (let j = 0; j < classes.length; j++ ){
+        const cls = classes[ j ];
+        const hasClass = eleClasses.has(cls);
+        const changedNow = false;
 
         if( toggle || (toggleUndefd && !hasClass) ){
           eleClasses.add(cls);
@@ -120,7 +120,7 @@ let elesfn = ({
   },
 
   flashClass: function( classes, duration ){
-    let self = this;
+    const self = this;
 
     if( duration == null ){
       duration = 250;

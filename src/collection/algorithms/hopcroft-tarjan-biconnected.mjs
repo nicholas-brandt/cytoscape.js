@@ -1,16 +1,16 @@
-let hopcroftTarjanBiconnected = function() {
-  let eles = this;
-  let nodes = {};
-  let id = 0;
-  let edgeCount = 0;
-  let components = [];
-  let stack = [];
-  let visitedEdges = {};
+const hopcroftTarjanBiconnected = function() {
+  const eles = this;
+  const nodes = {};
+  const id = 0;
+  const edgeCount = 0;
+  const components = [];
+  const stack = [];
+  const visitedEdges = {};
 
   const buildComponent = (x, y) => {
-    let i = stack.length-1;
-    let cutset = [];
-    let component = eles.spawn();
+    const i = stack.length-1;
+    const cutset = [];
+    const component = eles.spawn();
 
     while (stack[i].x != x || stack[i].y != y) {
       cutset.push(stack.pop().edge);
@@ -19,7 +19,7 @@ let hopcroftTarjanBiconnected = function() {
     cutset.push(stack.pop().edge);
 
     cutset.forEach(edge => {
-      let connectedNodes = edge.connectedNodes()
+      const connectedNodes = edge.connectedNodes()
                                .intersection(eles);
       component.merge(edge);
       connectedNodes.forEach(node => {
@@ -44,7 +44,7 @@ let hopcroftTarjanBiconnected = function() {
       low : id++,
       cutVertex : false
     };
-    let edges = eles.getElementById(currentNode)
+    const edges = eles.getElementById(currentNode)
                     .connectedEdges()
                     .intersection(eles);
 
@@ -90,7 +90,7 @@ let hopcroftTarjanBiconnected = function() {
 
   eles.forEach(ele => {
     if (ele.isNode()) {
-      let nodeId = ele.id();
+      const nodeId = ele.id();
 
       if (!(nodeId in nodes)) {
         edgeCount = 0;
@@ -100,7 +100,7 @@ let hopcroftTarjanBiconnected = function() {
     }
   });
 
-  let cutVertices = Object.keys(nodes)
+  const cutVertices = Object.keys(nodes)
     .filter(id => nodes[id].cutVertex)
     .map(id => eles.getElementById(id));
 

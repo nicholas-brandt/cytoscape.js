@@ -12,12 +12,12 @@
  */
 import * as util from '../util/index.mjs';
 
-let zIndexSort = function( a, b ){
-  let cy = a.cy();
-  let hasCompoundNodes = cy.hasCompoundNodes();
+const zIndexSort = function( a, b ){
+  const cy = a.cy();
+  const hasCompoundNodes = cy.hasCompoundNodes();
 
   function getDepth(ele){
-    let style = ele.pstyle( 'z-compound-depth' );
+    const style = ele.pstyle( 'z-compound-depth' );
     if ( style.value === 'auto' ){
       return hasCompoundNodes ? ele.zDepth() : 0;
     } else if ( style.value === 'bottom' ){
@@ -28,25 +28,25 @@ let zIndexSort = function( a, b ){
     // 'orphan'
     return 0;
   }
-  let depthDiff = getDepth(a) - getDepth(b);
+  const depthDiff = getDepth(a) - getDepth(b);
   if ( depthDiff !== 0 ){
     return depthDiff;
   }
 
   function getEleDepth(ele){
-    let style = ele.pstyle( 'z-index-compare' );
+    const style = ele.pstyle( 'z-index-compare' );
     if ( style.value === 'auto' ){
       return ele.isNode() ? 1 : 0;
     }
     // 'manual'
     return 0;
   }
-  let eleDiff = getEleDepth(a) - getEleDepth(b);
+  const eleDiff = getEleDepth(a) - getEleDepth(b);
   if ( eleDiff !== 0 ){
     return eleDiff;
   }
 
-  let zDiff = a.pstyle( 'z-index' ).value - b.pstyle( 'z-index' ).value;
+  const zDiff = a.pstyle( 'z-index' ).value - b.pstyle( 'z-index' ).value;
   if ( zDiff !== 0 ){
     return zDiff;
   }

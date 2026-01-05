@@ -2,27 +2,27 @@ import step from './step.mjs';
 import startAnimation from './start.mjs';
 
 function stepAll( now, cy ){
-  let eles = cy._private.aniEles;
-  let doneEles = [];
+  const eles = cy._private.aniEles;
+  const doneEles = [];
 
   function stepOne( ele, isCore ){
-    let _p = ele._private;
-    let current = _p.animation.current;
-    let queue = _p.animation.queue;
-    let ranAnis = false;
+    const _p = ele._private;
+    const current = _p.animation.current;
+    const queue = _p.animation.queue;
+    const ranAnis = false;
 
     // if nothing currently animating, get something from the queue
     if( current.length === 0 ){
-      let next = queue.shift();
+      const next = queue.shift();
 
       if( next ){
         current.push( next );
       }
     }
 
-    let callbacks = function( callbacks ){
-      for( let j = callbacks.length - 1; j >= 0; j-- ){
-        let cb = callbacks[ j ];
+    const callbacks = function( callbacks ){
+      for (let j = callbacks.length - 1; j >= 0; j-- ){
+        const cb = callbacks[ j ];
 
         cb();
       }
@@ -31,9 +31,9 @@ function stepAll( now, cy ){
     };
 
     // step and remove if done
-    for( let i = current.length - 1; i >= 0; i-- ){
-      let ani = current[ i ];
-      let ani_p = ani._private;
+    for (let i = current.length - 1; i >= 0; i-- ){
+      const ani = current[ i ];
+      const ani_p = ani._private;
 
       if( ani_p.stopped ){
         current.splice( i, 1 );
@@ -91,15 +91,15 @@ function stepAll( now, cy ){
   } // stepElement
 
   // handle all eles
-  let ranEleAni = false;
-  for( let e = 0; e < eles.length; e++ ){
-    let ele = eles[ e ];
-    let handledThisEle = stepOne( ele );
+  const ranEleAni = false;
+  for (let e = 0; e < eles.length; e++ ){
+    const ele = eles[ e ];
+    const handledThisEle = stepOne( ele );
 
     ranEleAni = ranEleAni || handledThisEle;
   } // each element
 
-  let ranCoreAni = stepOne( cy, true );
+  const ranCoreAni = stepOne( cy, true );
 
   // notify renderer
   if( ranEleAni || ranCoreAni ){

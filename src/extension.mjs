@@ -7,16 +7,16 @@ import * as is from './is.mjs';
 import Emitter from './emitter.mjs';
 
 // registered extensions to cytoscape, indexed by name
-let extensions = {};
+const extensions = {};
 
 // registered modules for extensions, indexed by name
-let modules = {};
+const modules = {};
 
 function setExtension( type, name, registrant ){
 
-  let ext = registrant;
+  const ext = registrant;
 
-  let overrideErr = function( field ){
+  const overrideErr = function( field ){
     util.warn( 'Can not register `' + name + '` for `' + type + '` since `' + field + '` already exists in the prototype and can not be overridden' );
   };
 
@@ -37,7 +37,7 @@ function setExtension( type, name, registrant ){
   } else if( type === 'layout' ){
     // fill in missing layout functions in the prototype
 
-    let Layout = function( options ){
+    const Layout = function( options ){
       this.options = options;
 
       registrant.call( this, options );
@@ -53,12 +53,12 @@ function setExtension( type, name, registrant ){
       this.createEmitter();
     };
 
-    let layoutProto = Layout.prototype = Object.create( registrant.prototype );
+    const layoutProto = Layout.prototype = Object.create( registrant.prototype );
 
-    let optLayoutFns = [];
+    const optLayoutFns = [];
 
-    for( let i = 0; i < optLayoutFns.length; i++ ){
-      let fnName = optLayoutFns[ i ];
+    for (let i = 0; i < optLayoutFns.length; i++ ){
+      const fnName = optLayoutFns[ i ];
 
       layoutProto[ fnName ] = layoutProto[ fnName ] || function(){ return this; };
     }
@@ -70,15 +70,15 @@ function setExtension( type, name, registrant ){
       layoutProto.start = function(){ this.run(); return this; };
     }
 
-    let regStop = registrant.prototype.stop;
+    const regStop = registrant.prototype.stop;
     layoutProto.stop = function(){
-      let opts = this.options;
+      const opts = this.options;
 
       if( opts && opts.animate ){
-        let anis = this.animations;
+        const anis = this.animations;
 
         if( anis ){
-          for( let i = 0; i < anis.length; i++ ){
+          for (let i = 0; i < anis.length; i++ ){
             anis[ i ].stop();
           }
         }
@@ -103,9 +103,9 @@ function setExtension( type, name, registrant ){
       return this._private.cy;
     };
 
-    let getCy = layout => layout._private.cy;
+    const getCy = layout => layout._private.cy;
 
-    let emitterOpts = {
+    const emitterOpts = {
       addEventFields: function( layout, evt ){
         evt.layout = layout;
         evt.cy = getCy(layout);
@@ -137,21 +137,21 @@ function setExtension( type, name, registrant ){
   } else if( type === 'renderer' && name !== 'null' && name !== 'base' ){
     // user registered renderers inherit from base
 
-    let BaseRenderer = getExtension( 'renderer', 'base' );
-    let bProto = BaseRenderer.prototype;
-    let RegistrantRenderer = registrant;
-    let rProto = registrant.prototype;
+    const BaseRenderer = getExtension( 'renderer', 'base' );
+    const bProto = BaseRenderer.prototype;
+    const RegistrantRenderer = registrant;
+    const rProto = registrant.prototype;
 
-    let Renderer = function(){
+    const Renderer = function(){
       BaseRenderer.apply( this, arguments );
       RegistrantRenderer.apply( this, arguments );
     };
 
-    let proto = Renderer.prototype;
+    const proto = Renderer.prototype;
 
     for( let pName in bProto ){
-      let pVal = bProto[ pName ];
-      let existsInR = rProto[ pName ] != null;
+      const pVal = bProto[ pName ];
+      const existsInR = rProto[ pName ] != null;
 
       if( existsInR ){
         return overrideErr( pName );
@@ -206,7 +206,7 @@ function getModule( type, name, moduleType, moduleName ){
   } );
 }
 
-let extension = function(){
+const extension = function(){
   // e.g. extension('renderer', 'svg')
   if( arguments.length === 2 ){
     return getExtension.apply( null, arguments );

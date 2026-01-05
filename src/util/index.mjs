@@ -14,9 +14,9 @@ export * from './position.mjs';
 
 export { strings, extend, extend as assign, memoize, regex, sort };
 
-let warningsEnabled = true;
-let warnSupported = console.warn != null;
-let traceSupported = console.trace != null;
+const warningsEnabled = true;
+const warnSupported = console.warn != null;
+const traceSupported = console.trace != null;
 
 export const MAX_INT = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
@@ -104,14 +104,14 @@ const _staticEmptyObject = {};
 export const staticEmptyObject = () => _staticEmptyObject;
 
 export const defaults = defaults => {
-  let keys = Object.keys( defaults );
+  const keys = Object.keys( defaults );
 
   return opts => {
-    let filledOpts = {};
+    const filledOpts = {};
 
-    for( let i = 0; i < keys.length; i++ ){
-      let key = keys[i];
-      let optVal = opts == null ? undefined : opts[key];
+    for (let i = 0; i < keys.length; i++ ){
+      const key = keys[i];
+      const optVal = opts == null ? undefined : opts[key];
 
       filledOpts[key] = optVal === undefined ? defaults[key] : optVal;
     }
@@ -121,7 +121,7 @@ export const defaults = defaults => {
 };
 
 export const removeFromArray = ( arr, ele, oneCopy ) => {
-  for( let i = arr.length - 1; i >= 0; i-- ){
+  for (let i = arr.length - 1; i >= 0; i-- ){
     if( arr[i] === ele ){
       arr.splice( i, 1 );
 
@@ -135,8 +135,8 @@ export const clearArray = arr => {
 };
 
 export const push = ( arr, otherArr ) => {
-  for( let i = 0; i < otherArr.length; i++ ){
-    let el = otherArr[i];
+  for (let i = 0; i < otherArr.length; i++ ){
+    const el = otherArr[i];
 
     arr.push( el );
   }

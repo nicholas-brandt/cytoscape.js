@@ -12,6 +12,9 @@ documentation/api/**
 documentation/download/*.zip
 benchmark/suite/cytoscape.js
 
+.vscode
+.vscodeignore
+
 # Playwright
 /test-results/
 /playwright-report/

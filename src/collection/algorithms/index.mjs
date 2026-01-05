@@ -18,7 +18,7 @@ import hierholzer from './hierholzer.mjs';
 import hopcroftTarjanBiconnected from './hopcroft-tarjan-biconnected.mjs';
 import tarjanStronglyConnected from './tarjan-strongly-connected.mjs';
 
-var elesfn = {};
+const elesfn = {};
 
 [
   bfsDfs,

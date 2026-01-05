@@ -2,7 +2,7 @@ import define from '../../define/index.mjs';
 import * as util from '../../util/index.mjs';
 import stepAll from './step-all.mjs';
 
-let corefn = ({
+const corefn = ({
 
   // pull in animation functions
   animate: define.animate(),
@@ -14,7 +14,7 @@ let corefn = ({
   stop: define.stop(),
 
   addToAnimationPool: function( eles ){
-    let cy = this;
+    const cy = this;
 
     if( !cy.styleEnabled() ){ return; } // save cycles when no style used
 
@@ -26,7 +26,7 @@ let corefn = ({
   },
 
   startAnimationLoop: function(){
-    let cy = this;
+    const cy = this;
 
     cy._private.animationsRunning = true;
 
@@ -44,7 +44,7 @@ let corefn = ({
       } );
     }
 
-    let renderer = cy.renderer();
+    const renderer = cy.renderer();
 
     if( renderer && renderer.beforeRender ){ // let the renderer schedule animations
       renderer.beforeRender( function rendererAnimationStep( willDraw, now ){

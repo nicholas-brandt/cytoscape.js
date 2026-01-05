@@ -4,32 +4,32 @@ import Heap from '../../../heap.mjs';
 import * as is from '../../../is.mjs';
 import defs from './texture-cache-defs.mjs';
 
-var defNumLayers = 1; // default number of layers to use
-var minLvl = -4; // when scaling smaller than that we don't need to re-render
-var maxLvl = 2; // when larger than this scale just render directly (caching is not helpful)
-var maxZoom = 3.99; // beyond this zoom level, layered textures are not used
-var deqRedrawThreshold = 50; // time to batch redraws together from dequeueing to allow more dequeueing calcs to happen in the meanwhile
-var refineEleDebounceTime = 50; // time to debounce sharper ele texture updates
-var disableEleImgSmoothing = true; // when drawing eles on layers from an ele cache ; crisper and more performant when true
-var deqCost = 0.15; // % of add'l rendering cost allowed for dequeuing ele caches each frame
-var deqAvgCost = 0.1; // % of add'l rendering cost compared to average overall redraw time
-var deqNoDrawCost = 0.9; // % of avg frame time that can be used for dequeueing when not drawing
-var deqFastCost = 0.9; // % of frame time to be used when >60fps
-var maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
-var invalidThreshold = 250; // time threshold for disabling b/c of invalidations
-var maxLayerArea = 4000 * 4000; // layers can't be bigger than this
-var maxLayerDim = 32767; // maximum size for the width/height of layer canvases
-var alwaysQueue = true; // never draw all the layers in a level on a frame; draw directly until all dequeued
-var useHighQualityEleTxrReqs = true; // whether to use high quality ele txr requests (generally faster and cheaper in the longterm)
+const defNumLayers = 1; // default number of layers to use
+const minLvl = -4; // when scaling smaller than that we don't need to re-render
+const maxLvl = 2; // when larger than this scale just render directly (caching is not helpful)
+const maxZoom = 3.99; // beyond this zoom level, layered textures are not used
+const deqRedrawThreshold = 50; // time to batch redraws together from dequeueing to allow more dequeueing calcs to happen in the meanwhile
+const refineEleDebounceTime = 50; // time to debounce sharper ele texture updates
+const disableEleImgSmoothing = true; // when drawing eles on layers from an ele cache ; crisper and more performant when true
+const deqCost = 0.15; // % of add'l rendering cost allowed for dequeuing ele caches each frame
+const deqAvgCost = 0.1; // % of add'l rendering cost compared to average overall redraw time
+const deqNoDrawCost = 0.9; // % of avg frame time that can be used for dequeueing when not drawing
+const deqFastCost = 0.9; // % of frame time to be used when >60fps
+const maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
+const invalidThreshold = 250; // time threshold for disabling b/c of invalidations
+const maxLayerArea = 4000 * 4000; // layers can't be bigger than this
+const maxLayerDim = 32767; // maximum size for the width/height of layer canvases
+const alwaysQueue = true; // never draw all the layers in a level on a frame; draw directly until all dequeued
+const useHighQualityEleTxrReqs = true; // whether to use high quality ele txr requests (generally faster and cheaper in the longterm)
 
-var useEleTxrCaching = true; // whether to use individual ele texture caching underneath this cache
+const useEleTxrCaching = true; // whether to use individual ele texture caching underneath this cache
 
-// var log = function(){ console.log.apply( console, arguments ); };
+// const log = function(){ console.log.apply( console, arguments ); };
 
-var LayeredTextureCache = function( renderer ){
-  var self = this;
-  var r = self.renderer = renderer;
-  var cy = r.cy;
+const LayeredTextureCache = function( renderer ){
+  const self = this;
+  const r = self.renderer = renderer;
+  const cy = r.cy;
 
   self.layersByLevel = {}; // e.g. 2 => [ layer1, layer2, ..., layerN ]
 
@@ -55,7 +55,7 @@ var LayeredTextureCache = function( renderer ){
     }
   }, r.beforeRenderPriorities.lyrTxrSkip);
 
-  var qSort = function(a, b){
+  const qSort = function(a, b){
     return b.reqs - a.reqs;
   };
 
@@ -64,20 +64,20 @@ var LayeredTextureCache = function( renderer ){
   self.setupDequeueing();
 };
 
-var LTCp = LayeredTextureCache.prototype;
+const LTCp = LayeredTextureCache.prototype;
 
-var layerIdPool = 0;
-var MAX_INT = Math.pow(2, 53) - 1;
+const layerIdPool = 0;
+const MAX_INT = Math.pow(2, 53) - 1;
 
 LTCp.makeLayer = function( bb, lvl ){
-  var scale = Math.pow( 2, lvl );
+  const scale = Math.pow( 2, lvl );
 
-  var w = Math.ceil( bb.w * scale );
-  var h = Math.ceil( bb.h * scale );
+  const w = Math.ceil( bb.w * scale );
+  const h = Math.ceil( bb.h * scale );
 
-  var canvas = this.renderer.makeOffscreenCanvas(w, h);
+  const canvas = this.renderer.makeOffscreenCanvas(w, h);
 
-  var layer = {
+  const layer = {
     id: (layerIdPool = ++layerIdPool % MAX_INT ),
     bb: bb,
     level: lvl,
@@ -92,9 +92,9 @@ LTCp.makeLayer = function( bb, lvl ){
 
   // log('make layer %s with w %s and h %s and lvl %s', layer.id, layer.width, layer.height, layer.level);
 
-  var cxt = layer.context;
-  var dx = -layer.bb.x1;
-  var dy = -layer.bb.y1;
+  const cxt = layer.context;
+  const dx = -layer.bb.x1;
+  const dy = -layer.bb.y1;
 
   // do the transform on creation to save cycles (it's the same for all eles)
   cxt.scale( scale, scale );
@@ -104,11 +104,11 @@ LTCp.makeLayer = function( bb, lvl ){
 };
 
 LTCp.getLayers = function( eles, pxRatio, lvl ){
-  var self = this;
-  var r = self.renderer;
-  var cy = r.cy;
-  var zoom = cy.zoom();
-  var firstGet = self.firstGet;
+  const self = this;
+  const r = self.renderer;
+  const cy = r.cy;
+  const zoom = cy.zoom();
+  const firstGet = self.firstGet;
 
   self.firstGet = false;
 
@@ -127,16 +127,16 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
 
   self.validateLayersElesOrdering( lvl, eles );
 
-  var layersByLvl = self.layersByLevel;
-  var scale = Math.pow( 2, lvl );
-  var layers = layersByLvl[ lvl ] = layersByLvl[ lvl ] || [];
-  var bb;
+  const layersByLvl = self.layersByLevel;
+  const scale = Math.pow( 2, lvl );
+  const layers = layersByLvl[ lvl ] = layersByLvl[ lvl ] || [];
+  let bb;
 
-  var lvlComplete = self.levelIsComplete( lvl, eles );
-  var tmpLayers;
+  const lvlComplete = self.levelIsComplete( lvl, eles );
+  let tmpLayers;
 
-  var checkTempLevels = function(){
-    var canUseAsTmpLvl = function( l ){
+  const checkTempLevels = function(){
+    const canUseAsTmpLvl = function( l ){
       self.validateLayersElesOrdering( l, eles );
 
       if( self.levelIsComplete( l, eles ) ){
@@ -145,10 +145,10 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
       }
     };
 
-    var checkLvls = function( dir ){
+    const checkLvls = function( dir ){
       if( tmpLayers ){ return; }
 
-      for( var l = lvl + dir; minLvl <= l && l <= maxLvl; l += dir ){
+      for (let l = lvl + dir; minLvl <= l && l <= maxLvl; l += dir ){
         if( canUseAsTmpLvl(l) ){ break; }
       }
     };
@@ -157,8 +157,8 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
     checkLvls( -1 );
 
     // remove the invalid layers; they will be replaced as needed later in this function
-    for( var i = layers.length - 1; i >= 0; i-- ){
-      var layer = layers[i];
+    for (let i = layers.length - 1; i >= 0; i-- ){
+      const layer = layers[i];
 
       if( layer.invalid ){
         util.removeFromArray( layers, layer );
@@ -177,11 +177,11 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
     return layers;
   }
 
-  var getBb = function(){
+  const getBb = function(){
     if( !bb ){
       bb = math.makeBoundingBox();
 
-      for( var i = 0; i < eles.length; i++ ){
+      for (let i = 0; i < eles.length; i++ ){
         math.updateBoundingBox( bb, eles[i].boundingBox() );
       }
     }
@@ -189,30 +189,30 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
     return bb;
   };
 
-  var makeLayer = function( opts ){
+  const makeLayer = function( opts ){
     opts = opts || {};
 
-    var after = opts.after;
+    const after = opts.after;
 
     getBb();
 
-    var w = Math.ceil( bb.w * scale );
-    var h = Math.ceil( bb.h * scale );
+    const w = Math.ceil( bb.w * scale );
+    const h = Math.ceil( bb.h * scale );
     
     if( w > maxLayerDim || h > maxLayerDim ){
       return null;
     }
 
-    var area = w * h;
+    const area = w * h;
 
     if( area > maxLayerArea ){
       return null;
     }
 
-    var layer = self.makeLayer( bb, lvl );
+    const layer = self.makeLayer( bb, lvl );
 
     if( after != null ){
-      var index = layers.indexOf( after ) + 1;
+      const index = layers.indexOf( after ) + 1;
 
       layers.splice( index, 0, layer );
     } else if( opts.insert === undefined || opts.insert ){
@@ -234,18 +234,18 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
 
   // log('do layers');
 
-  var layer = null;
-  var maxElesPerLayer = eles.length / defNumLayers;
-  var allowLazyQueueing = alwaysQueue && !firstGet;
+  const layer = null;
+  const maxElesPerLayer = eles.length / defNumLayers;
+  const allowLazyQueueing = alwaysQueue && !firstGet;
 
-  for( var i = 0; i < eles.length; i++ ){
-    var ele = eles[i];
-    var rs = ele._private.rscratch;
-    var caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[i];
+    const rs = ele._private.rscratch;
+    const caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
 
     // log('look at ele', ele.id());
 
-    var existingLayer = caches[ lvl ];
+    const existingLayer = caches[ lvl ];
 
     if( existingLayer ){
       // reuse layer for later eles
@@ -303,10 +303,10 @@ LTCp.getEleLevelForLayerLevel = function( lvl, pxRatio ){
 };
 
 LTCp.drawEleInLayer = function( layer, ele, lvl, pxRatio ){
-  var self = this;
-  var r = this.renderer;
-  var context = layer.context;
-  var bb = ele.boundingBox();
+  const self = this;
+  const r = this.renderer;
+  const context = layer.context;
+  const bb = ele.boundingBox();
 
   if( bb.w === 0 || bb.h === 0 || !ele.visible() ){ return; }
 
@@ -324,15 +324,15 @@ LTCp.drawEleInLayer = function( layer, ele, lvl, pxRatio ){
 };
 
 LTCp.levelIsComplete = function( lvl, eles ){
-  var self = this;
-  var layers = self.layersByLevel[ lvl ];
+  const self = this;
+  const layers = self.layersByLevel[ lvl ];
 
   if( !layers || layers.length === 0 ){ return false; }
 
-  var numElesInLayers = 0;
+  const numElesInLayers = 0;
 
-  for( var i = 0; i < layers.length; i++ ){
-    var layer = layers[i];
+  for (let i = 0; i < layers.length; i++ ){
+    const layer = layers[i];
 
     // if there are any eles needed to be drawn yet, the level is not complete
     if( layer.reqs > 0 ){ return false; }
@@ -350,19 +350,19 @@ LTCp.levelIsComplete = function( lvl, eles ){
 };
 
 LTCp.validateLayersElesOrdering = function( lvl, eles ){
-  var layers = this.layersByLevel[ lvl ];
+  const layers = this.layersByLevel[ lvl ];
 
   if( !layers ){ return; }
 
   // if in a layer the eles are not in the same order, then the layer is invalid
   // (i.e. there is an ele in between the eles in the layer)
 
-  for( var i = 0; i < layers.length; i++ ){
-    var layer = layers[i];
-    var offset = -1;
+  for (let i = 0; i < layers.length; i++ ){
+    const layer = layers[i];
+    const offset = -1;
 
     // find the offset
-    for( var j = 0; j < eles.length; j++ ){
+    for (let j = 0; j < eles.length; j++ ){
       if( layer.eles[0] === eles[j] ){
         offset = j;
         break;
@@ -377,9 +377,9 @@ LTCp.validateLayersElesOrdering = function( lvl, eles ){
 
     // the eles in the layer must be in the same continuous order, else the layer is invalid
 
-    var o = offset;
+    const o = offset;
 
-    for( var j = 0; j < layer.eles.length; j++ ){
+    for (let j = 0; j < layer.eles.length; j++ ){
       if( layer.eles[j] !== eles[o+j] ){
         // log('invalidate based on ordering', layer.id);
 
@@ -391,19 +391,19 @@ LTCp.validateLayersElesOrdering = function( lvl, eles ){
 };
 
 LTCp.updateElementsInLayers = function( eles, update ){
-  var self = this;
-  var isEles = is.element( eles[0] );
+  const self = this;
+  const isEles = is.element( eles[0] );
 
   // collect udpated elements (cascaded from the layers) and update each
   // layer itself along the way
-  for( var i = 0; i < eles.length; i++ ){
-    var req = isEles ? null : eles[i];
-    var ele = isEles ? eles[i] : eles[i].ele;
-    var rs = ele._private.rscratch;
-    var caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
+  for (let i = 0; i < eles.length; i++ ){
+    const req = isEles ? null : eles[i];
+    const ele = isEles ? eles[i] : eles[i].ele;
+    const rs = ele._private.rscratch;
+    const caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
 
-    for( var l = minLvl; l <= maxLvl; l++ ){
-      var layer = caches[l];
+    for (let l = minLvl; l <= maxLvl; l++ ){
+      const layer = caches[l];
 
       if( !layer ){ continue; }
 
@@ -419,11 +419,11 @@ LTCp.updateElementsInLayers = function( eles, update ){
 };
 
 LTCp.haveLayers = function(){
-  var self = this;
-  var haveLayers = false;
+  const self = this;
+  const haveLayers = false;
 
-  for( var l = minLvl; l <= maxLvl; l++ ){
-    var layers = self.layersByLevel[l];
+  for (let l = minLvl; l <= maxLvl; l++ ){
+    const layers = self.layersByLevel[l];
 
     if( layers && layers.length > 0 ){
       haveLayers = true;
@@ -435,7 +435,7 @@ LTCp.haveLayers = function(){
 };
 
 LTCp.invalidateElements = function( eles ){
-  var self = this;
+  const self = this;
 
   if( eles.length === 0 ){ return; }
 
@@ -457,9 +457,9 @@ LTCp.invalidateLayer = function( layer ){
 
   if( layer.invalid ){ return; } // save cycles
 
-  var lvl = layer.level;
-  var eles = layer.eles;
-  var layers = this.layersByLevel[ lvl ];
+  const lvl = layer.level;
+  const eles = layer.eles;
+  const layers = this.layersByLevel[ lvl ];
 
    // log('invalidate layer', layer.id );
 
@@ -474,8 +474,8 @@ LTCp.invalidateLayer = function( layer ){
     layer.replacement.invalid = true;
   }
 
-  for( var i = 0; i < eles.length; i++ ){
-    var caches = eles[i]._private.rscratch.imgLayerCaches;
+  for (let i = 0; i < eles.length; i++ ){
+    const caches = eles[i]._private.rscratch.imgLayerCaches;
 
     if( caches ){
       caches[ lvl ] = null;
@@ -484,12 +484,12 @@ LTCp.invalidateLayer = function( layer ){
 };
 
 LTCp.refineElementTextures = function( eles ){
-  var self = this;
+  const self = this;
 
   // log('refine', eles.length);
 
   self.updateElementsInLayers( eles, function refineEachEle( layer, ele, req ){
-    var rLyr = layer.replacement;
+    const rLyr = layer.replacement;
 
     if( !rLyr ){
       rLyr = layer.replacement = self.makeLayer( layer.bb, layer.level );
@@ -500,7 +500,7 @@ LTCp.refineElementTextures = function( eles ){
     }
 
     if( !rLyr.reqs ){
-      for( var i = 0; i < rLyr.eles.length; i++ ){
+      for (let i = 0; i < rLyr.eles.length; i++ ){
         self.queueLayer( rLyr, rLyr.eles[i] );
       }
 
@@ -517,10 +517,10 @@ LTCp.enqueueElementRefinement = function( ele ){
 };
 
 LTCp.queueLayer = function( layer, ele ){
-  var self = this;
-  var q = self.layersQueue;
-  var elesQ = layer.elesQueue;
-  var hasId = elesQ.hasId = elesQ.hasId || {};
+  const self = this;
+  const q = self.layersQueue;
+  const elesQ = layer.elesQueue;
+  const hasId = elesQ.hasId = elesQ.hasId || {};
 
   // if a layer is going to be replaced, queuing is a waste of time
   if( layer.replacement ){ return; }
@@ -546,15 +546,15 @@ LTCp.queueLayer = function( layer, ele ){
 };
 
 LTCp.dequeue = function( pxRatio ){
-  var self = this;
-  var q = self.layersQueue;
-  var deqd = [];
-  var eleDeqs = 0;
+  const self = this;
+  const q = self.layersQueue;
+  const deqd = [];
+  const eleDeqs = 0;
 
   while( eleDeqs < maxDeqSize ){
     if( q.size() === 0 ){ break; }
 
-    var layer = q.peek();
+    const layer = q.peek();
 
     // if a layer has been or will be replaced, then don't waste time with it
     if( layer.replacement ){
@@ -576,7 +576,7 @@ LTCp.dequeue = function( pxRatio ){
       continue;
     }
 
-    var ele = layer.elesQueue.shift();
+    const ele = layer.elesQueue.shift();
 
     if( ele ){
        // log('dequeue layer %s', layer.id);
@@ -612,10 +612,10 @@ LTCp.dequeue = function( pxRatio ){
 };
 
 LTCp.applyLayerReplacement = function( layer ){
-  var self = this;
-  var layersInLevel = self.layersByLevel[ layer.level ];
-  var replaced = layer.replaces;
-  var index = layersInLevel.indexOf( replaced );
+  const self = this;
+  const layersInLevel = self.layersByLevel[ layer.level ];
+  const replaced = layer.replaces;
+  const index = layersInLevel.indexOf( replaced );
 
   // if the replaced layer is not in the active list for the level, then replacing
   // refs would be a mistake (i.e. overwriting the true active layer)
@@ -627,9 +627,9 @@ LTCp.applyLayerReplacement = function( layer ){
   layersInLevel[ index ] = layer; // replace level ref
 
   // replace refs in eles
-  for( var i = 0; i < layer.eles.length; i++ ){
-    var _p = layer.eles[i]._private;
-    var cache = _p.imgLayerCaches = _p.imgLayerCaches || {};
+  for (let i = 0; i < layer.eles.length; i++ ){
+    const _p = layer.eles[i]._private;
+    const cache = _p.imgLayerCaches = _p.imgLayerCaches || {};
 
     if( cache ){
       cache[ layer.level ] = layer;
@@ -642,7 +642,7 @@ LTCp.applyLayerReplacement = function( layer ){
 };
 
 LTCp.requestRedraw = util.debounce( function(){
-  var r = this.renderer;
+  const r = this.renderer;
 
   r.redrawHint( 'eles', true );
   r.redrawHint( 'drag', true );

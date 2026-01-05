@@ -1,10 +1,10 @@
 import * as util from '../util/index.mjs';
 import * as is from '../is.mjs';
 
-let corefn = ({
+const corefn = ({
 
   layout: function( options ){
-    let cy = this;
+    const cy = this;
 
     if( options == null ){
       util.error( 'Layout options must be specified to make a layout' );
@@ -16,8 +16,8 @@ let corefn = ({
       return;
     }
 
-    let name = options.name;
-    let Layout = cy.extension( 'layout', name );
+    const name = options.name;
+    const Layout = cy.extension( 'layout', name );
 
     if( Layout == null ){
       util.error( 'No such layout `' + name + '` found.  Did you forget to import it and `cytoscape.use()` it?' );
@@ -31,7 +31,7 @@ let corefn = ({
       eles = options.eles != null ? options.eles : cy.$();
     }
 
-    let layout = new Layout( util.extend( {}, options, {
+    const layout = new Layout( util.extend( {}, options, {
       cy: cy,
       eles: eles
     } ) );

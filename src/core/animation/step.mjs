@@ -4,13 +4,13 @@ import * as is from '../../is.mjs';
 import {bound} from '../../math.mjs';
 
 function step( self, ani, now, isCore ){
-  let isEles = !isCore;
-  let _p = self._private;
-  let ani_p = ani._private;
-  let pEasing = ani_p.easing;
-  let startTime = ani_p.startTime;
-  let cy = isCore ? self : self.cy();
-  let style = cy.style();
+  const isEles = !isCore;
+  const _p = self._private;
+  const ani_p = ani._private;
+  const pEasing = ani_p.easing;
+  const startTime = ani_p.startTime;
+  const cy = isCore ? self : self.cy();
+  const style = cy.style();
 
   if( !ani_p.easingImpl ){
 
@@ -21,7 +21,7 @@ function step( self, ani, now, isCore ){
       let easingVals;
 
       if( is.string( pEasing ) ){
-        let easingProp = style.parse( 'transition-timing-function', pEasing );
+        const easingProp = style.parse( 'transition-timing-function', pEasing );
 
         easingVals = easingProp.value;
 
@@ -52,7 +52,7 @@ function step( self, ani, now, isCore ){
 
   }
 
-  let easing = ani_p.easingImpl;
+  const easing = ani_p.easingImpl;
   let percent;
 
   if( ani_p.duration === 0 ){
@@ -73,11 +73,11 @@ function step( self, ani, now, isCore ){
 
   if( ani_p.delay == null ){ // then update
 
-    let startPos = ani_p.startPosition;
-    let endPos = ani_p.position;
+    const startPos = ani_p.startPosition;
+    const endPos = ani_p.position;
 
     if( endPos && isEles && !self.locked() ){
-      let newPos = {};
+      const newPos = {};
 
       if( valid( startPos.x, endPos.x ) ){
         newPos.x = ease( startPos.x, endPos.x, percent, easing );
@@ -90,10 +90,10 @@ function step( self, ani, now, isCore ){
       self.position( newPos );
     }
 
-    let startPan = ani_p.startPan;
-    let endPan = ani_p.pan;
-    let pan = _p.pan;
-    let animatingPan = endPan != null && isCore;
+    const startPan = ani_p.startPan;
+    const endPan = ani_p.pan;
+    const pan = _p.pan;
+    const animatingPan = endPan != null && isCore;
     if( animatingPan ){
       if( valid( startPan.x, endPan.x ) ){
         pan.x = ease( startPan.x, endPan.x, percent, easing );
@@ -106,9 +106,9 @@ function step( self, ani, now, isCore ){
       self.emit( 'pan' );
     }
 
-    let startZoom = ani_p.startZoom;
-    let endZoom = ani_p.zoom;
-    let animatingZoom = endZoom != null && isCore;
+    const startZoom = ani_p.startZoom;
+    const endZoom = ani_p.zoom;
+    const animatingZoom = endZoom != null && isCore;
     if( animatingZoom ){
       if( valid( startZoom, endZoom ) ){
         _p.zoom = bound( _p.minZoom, ease( startZoom, endZoom, percent, easing ), _p.maxZoom );
@@ -121,15 +121,15 @@ function step( self, ani, now, isCore ){
       self.emit( 'viewport' );
     }
 
-    let props = ani_p.style;
+    const props = ani_p.style;
     if( props && props.length > 0 && isEles ){
-      for( let i = 0; i < props.length; i++ ){
-        let prop = props[ i ];
-        let name = prop.name;
-        let end = prop;
-        let start = ani_p.startStyle[ name ];
-        let propSpec = style.properties[ start.name ];
-        let easedVal = ease( start, end, percent, easing, propSpec );
+      for (let i = 0; i < props.length; i++ ){
+        const prop = props[ i ];
+        const name = prop.name;
+        const end = prop;
+        const start = ani_p.startStyle[ name ];
+        const propSpec = style.properties[ start.name ];
+        const easedVal = ease( start, end, percent, easing, propSpec );
 
         style.overrideBypass( self, name, easedVal );
       } // for props

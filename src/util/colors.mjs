@@ -5,9 +5,9 @@ import * as regex from './regex.mjs';
 export const hex2tuple = hex => {
   if( !(hex.length === 4 || hex.length === 7) || hex[0] !== '#' ){ return; }
 
-  let shortHex = hex.length === 4;
+  const shortHex = hex.length === 4;
   let r, g, b;
-  let base = 16;
+  const base = 16;
 
   if( shortHex ){
     r = parseInt( hex[1] + hex[1], base );
@@ -35,7 +35,7 @@ export const hsl2tuple = hsl => {
     return p;
   }
 
-  let m = new RegExp( '^' + regex.hsla + '$' ).exec( hsl );
+  const m = new RegExp( '^' + regex.hsla + '$' ).exec( hsl );
   if( m ){
 
     // get hue
@@ -67,8 +67,8 @@ export const hsl2tuple = hsl => {
     if( s === 0 ){
       r = g = b = Math.round( l * 255 ); // achromatic
     } else {
-      let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      let p = 2 * l - q;
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
       r = Math.round( 255 * hue2rgb( p, q, h + 1 / 3 ) );
       g = Math.round( 255 * hue2rgb( p, q, h ) );
       b = Math.round( 255 * hue2rgb( p, q, h - 1 / 3 ) );
@@ -84,12 +84,12 @@ export const hsl2tuple = hsl => {
 export const rgb2tuple = rgb => {
   let ret;
 
-  let m = new RegExp( '^' + regex.rgba + '$' ).exec( rgb );
+  const m = new RegExp( '^' + regex.rgba + '$' ).exec( rgb );
   if( m ){
     ret = [];
 
-    let isPct = [];
-    for( let i = 1; i <= 3; i++ ){
+    const isPct = [];
+    for (let i = 1; i <= 3; i++ ){
       let channel = m[ i ];
 
       if( channel[ channel.length - 1 ] === '%' ){
@@ -106,11 +106,11 @@ export const rgb2tuple = rgb => {
       ret.push( Math.floor( channel ) );
     }
 
-    let atLeastOneIsPct = isPct[1] || isPct[2] || isPct[3];
-    let allArePct = isPct[1] && isPct[2] && isPct[3];
+    const atLeastOneIsPct = isPct[1] || isPct[2] || isPct[3];
+    const allArePct = isPct[1] && isPct[2] && isPct[3];
     if( atLeastOneIsPct && !allArePct ){ return; } // must all be percent values if one is
 
-    let alpha = m[4];
+    const alpha = m[4];
     if( alpha !== undefined ){
       alpha = parseFloat( alpha );
 

@@ -6,20 +6,20 @@ const defaults = util.defaults({
   directed: false
 });
 
-let elesfn = ({
+const elesfn = ({
 
   // Implemented from the algorithm in the paper "On Variants of Shortest-Path Betweenness Centrality and their Generic Computation" by Ulrik Brandes
   betweennessCentrality: function( options ){
     let { directed, weight } = defaults(options);
-    let weighted = weight != null;
-    let cy = this.cy();
+    const weighted = weight != null;
+    const cy = this.cy();
 
     // starting
-    let V = this.nodes();
-    let A = {};
-    let _C = {};
-    let max = 0;
-    let C = {
+    const V = this.nodes();
+    const A = {};
+    const _C = {};
+    const max = 0;
+    const C = {
       set: function( key, val ){
         _C[ key ] = val;
 
@@ -30,9 +30,9 @@ let elesfn = ({
     };
 
     // A contains the neighborhoods of every node
-    for( let i = 0; i < V.length; i++ ){
-      let v = V[ i ];
-      let vid = v.id();
+    for (let i = 0; i < V.length; i++ ){
+      const v = V[ i ];
+      const vid = v.id();
 
       if( directed ){
         A[ vid ] = v.outgoers().nodes(); // get outgoers of every node
@@ -43,19 +43,19 @@ let elesfn = ({
       C.set( vid, 0 );
     }
 
-    for( let s = 0; s < V.length; s++ ){
-      let sid = V[s].id();
-      let S = []; // stack
-      let P = {};
-      let g = {};
-      let d = {};
-      let Q = new Heap(function( a, b ){
+    for (let s = 0; s < V.length; s++ ){
+      const sid = V[s].id();
+      const S = []; // stack
+      const P = {};
+      const g = {};
+      const d = {};
+      const Q = new Heap(function( a, b ){
         return d[a] - d[b];
       }); // queue
 
       // init dictionaries
-      for( let i = 0; i < V.length; i++ ){
-        let vid = V[ i ].id();
+      for (let i = 0; i < V.length; i++ ){
+        const vid = V[ i ].id();
 
         P[ vid ] = [];
         g[ vid ] = 0;
@@ -68,14 +68,14 @@ let elesfn = ({
       Q.push( sid );
 
       while( !Q.empty() ){
-        let v = Q.pop();
+        const v = Q.pop();
 
         S.push( v );
 
         if( weighted ){
-          for( let j = 0; j < A[v].length; j++ ){
+          for (let j = 0; j < A[v].length; j++ ){
             let w = A[v][j];
-            let vEle = cy.getElementById( v );
+            const vEle = cy.getElementById( v );
 
             let edge;
             if( vEle.edgesTo( w ).length > 0 ){
@@ -84,7 +84,7 @@ let elesfn = ({
               edge = w.edgesTo( vEle )[0];
             }
 
-            let edgeWeight = weight( edge );
+            const edgeWeight = weight( edge );
 
             w = w.id();
 
@@ -107,8 +107,8 @@ let elesfn = ({
             }
           }
         } else {
-          for( let j = 0; j < A[v].length; j++ ){
-            let w = A[v][j].id();
+          for (let j = 0; j < A[v].length; j++ ){
+            const w = A[v][j].id();
 
             if( d[w] == Infinity ){
               Q.push( w );
@@ -124,16 +124,16 @@ let elesfn = ({
         }
       }
 
-      let e = {};
-      for( let i = 0; i < V.length; i++ ){
+      const e = {};
+      for (let i = 0; i < V.length; i++ ){
         e[ V[ i ].id() ] = 0;
       }
 
       while( S.length > 0 ){
-        let w = S.pop();
+        const w = S.pop();
 
-        for( let j = 0; j < P[w].length; j++ ){
-          let v = P[w][j];
+        for (let j = 0; j < P[w].length; j++ ){
+          const v = P[w][j];
 
           e[v] = e[v] + (g[v] / g[w]) * (1 + e[w]);
         }
@@ -144,9 +144,9 @@ let elesfn = ({
       }
     }
 
-    let ret = {
+    const ret = {
       betweenness: function( node ){
-        let id = cy.collection(node).id();
+        const id = cy.collection(node).id();
 
         return C.get( id );
       },
@@ -154,7 +154,7 @@ let elesfn = ({
       betweennessNormalized: function( node ){
         if ( max == 0 ){ return 0; }
 
-        let id = cy.collection(node).id();
+        const id = cy.collection(node).id();
 
         return C.get( id ) / max;
       }

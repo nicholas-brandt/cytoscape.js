@@ -1,6 +1,6 @@
 import define from '../define/index.mjs';
 
-let elesfn = ({
+const elesfn = ({
   animate: define.animate(),
   animation: define.animation(),
   animated: define.animated(),

@@ -1,8 +1,8 @@
 import Selector from '../selector/index.mjs';
 
-let elesfn = ({
+const elesfn = ({
   allAre: function( selector ){
-    let selObj = new Selector( selector );
+    const selObj = new Selector( selector );
 
     return this.every(function( ele ){
       return selObj.matches( ele );
@@ -10,7 +10,7 @@ let elesfn = ({
   },
 
   is: function( selector ){
-    let selObj = new Selector( selector );
+    const selObj = new Selector( selector );
 
     return this.some(function( ele ){
       return selObj.matches( ele );
@@ -18,8 +18,8 @@ let elesfn = ({
   },
 
   some: function( fn, thisArg ){
-    for( let i = 0; i < this.length; i++ ){
-      let ret = !thisArg ? fn( this[ i ], i, this ) : fn.apply( thisArg, [ this[ i ], i, this ] );
+    for (let i = 0; i < this.length; i++ ){
+      const ret = !thisArg ? fn( this[ i ], i, this ) : fn.apply( thisArg, [ this[ i ], i, this ] );
 
       if( ret ){
         return true;
@@ -30,8 +30,8 @@ let elesfn = ({
   },
 
   every: function( fn, thisArg ){
-    for( let i = 0; i < this.length; i++ ){
-      let ret = !thisArg ? fn( this[ i ], i, this ) : fn.apply( thisArg, [ this[ i ], i, this ] );
+    for (let i = 0; i < this.length; i++ ){
+      const ret = !thisArg ? fn( this[ i ], i, this ) : fn.apply( thisArg, [ this[ i ], i, this ] );
 
       if( !ret ){
         return false;
@@ -47,8 +47,8 @@ let elesfn = ({
 
     collection = this.cy().collection( collection );
 
-    let thisLength = this.length;
-    let collectionLength = collection.length;
+    const thisLength = this.length;
+    const collectionLength = collection.length;
 
     // cheap length check
     if( thisLength !== collectionLength ){ return false; }
@@ -72,7 +72,7 @@ let elesfn = ({
   allAreNeighbors: function( collection ){
     collection = this.cy().collection( collection );
 
-    let nhood = this.neighborhood();
+    const nhood = this.neighborhood();
 
     return collection.every(function( ele ){
       return nhood.hasElementWithId( ele.id() );
@@ -82,7 +82,7 @@ let elesfn = ({
   contains: function( collection ){
     collection = this.cy().collection( collection );
 
-    let self = this;
+    const self = this;
 
     return collection.every(function( ele ){
       return self.hasElementWithId( ele.id() );

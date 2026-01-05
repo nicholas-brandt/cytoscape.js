@@ -13,21 +13,21 @@ const FALSE = 'f';
 // - its bypass
 // - what selectors match it
 styfn.apply = function( eles ){
-  let self = this;
-  let _p = self._private;
-  let cy = _p.cy;
-  let updatedEles = cy.collection();
+  const self = this;
+  const _p = self._private;
+  const cy = _p.cy;
+  const updatedEles = cy.collection();
 
-  for( let ie = 0; ie < eles.length; ie++ ){
-    let ele = eles[ ie ];
-    let cxtMeta = self.getContextMeta( ele );
+  for (let ie = 0; ie < eles.length; ie++ ){
+    const ele = eles[ ie ];
+    const cxtMeta = self.getContextMeta( ele );
 
     if( cxtMeta.empty ){
       continue;
     }
 
-    let cxtStyle = self.getContextStyle( cxtMeta );
-    let app = self.applyContextStyle( cxtMeta, cxtStyle, ele );
+    const cxtStyle = self.getContextStyle( cxtMeta );
+    const app = self.applyContextStyle( cxtMeta, cxtStyle, ele );
 
     if( ele._private.appliedInitStyle ){
       self.updateTransitions( ele, app.diffProps );
@@ -35,7 +35,7 @@ styfn.apply = function( eles ){
       ele._private.appliedInitStyle = true;
     }
 
-    let hintsDiff = self.updateStyleHints( ele );
+    const hintsDiff = self.updateStyleHints( ele );
 
     if( hintsDiff ){
       updatedEles.push( ele );
@@ -47,24 +47,24 @@ styfn.apply = function( eles ){
 };
 
 styfn.getPropertiesDiff = function( oldCxtKey, newCxtKey ){
-  let self = this;
-  let cache = self._private.propDiffs = self._private.propDiffs || {};
-  let dualCxtKey = oldCxtKey + '-' + newCxtKey;
-  let cachedVal = cache[ dualCxtKey ];
+  const self = this;
+  const cache = self._private.propDiffs = self._private.propDiffs || {};
+  const dualCxtKey = oldCxtKey + '-' + newCxtKey;
+  const cachedVal = cache[ dualCxtKey ];
 
   if( cachedVal ){
     return cachedVal;
   }
 
-  let diffProps = [];
-  let addedProp = {};
+  const diffProps = [];
+  const addedProp = {};
 
-  for( let i = 0; i < self.length; i++ ){
-    let cxt = self[ i ];
-    let oldHasCxt = oldCxtKey[ i ] === TRUE;
-    let newHasCxt = newCxtKey[ i ] === TRUE;
-    let cxtHasDiffed = oldHasCxt !== newHasCxt;
-    let cxtHasMappedProps = cxt.mappedProperties.length > 0;
+  for (let i = 0; i < self.length; i++ ){
+    const cxt = self[ i ];
+    const oldHasCxt = oldCxtKey[ i ] === TRUE;
+    const newHasCxt = newCxtKey[ i ] === TRUE;
+    const cxtHasDiffed = oldHasCxt !== newHasCxt;
+    const cxtHasMappedProps = cxt.mappedProperties.length > 0;
 
     if( cxtHasDiffed || ( newHasCxt && cxtHasMappedProps )){
       let props;
@@ -77,17 +77,17 @@ styfn.getPropertiesDiff = function( oldCxtKey, newCxtKey ){
         props = cxt.mappedProperties; // only need to check mapped
       }
 
-      for( let j = 0; j < props.length; j++ ){
-        let prop = props[ j ];
-        let name = prop.name;
+      for (let j = 0; j < props.length; j++ ){
+        const prop = props[ j ];
+        const name = prop.name;
 
         // if a later context overrides this property, then the fact that this context has switched/diffed doesn't matter
         // (semi expensive check since it makes this function O(n^2) on context length, but worth it since overall result
         // is cached)
-        let laterCxtOverrides = false;
-        for( let k = i + 1; k < self.length; k++ ){
-          let laterCxt = self[ k ];
-          let hasLaterCxt = newCxtKey[ k ] === TRUE;
+        const laterCxtOverrides = false;
+        for (let k = i + 1; k < self.length; k++ ){
+          const laterCxt = self[ k ];
+          const hasLaterCxt = newCxtKey[ k ] === TRUE;
 
           if( !hasLaterCxt ){ continue; } // can't override unless the context is active
 
@@ -110,15 +110,15 @@ styfn.getPropertiesDiff = function( oldCxtKey, newCxtKey ){
 };
 
 styfn.getContextMeta = function( ele ){
-  let self = this;
-  let cxtKey = '';
+  const self = this;
+  const cxtKey = '';
   let diffProps;
-  let prevKey = ele._private.styleCxtKey || '';
+  const prevKey = ele._private.styleCxtKey || '';
 
   // get the cxt key
-  for( let i = 0; i < self.length; i++ ){
-    let context = self[ i ];
-    let contextSelectorMatches = context.selector && context.selector.matches( ele ); // NB: context.selector may be null for 'core'
+  for (let i = 0; i < self.length; i++ ){
+    const context = self[ i ];
+    const contextSelectorMatches = context.selector && context.selector.matches( ele ); // NB: context.selector may be null for 'core'
 
     if( contextSelectorMatches ){
       cxtKey += TRUE;
@@ -140,27 +140,27 @@ styfn.getContextMeta = function( ele ){
 
 // gets a computed ele style object based on matched contexts
 styfn.getContextStyle = function( cxtMeta ){
-  let cxtKey = cxtMeta.key;
-  let self = this;
-  let cxtStyles = this._private.contextStyles = this._private.contextStyles || {};
+  const cxtKey = cxtMeta.key;
+  const self = this;
+  const cxtStyles = this._private.contextStyles = this._private.contextStyles || {};
 
   // if already computed style, returned cached copy
   if( cxtStyles[ cxtKey ] ){ return cxtStyles[ cxtKey ]; }
 
-  let style = {
+  const style = {
     _private: {
       key: cxtKey
     }
   };
 
-  for( let i = 0; i < self.length; i++ ){
-    let cxt = self[ i ];
-    let hasCxt = cxtKey[ i ] === TRUE;
+  for (let i = 0; i < self.length; i++ ){
+    const cxt = self[ i ];
+    const hasCxt = cxtKey[ i ] === TRUE;
 
     if( !hasCxt ){ continue; }
 
-    for( let j = 0; j < cxt.properties.length; j++ ){
-      let prop = cxt.properties[ j ];
+    for (let j = 0; j < cxt.properties.length; j++ ){
+      const prop = cxt.properties[ j ];
 
       style[ prop.name ] = prop;
     }
@@ -171,15 +171,15 @@ styfn.getContextStyle = function( cxtMeta ){
 };
 
 styfn.applyContextStyle = function( cxtMeta, cxtStyle, ele ){
-  let self = this;
-  let diffProps = cxtMeta.diffPropNames;
-  let retDiffProps = {};
-  let types = self.types;
+  const self = this;
+  const diffProps = cxtMeta.diffPropNames;
+  const retDiffProps = {};
+  const types = self.types;
 
-  for( let i = 0; i < diffProps.length; i++ ){
-    let diffPropName = diffProps[ i ];
-    let cxtProp = cxtStyle[ diffPropName ];
-    let eleProp = ele.pstyle( diffPropName );
+  for (let i = 0; i < diffProps.length; i++ ){
+    const diffPropName = diffProps[ i ];
+    const cxtProp = cxtStyle[ diffPropName ];
+    const eleProp = ele.pstyle( diffPropName );
 
     if( !cxtProp ){ // no context prop means delete
       if( !eleProp ){
@@ -202,13 +202,13 @@ styfn.applyContextStyle = function( cxtMeta, cxtStyle, ele ){
       && eleProp.mapping != null // ele prop is a concrete value from from a mapper
       && eleProp.mapping.value === cxtProp.value // the current prop on the ele is a flat prop value for the function mapper
     ){ // NB don't write to cxtProp, as it's shared among eles (stored in stylesheet)
-      let mapping = eleProp.mapping; // can write to mapping, as it's a per-ele copy
-      let fnValue = mapping.fnValue = cxtProp.value( ele ); // temporarily cache the value in case of a miss
+      const mapping = eleProp.mapping; // can write to mapping, as it's a per-ele copy
+      const fnValue = mapping.fnValue = cxtProp.value( ele ); // temporarily cache the value in case of a miss
 
       if( fnValue === mapping.prevFnValue ){ continue; }
     }
 
-    let retDiffProp = retDiffProps[ diffPropName ] = {
+    const retDiffProp = retDiffProps[ diffPropName ] = {
       prev: eleProp
     };
 
@@ -227,42 +227,42 @@ styfn.applyContextStyle = function( cxtMeta, cxtStyle, ele ){
 };
 
 styfn.updateStyleHints = function(ele){
-  let _p = ele._private;
-  let self = this;
+  const _p = ele._private;
+  const self = this;
   let propNames = self.propertyGroupNames;
-  let propGrKeys = self.propertyGroupKeys;
-  let propHash = ( ele, propNames, seedKey ) => self.getPropertiesHash( ele, propNames, seedKey );
-  let oldStyleKey = _p.styleKey;
+  const propGrKeys = self.propertyGroupKeys;
+  const propHash = ( ele, propNames, seedKey ) => self.getPropertiesHash( ele, propNames, seedKey );
+  const oldStyleKey = _p.styleKey;
 
   if( ele.removed() ){ return false; }
 
-  let isNode = _p.group === 'nodes';
+  const isNode = _p.group === 'nodes';
 
   // get the style key hashes per prop group
   // but lazily -- only use non-default prop values to reduce the number of hashes
   //
 
-  let overriddenStyles = ele._private.style;
+  const overriddenStyles = ele._private.style;
 
   propNames = Object.keys( overriddenStyles );
 
-  for( let i = 0; i < propGrKeys.length; i++ ){
-    let grKey = propGrKeys[i];
+  for (let i = 0; i < propGrKeys.length; i++ ){
+    const grKey = propGrKeys[i];
 
     _p.styleKeys[ grKey ] = [ util.DEFAULT_HASH_SEED, util.DEFAULT_HASH_SEED_ALT ];
   }
 
-  let updateGrKey1 = (val, grKey) => _p.styleKeys[ grKey ][0] = util.hashInt( val, _p.styleKeys[ grKey ][0] );
-  let updateGrKey2 = (val, grKey) => _p.styleKeys[ grKey ][1] = util.hashIntAlt( val, _p.styleKeys[ grKey ][1] );
+  const updateGrKey1 = (val, grKey) => _p.styleKeys[ grKey ][0] = util.hashInt( val, _p.styleKeys[ grKey ][0] );
+  const updateGrKey2 = (val, grKey) => _p.styleKeys[ grKey ][1] = util.hashIntAlt( val, _p.styleKeys[ grKey ][1] );
 
-  let updateGrKey = (val, grKey) => {
+  const updateGrKey = (val, grKey) => {
     updateGrKey1(val, grKey);
     updateGrKey2(val, grKey);
   };
 
-  let updateGrKeyWStr = (strVal, grKey) => {
-    for( let j = 0; j < strVal.length; j++ ){
-      let ch = strVal.charCodeAt(j);
+  const updateGrKeyWStr = (strVal, grKey) => {
+    for (let j = 0; j < strVal.length; j++ ){
+      const ch = strVal.charCodeAt(j);
 
       updateGrKey1(ch, grKey);
       updateGrKey2(ch, grKey);
@@ -274,18 +274,18 @@ styfn.updateStyleHints = function(ele){
   // - raise up small numbers so more significant digits are seen by hashing
   // - make small numbers larger than a normal value to avoid collisions
   // - works in practice and it's relatively cheap
-  let N = 2000000000;
-  let cleanNum = val => (-128 < val && val < 128) && Math.floor(val) !== val ? N - ((val * 1024) | 0) : val;
+  const N = 2000000000;
+  const cleanNum = val => (-128 < val && val < 128) && Math.floor(val) !== val ? N - ((val * 1024) | 0) : val;
 
-  for( let i = 0; i < propNames.length; i++ ){
-    let name = propNames[i];
-    let parsedProp = overriddenStyles[ name ];
+  for (let i = 0; i < propNames.length; i++ ){
+    const name = propNames[i];
+    const parsedProp = overriddenStyles[ name ];
 
     if( parsedProp == null ){ continue; }
 
-    let propInfo = this.properties[name];
-    let type = propInfo.type;
-    let grKey = propInfo.groupKey;
+    const propInfo = this.properties[name];
+    const type = propInfo.type;
+    const grKey = propInfo.groupKey;
     let normalizedNumberVal;
 
     if( propInfo.hashOverride != null ){
@@ -295,16 +295,16 @@ styfn.updateStyleHints = function(ele){
     }
 
     // might not be a number if it allows enums
-    let numberVal = propInfo.enums == null ? parsedProp.value : null;
-    let haveNormNum = normalizedNumberVal != null;
-    let haveUnitedNum = numberVal != null;
-    let haveNum = haveNormNum || haveUnitedNum;
-    let units = parsedProp.units;
+    const numberVal = propInfo.enums == null ? parsedProp.value : null;
+    const haveNormNum = normalizedNumberVal != null;
+    const haveUnitedNum = numberVal != null;
+    const haveNum = haveNormNum || haveUnitedNum;
+    const units = parsedProp.units;
 
     // numbers are cheaper to hash than strings
     // 1 hash op vs n hash ops (for length n string)
     if( type.number && haveNum && !type.multiple ){
-      let v = haveNormNum ? normalizedNumberVal : numberVal;
+      const v = haveNormNum ? normalizedNumberVal : numberVal;
 
       updateGrKey(cleanNum(v), grKey);
 
@@ -319,11 +319,11 @@ styfn.updateStyleHints = function(ele){
   // overall style key
   //
 
-  let hash = [ util.DEFAULT_HASH_SEED, util.DEFAULT_HASH_SEED_ALT ];
+  const hash = [ util.DEFAULT_HASH_SEED, util.DEFAULT_HASH_SEED_ALT ];
 
-  for( let i = 0; i < propGrKeys.length; i++ ){
-    let grKey = propGrKeys[i];
-    let grHash = _p.styleKeys[ grKey ];
+  for (let i = 0; i < propGrKeys.length; i++ ){
+    const grKey = propGrKeys[i];
+    const grHash = _p.styleKeys[ grKey ];
 
     hash[0] = util.hashInt( grHash[0], hash[0] );
     hash[1] = util.hashIntAlt( grHash[1], hash[1] );
@@ -334,21 +334,21 @@ styfn.updateStyleHints = function(ele){
   // label dims
   //
 
-  let sk = _p.styleKeys;
+  const sk = _p.styleKeys;
   
   _p.labelDimsKey = util.combineHashesArray(sk.labelDimensions);
 
-  let labelKeys = propHash( ele, ['label'], sk.labelDimensions );
+  const labelKeys = propHash( ele, ['label'], sk.labelDimensions );
   
   _p.labelKey = util.combineHashesArray(labelKeys);
   _p.labelStyleKey = util.combineHashesArray(util.hashArrays(sk.commonLabel, labelKeys));
 
   if( !isNode ){
-    let sourceLabelKeys = propHash( ele, ['source-label'], sk.labelDimensions );
+    const sourceLabelKeys = propHash( ele, ['source-label'], sk.labelDimensions );
     _p.sourceLabelKey = util.combineHashesArray(sourceLabelKeys);
     _p.sourceLabelStyleKey = util.combineHashesArray(util.hashArrays(sk.commonLabel, sourceLabelKeys));
 
-    let targetLabelKeys = propHash( ele, ['target-label'], sk.labelDimensions );
+    const targetLabelKeys = propHash( ele, ['target-label'], sk.labelDimensions );
     _p.targetLabelKey = util.combineHashesArray(targetLabelKeys);
     _p.targetLabelStyleKey = util.combineHashesArray(util.hashArrays(sk.commonLabel, targetLabelKeys));
   }
@@ -359,7 +359,7 @@ styfn.updateStyleHints = function(ele){
   if( isNode ){
     let { nodeBody, nodeBorder, nodeOutline, backgroundImage, compound, pie, stripe } = _p.styleKeys;
 
-    let nodeKeys = [ nodeBody, nodeBorder, nodeOutline, backgroundImage, compound, pie, stripe ].filter(k => k != null).reduce(util.hashArrays, [
+    const nodeKeys = [ nodeBody, nodeBorder, nodeOutline, backgroundImage, compound, pie, stripe ].filter(k => k != null).reduce(util.hashArrays, [
       util.DEFAULT_HASH_SEED,
       util.DEFAULT_HASH_SEED_ALT
     ]);
@@ -374,7 +374,7 @@ styfn.updateStyleHints = function(ele){
 };
 
 styfn.clearStyleHints = function(ele){
-  let _p = ele._private;
+  const _p = ele._private;
 
   _p.styleCxtKey = '';
   _p.styleKeys = {};
@@ -407,19 +407,19 @@ styfn.clearStyleHints = function(ele){
 // for parsedProp:{ bypass: true }
 // the generated flattenedProp:{ bypassed: parsedProp }
 styfn.applyParsedProperty = function( ele, parsedProp ){
-  let self = this;
-  let prop = parsedProp;
-  let style = ele._private.style;
+  const self = this;
+  const prop = parsedProp;
+  const style = ele._private.style;
   let flatProp;
-  let types = self.types;
-  let type = self.properties[ prop.name ].type;
-  let propIsBypass = prop.bypass;
-  let origProp = style[ prop.name ];
-  let origPropIsBypass = origProp && origProp.bypass;
-  let _p = ele._private;
-  let flatPropMapping = 'mapping';
+  const types = self.types;
+  const type = self.properties[ prop.name ].type;
+  const propIsBypass = prop.bypass;
+  const origProp = style[ prop.name ];
+  const origPropIsBypass = origProp && origProp.bypass;
+  const _p = ele._private;
+  const flatPropMapping = 'mapping';
 
-  let getVal = p => {
+  const getVal = p => {
     if( p == null ){
       return null;
     } else if( p.pfValue != null ){
@@ -429,9 +429,9 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
     }
   };
 
-  let checkTriggers = () => {
-    let fromVal = getVal(origProp);
-    let toVal = getVal(prop);
+  const checkTriggers = () => {
+    const fromVal = getVal(origProp);
+    const toVal = getVal(prop);
 
     self.checkTriggers( ele, prop.name, fromVal, toVal );
   };
@@ -499,7 +499,7 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
     }
   }
 
-  let printMappingErr = function(){
+  const printMappingErr = function(){
     util.warn( 'Do not assign mappings to elements without corresponding data (i.e. ele `' + ele.id() + '` has no mapping for property `' + prop.name + '` with data field `' + prop.field + '`); try a `[' + prop.field + ']` selector to limit scope to elements with `' + prop.field + '` defined' );
   };
 
@@ -507,11 +507,11 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
   switch( prop.mapped ){ // flatten the property if mapped
   case types.mapData: {
     // flatten the field (e.g. data.foo.bar)
-    let fields = prop.field.split( '.' );
-    let fieldVal = _p.data;
+    const fields = prop.field.split( '.' );
+    const fieldVal = _p.data;
 
-    for( let i = 0; i < fields.length && fieldVal; i++ ){
-      let field = fields[ i ];
+    for (let i = 0; i < fields.length && fieldVal; i++ ){
+      const field = fields[ i ];
       fieldVal = fieldVal[ field ];
     }
 
@@ -525,7 +525,7 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
       util.warn('Do not use continuous mappers without specifying numeric data (i.e. `' + prop.field + ': ' + fieldVal + '` for `' + ele.id() + '` is non-numeric)');
       return false;
     } else {
-      let fieldWidth = prop.fieldMax - prop.fieldMin;
+      const fieldWidth = prop.fieldMax - prop.fieldMin;
 
       if( fieldWidth === 0 ){ // safety check -- not strictly necessary as no props of zero range should be passed here
         percent = 0;
@@ -542,16 +542,16 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
     }
 
     if( type.color ){
-      let r1 = prop.valueMin[0];
-      let r2 = prop.valueMax[0];
-      let g1 = prop.valueMin[1];
-      let g2 = prop.valueMax[1];
-      let b1 = prop.valueMin[2];
-      let b2 = prop.valueMax[2];
-      let a1 = prop.valueMin[3] == null ? 1 : prop.valueMin[3];
-      let a2 = prop.valueMax[3] == null ? 1 : prop.valueMax[3];
+      const r1 = prop.valueMin[0];
+      const r2 = prop.valueMax[0];
+      const g1 = prop.valueMin[1];
+      const g2 = prop.valueMax[1];
+      const b1 = prop.valueMin[2];
+      const b2 = prop.valueMax[2];
+      const a1 = prop.valueMin[3] == null ? 1 : prop.valueMin[3];
+      const a2 = prop.valueMax[3] == null ? 1 : prop.valueMax[3];
 
-      let clr = [
+      const clr = [
         Math.round( r1 + (r2 - r1) * percent ),
         Math.round( g1 + (g2 - g1) * percent ),
         Math.round( b1 + (b2 - b1) * percent ),
@@ -566,7 +566,7 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
       };
 
     } else if( type.number ){
-      let calcValue = prop.valueMin + (prop.valueMax - prop.valueMin) * percent;
+      const calcValue = prop.valueMin + (prop.valueMax - prop.valueMin) * percent;
       flatProp = this.parse( prop.name, calcValue, prop.bypass, flatPropMapping );
 
     } else {
@@ -587,11 +587,11 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
   // direct mapping
   case types.data: {
     // flatten the field (e.g. data.foo.bar)
-    let fields = prop.field.split( '.' );
-    let fieldVal = _p.data;
+    const fields = prop.field.split( '.' );
+    const fieldVal = _p.data;
 
-    for( let i = 0; i < fields.length && fieldVal; i++ ){
-      let field = fields[ i ];
+    for (let i = 0; i < fields.length && fieldVal; i++ ){
+      const field = fields[ i ];
       fieldVal = fieldVal[ field ];
     }
 
@@ -611,8 +611,8 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
   }
 
   case types.fn: {
-    let fn = prop.value;
-    let fnRetVal = prop.fnValue != null ? prop.fnValue : fn( ele ); // check for cached value before calling function
+    const fn = prop.value;
+    const fnRetVal = prop.fnValue != null ? prop.fnValue : fn( ele ); // check for cached value before calling function
 
     prop.prevFnValue = fnRetVal;
 
@@ -665,8 +665,8 @@ styfn.applyParsedProperty = function( ele, parsedProp ){
 };
 
 styfn.cleanElements = function( eles, keepBypasses ){
-  for( let i = 0; i < eles.length; i++ ){
-    let ele = eles[i];
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[i];
 
     this.clearStyleHints(ele);
 
@@ -676,12 +676,12 @@ styfn.cleanElements = function( eles, keepBypasses ){
     if( !keepBypasses ){
       ele._private.style = {};
     } else {
-      let style = ele._private.style;
-      let propNames = Object.keys(style);
+      const style = ele._private.style;
+      const propNames = Object.keys(style);
 
-      for( let j = 0; j < propNames.length; j++ ){
-        let propName = propNames[j];
-        let eleProp = style[ propName ];
+      for (let j = 0; j < propNames.length; j++ ){
+        const propName = propNames[j];
+        const eleProp = style[ propName ];
 
         if( eleProp != null ){
           if( eleProp.bypass ){
@@ -697,39 +697,39 @@ styfn.cleanElements = function( eles, keepBypasses ){
 
 // updates the visual style for all elements (useful for manual style modification after init)
 styfn.update = function(){
-  let cy = this._private.cy;
-  let eles = cy.mutableElements();
+  const cy = this._private.cy;
+  const eles = cy.mutableElements();
 
   eles.updateStyle();
 };
 
 // diffProps : { name => { prev, next } }
 styfn.updateTransitions = function( ele, diffProps ){
-  let self = this;
-  let _p = ele._private;
-  let props = ele.pstyle( 'transition-property' ).value;
-  let duration = ele.pstyle( 'transition-duration' ).pfValue;
-  let delay = ele.pstyle( 'transition-delay' ).pfValue;
+  const self = this;
+  const _p = ele._private;
+  const props = ele.pstyle( 'transition-property' ).value;
+  const duration = ele.pstyle( 'transition-duration' ).pfValue;
+  const delay = ele.pstyle( 'transition-delay' ).pfValue;
 
   if( props.length > 0 && duration > 0 ){
 
-    let style = {};
+    const style = {};
 
     // build up the style to animate towards
-    let anyPrev = false;
-    for( let i = 0; i < props.length; i++ ){
-      let prop = props[ i ];
-      let styProp = ele.pstyle( prop );
-      let diffProp = diffProps[ prop ];
+    const anyPrev = false;
+    for (let i = 0; i < props.length; i++ ){
+      const prop = props[ i ];
+      const styProp = ele.pstyle( prop );
+      const diffProp = diffProps[ prop ];
 
       if( !diffProp ){ continue; }
 
-      let prevProp = diffProp.prev;
-      let fromProp = prevProp;
-      let toProp = diffProp.next != null ? diffProp.next : styProp;
-      let diff = false;
+      const prevProp = diffProp.prev;
+      const fromProp = prevProp;
+      const toProp = diffProp.next != null ? diffProp.next : styProp;
+      const diff = false;
       let initVal;
-      let initDt = 0.000001; // delta time % value for initVal (allows animating out of init zero opacity)
+      const initDt = 0.000001; // delta time % value for initVal (allows animating out of init zero opacity)
 
       if( !fromProp ){ continue; }
 
@@ -798,8 +798,8 @@ styfn.updateTransitions = function( ele, diffProps ){
 };
 
 styfn.checkTrigger = function( ele, name, fromValue, toValue, getTrigger, onTrigger ){
-  let prop = this.properties[ name ];
-  let triggerCheck = getTrigger( prop );
+  const prop = this.properties[ name ];
+  const triggerCheck = getTrigger( prop );
 
   if (ele.removed()) { return; }
 

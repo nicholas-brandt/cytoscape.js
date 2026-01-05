@@ -1,11 +1,11 @@
-let corefn = ({
+const corefn = ({
   notify: function( eventName, eventEles ){
-    let _p = this._private;
+    const _p = this._private;
 
     if( this.batching() ){
       _p.batchNotifications = _p.batchNotifications || {};
 
-      let eles = _p.batchNotifications[ eventName ] = _p.batchNotifications[ eventName ] || this.collection();
+      const eles = _p.batchNotifications[ eventName ] = _p.batchNotifications[ eventName ] || this.collection();
 
       if( eventEles != null ){
         eles.merge( eventEles );
@@ -16,7 +16,7 @@ let corefn = ({
 
     if( !_p.notificationsEnabled ){ return; } // exit on disabled
 
-    let renderer = this.renderer();
+    const renderer = this.renderer();
 
     // exit if destroy() called on core or renderer in between frames #1499 #1528
     if( this.destroyed() || !renderer ){ return; }
@@ -25,7 +25,7 @@ let corefn = ({
   },
 
   notifications: function( bool ){
-    let p = this._private;
+    const p = this._private;
 
     if( bool === undefined ){
       return p.notificationsEnabled;
@@ -47,7 +47,7 @@ let corefn = ({
   },
 
   startBatch: function(){
-    let _p = this._private;
+    const _p = this._private;
 
     if( _p.batchCount == null ){
       _p.batchCount = 0;
@@ -64,7 +64,7 @@ let corefn = ({
   },
 
   endBatch: function(){
-    let _p = this._private;
+    const _p = this._private;
 
     if( _p.batchCount === 0 ){ return this; }
 
@@ -74,11 +74,11 @@ let corefn = ({
       // update style for dirty eles
       _p.batchStyleEles.updateStyle();
 
-      let renderer = this.renderer();
+      const renderer = this.renderer();
 
       // notify the renderer of queued eles and event types
       Object.keys( _p.batchNotifications ).forEach( eventName => {
-        let eles = _p.batchNotifications[eventName];
+        const eles = _p.batchNotifications[eventName];
 
         if( eles.empty() ){
           renderer.notify( eventName );
@@ -101,15 +101,15 @@ let corefn = ({
 
   // for backwards compatibility
   batchData: function( map ){
-    let cy = this;
+    const cy = this;
 
     return this.batch( function(){
-      let ids = Object.keys( map );
+      const ids = Object.keys( map );
 
-      for( let i = 0; i < ids.length; i++ ){
-        let id = ids[i];
-        let data = map[ id ];
-        let ele = cy.getElementById( id );
+      for (let i = 0; i < ids.length; i++ ){
+        const id = ids[i];
+        const data = map[ id ];
+        const ele = cy.getElementById( id );
 
         ele.data( data );
       }

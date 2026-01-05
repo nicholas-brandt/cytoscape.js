@@ -6,7 +6,7 @@ const getLayoutDimensionOptions = util.defaults({
   nodeDimensionsIncludeLabels: false
 });
 
-let elesfn = ({
+const elesfn = ({
   // Calculates and returns node dimensions { x, y } based on options given
   layoutDimensions: function( options ){
     options = getLayoutDimensionOptions( options );
@@ -16,7 +16,7 @@ let elesfn = ({
     if( !this.takesUpSpace() ){
       dims = { w: 0, h: 0 };
     } else if( options.nodeDimensionsIncludeLabels ){
-      let bbDim = this.boundingBox();
+      const bbDim = this.boundingBox();
 
       dims = {
         w: bbDim.w,
@@ -39,23 +39,23 @@ let elesfn = ({
 
   // using standard layout options, apply position function (w/ or w/o animation)
   layoutPositions: function( layout, options, fn ){
-    let nodes = this.nodes().filter(n => !n.isParent());
-    let cy = this.cy();
-    let layoutEles = options.eles; // nodes & edges
-    let getMemoizeKey = node => node.id();
-    let fnMem = util.memoize( fn, getMemoizeKey ); // memoized version of position function
+    const nodes = this.nodes().filter(n => !n.isParent());
+    const cy = this.cy();
+    const layoutEles = options.eles; // nodes & edges
+    const getMemoizeKey = node => node.id();
+    const fnMem = util.memoize( fn, getMemoizeKey ); // memoized version of position function
 
     layout.emit( { type: 'layoutstart', layout: layout } );
 
     layout.animations = [];
 
-    let calculateSpacing = function( spacing, nodesBb, pos ){
-      let center = {
+    const calculateSpacing = function( spacing, nodesBb, pos ){
+      const center = {
         x: nodesBb.x1 + nodesBb.w / 2,
         y: nodesBb.y1 + nodesBb.h / 2
       };
 
-      let spacingVector = { // scale from center of bounding box (not necessarily 0,0)
+      const spacingVector = { // scale from center of bounding box (not necessarily 0,0)
         x: (pos.x - center.x) * spacing,
         y: (pos.y - center.y) * spacing
       };
@@ -66,16 +66,16 @@ let elesfn = ({
       };
     };
 
-    let useSpacingFactor = options.spacingFactor && options.spacingFactor !== 1;
+    const useSpacingFactor = options.spacingFactor && options.spacingFactor !== 1;
 
-    let spacingBb = function(){
+    const spacingBb = function(){
       if( !useSpacingFactor ){ return null; }
 
-      let bb = math.makeBoundingBox();
+      const bb = math.makeBoundingBox();
 
-      for( let i = 0; i < nodes.length; i++ ){
-        let node = nodes[i];
-        let pos = fnMem( node, i );
+      for (let i = 0; i < nodes.length; i++ ){
+        const node = nodes[i];
+        const pos = fnMem( node, i );
 
         math.expandBoundingBoxByPoint( bb, pos.x, pos.y );
       }
@@ -83,13 +83,13 @@ let elesfn = ({
       return bb;
     };
 
-    let bb = spacingBb();
+    const bb = spacingBb();
 
-    let getFinalPos = util.memoize( function( node, i ){
-      let newPos = fnMem( node, i );
+    const getFinalPos = util.memoize( function( node, i ){
+      const newPos = fnMem( node, i );
 
       if( useSpacingFactor ){
-        let spacing = Math.abs( options.spacingFactor );
+        const spacing = Math.abs( options.spacingFactor );
 
         newPos = calculateSpacing( spacing, bb, newPos );
       }
@@ -102,13 +102,13 @@ let elesfn = ({
     }, getMemoizeKey );
 
     if( options.animate ){
-      for( let i = 0; i < nodes.length; i++ ){
-        let node = nodes[ i ];
-        let newPos = getFinalPos( node, i );
-        let animateNode = options.animateFilter == null || options.animateFilter( node, i );
+      for (let i = 0; i < nodes.length; i++ ){
+        const node = nodes[ i ];
+        const newPos = getFinalPos( node, i );
+        const animateNode = options.animateFilter == null || options.animateFilter( node, i );
 
         if( animateNode ){
-          let ani = node.animation( {
+          const ani = node.animation( {
             position: newPos,
             duration: options.animationDuration,
             easing: options.animationEasing
@@ -122,7 +122,7 @@ let elesfn = ({
       }
 
       if( options.fit ){
-        let fitAni = cy.animation({
+        const fitAni = cy.animation({
           fit: {
             boundingBox: layoutEles.boundingBoxAt( getFinalPos ),
             padding: options.padding
@@ -133,7 +133,7 @@ let elesfn = ({
 
         layout.animations.push( fitAni );
       } else if( options.zoom !== undefined && options.pan !== undefined ){
-        let zoomPanAni = cy.animation({
+        const zoomPanAni = cy.animation({
           zoom: options.zoom,
           pan: options.pan,
           duration: options.animationDuration,
@@ -181,7 +181,7 @@ let elesfn = ({
   },
 
   layout: function( options ){
-    let cy = this.cy();
+    const cy = this.cy();
 
     return cy.makeLayout( util.extend( {}, options, {
       eles: this

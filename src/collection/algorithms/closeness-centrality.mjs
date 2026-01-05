@@ -13,20 +13,20 @@ const elesfn = ({
   closenessCentralityNormalized: function( options ){
     let { harmonic, weight, directed } = defaults(options);
 
-    let cy = this.cy();
-    let closenesses = {};
-    let maxCloseness = 0;
-    let nodes = this.nodes();
-    let fw = this.floydWarshall({ weight, directed });
+    const cy = this.cy();
+    const closenesses = {};
+    const maxCloseness = 0;
+    const nodes = this.nodes();
+    const fw = this.floydWarshall({ weight, directed });
 
     // Compute closeness for every node and find the maximum closeness
-    for( let i = 0; i < nodes.length; i++ ){
-      let currCloseness = 0;
-      let node_i = nodes[i];
+    for (let i = 0; i < nodes.length; i++ ){
+      const currCloseness = 0;
+      const node_i = nodes[i];
 
-      for( let j = 0; j < nodes.length; j++ ){
+      for (let j = 0; j < nodes.length; j++ ){
         if( i !== j ){
-          let d = fw.distance( node_i, nodes[j] );
+          const d = fw.distance( node_i, nodes[j] );
 
           if( harmonic ){
             currCloseness += 1 / d;
@@ -71,15 +71,15 @@ const elesfn = ({
     root = this.filter(root)[0];
 
     // we need distance from this node to every other node
-    let dijkstra = this.dijkstra({ root, weight, directed });
-    let totalDistance = 0;
-    let nodes = this.nodes();
+    const dijkstra = this.dijkstra({ root, weight, directed });
+    const totalDistance = 0;
+    const nodes = this.nodes();
 
-    for( let i = 0; i < nodes.length; i++ ){
-      let n = nodes[i];
+    for (let i = 0; i < nodes.length; i++ ){
+      const n = nodes[i];
 
       if( !n.same(root) ){
-        let d = dijkstra.distanceTo(n);
+        const d = dijkstra.distanceTo(n);
 
         if( harmonic ){
           totalDistance += 1 / d;

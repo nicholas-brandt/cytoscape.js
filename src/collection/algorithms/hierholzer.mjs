@@ -6,30 +6,30 @@ const hierholzerDefaults = defaults({
   directed: false
 });
 
-let elesfn = ({
+const elesfn = ({
   hierholzer: function( options ){
     if (!is.plainObject(options)) {
-      let args = arguments;
+      const args = arguments;
       options = { root: args[0],   directed: args[1] };
     }
     let { root, directed } = hierholzerDefaults(options);
-    let eles = this;
-    let dflag = false;
+    const eles = this;
+    const dflag = false;
     let oddIn;
     let oddOut;
     let startVertex;
     if (root) startVertex = is.string(root) ? this.filter(root)[0].id() : root[0].id();
-    let nodes = {};
-    let edges = {};
+    const nodes = {};
+    const edges = {};
 
     if (directed) {
       eles.forEach(function(ele){
-        let id = ele.id();
+        const id = ele.id();
         if(ele.isNode()) {
-          let ind = ele.indegree(true);
-          let outd = ele.outdegree(true);
-          let d1 = ind - outd;
-          let d2 = outd - ind;
+          const ind = ele.indegree(true);
+          const outd = ele.outdegree(true);
+          const d1 = ind - outd;
+          const d2 = outd - ind;
           if (d1 == 1) {
             if (oddIn) dflag = true;
             else oddIn = id;
@@ -49,9 +49,9 @@ let elesfn = ({
       });
     } else {
       eles.forEach(function(ele){
-        let id = ele.id();
+        const id = ele.id();
         if(ele.isNode()) {
-          let d = ele.degree(true);
+          const d = ele.degree(true);
           if (d%2) {
             if (!oddIn) oddIn = id;
             else if (!oddOut) oddOut = id;
@@ -65,7 +65,7 @@ let elesfn = ({
       });
     }
 
-    let result = {
+    const result = {
       found: false,
       trail: undefined
     };
@@ -89,8 +89,8 @@ let elesfn = ({
     }
 
     const walk = (v) => {
-      let currentNode = v;
-      let subtour = [v];
+      const currentNode = v;
+      const subtour = [v];
       let adj, adjTail, adjHead;
       while (nodes[currentNode].length) {
         adj = nodes[currentNode].shift();
@@ -109,7 +109,7 @@ let elesfn = ({
       return subtour;
     };
 
-    let trail = [];
+    const trail = [];
     let subtour = [];
     subtour = walk(startVertex);
     while (subtour.length != 1) {
@@ -122,7 +122,7 @@ let elesfn = ({
     }
     trail.unshift(eles.getElementById(subtour.shift())); // final node
 
-    for (let d in nodes) {
+    for (const d in nodes) {
       if (nodes[d].length) {
         return result;
       }

@@ -30,13 +30,13 @@ const defaults = {
   context: null
 };
 
-let defaultsKeys = Object.keys( defaults );
-let emptyOpts = {};
+const defaultsKeys = Object.keys( defaults );
+const emptyOpts = {};
 
 function Emitter( opts = emptyOpts, context ){
   // micro-optimisation vs Object.assign() -- reduces Element instantiation time
-  for( let i = 0; i < defaultsKeys.length; i++ ){
-    let key = defaultsKeys[i];
+  for (let i = 0; i < defaultsKeys.length; i++ ){
+    const key = defaultsKeys[i];
 
     this[key] = opts[key] || defaults[key];
   }
@@ -46,9 +46,9 @@ function Emitter( opts = emptyOpts, context ){
   this.emitting = 0;
 }
 
-let p = Emitter.prototype;
+const p = Emitter.prototype;
 
-let forEachEvent = function( self, handler, events, qualifier, callback, conf, confOverrides ){
+const forEachEvent = function( self, handler, events, qualifier, callback, conf, confOverrides ){
   if( is.fn( qualifier ) ){
     callback = qualifier;
     qualifier = null;
@@ -62,32 +62,32 @@ let forEachEvent = function( self, handler, events, qualifier, callback, conf, c
     }
   }
 
-  let eventList = is.array(events) ? events : events.split(/\s+/);
+  const eventList = is.array(events) ? events : events.split(/\s+/);
 
-  for( let i = 0; i < eventList.length; i++ ){
-    let evt = eventList[i];
+  for (let i = 0; i < eventList.length; i++ ){
+    const evt = eventList[i];
 
     if( is.emptyString( evt ) ){ continue; }
 
-    let match = evt.match( eventRegex ); // type[.namespace]
+    const match = evt.match( eventRegex ); // type[.namespace]
 
     if( match ){
-      let type = match[1];
-      let namespace = match[2] ? match[2] : null;
-      let ret = handler( self, evt, type, namespace, qualifier, callback, conf );
+      const type = match[1];
+      const namespace = match[2] ? match[2] : null;
+      const ret = handler( self, evt, type, namespace, qualifier, callback, conf );
 
       if( ret === false ){ break; } // allow exiting early
     }
   }
 };
 
-let makeEventObj = function( self, obj ){
+const makeEventObj = function( self, obj ){
   self.addEventFields( self.context, obj );
 
   return new Event( obj.type, obj );
 };
 
-let forEachEventObj = function( self, handler, events ){
+const forEachEventObj = function( self, handler, events ){
   if( is.event( events ) ){
     handler( self, events );
 
@@ -98,19 +98,19 @@ let forEachEventObj = function( self, handler, events ){
     return;
   }
 
-  let eventList = is.array(events) ? events : events.split(/\s+/);
+  const eventList = is.array(events) ? events : events.split(/\s+/);
 
-  for( let i = 0; i < eventList.length; i++ ){
-    let evt = eventList[i];
+  for (let i = 0; i < eventList.length; i++ ){
+    const evt = eventList[i];
 
     if( is.emptyString( evt ) ){ continue; }
 
-    let match = evt.match( eventRegex ); // type[.namespace]
+    const match = evt.match( eventRegex ); // type[.namespace]
 
     if( match ){
-      let type = match[1];
-      let namespace = match[2] ? match[2] : null;
-      let eventObj = makeEventObj( self, {
+      const type = match[1];
+      const namespace = match[2] ? match[2] : null;
+      const eventObj = makeEventObj( self, {
         type: type,
         namespace: namespace,
         target: self.context
@@ -147,10 +147,10 @@ p.removeListener = p.off = function( events, qualifier, callback, conf ){
     this.listeners = util.copyArray( this.listeners );
   }
 
-  let listeners = this.listeners;
+  const listeners = this.listeners;
 
-  for( let i = listeners.length - 1; i >= 0; i-- ){
-    let listener = listeners[i];
+  for (let i = listeners.length - 1; i >= 0; i-- ){
+    const listener = listeners[i];
 
     forEachEvent( this, function( self, event, type, namespace, qualifier, callback/*, conf*/ ){
       if(
@@ -174,8 +174,8 @@ p.removeAllListeners = function(){
 };
 
 p.emit = p.trigger = function( events, extraParams, manualCallback ){
-  let listeners = this.listeners;
-  let numListenersBeforeEmit = listeners.length;
+  const listeners = this.listeners;
+  const numListenersBeforeEmit = listeners.length;
 
   this.emitting++;
 
@@ -195,15 +195,15 @@ p.emit = p.trigger = function( events, extraParams, manualCallback ){
       numListenersBeforeEmit = listeners.length;
     }
 
-    for( let i = 0; i < numListenersBeforeEmit; i++ ){
-      let listener = listeners[i];
+    for (let i = 0; i < numListenersBeforeEmit; i++ ){
+      const listener = listeners[i];
 
       if(
         ( listener.type === eventObj.type ) &&
         ( !listener.namespace || listener.namespace === eventObj.namespace || listener.namespace === universalNamespace ) &&
         ( self.eventMatches( self.context, listener, eventObj ) )
       ){
-        let args = [ eventObj ];
+        const args = [ eventObj ];
 
         if( extraParams != null ){
           util.push( args, extraParams );
@@ -215,8 +215,8 @@ p.emit = p.trigger = function( events, extraParams, manualCallback ){
           self.listeners = self.listeners.filter( l => l !== listener );
         }
 
-        let context = self.callbackContext( self.context, listener, eventObj );
-        let ret = listener.callback.apply( context, args );
+        const context = self.callbackContext( self.context, listener, eventObj );
+        const ret = listener.callback.apply( context, args );
 
         self.afterEmit( self.context, listener, eventObj );
 

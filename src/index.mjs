@@ -5,7 +5,7 @@ import Stylesheet from './stylesheet.mjs';
 import version from './version.mjs';
 import { warnings } from './util/index.mjs';
 
-let cytoscape = function( options ){
+const cytoscape = function( options ){
   // if no options specified, use default
   if( options === undefined ){
     options = {};
@@ -24,7 +24,7 @@ let cytoscape = function( options ){
 
 // e.g. cytoscape.use( require('cytoscape-foo'), bar )
 cytoscape.use = function( ext ){
-  let args = Array.prototype.slice.call( arguments, 1 ); // args to pass to ext
+  const args = Array.prototype.slice.call( arguments, 1 ); // args to pass to ext
 
   args.unshift( cytoscape ); // cytoscape is first arg to ext
 

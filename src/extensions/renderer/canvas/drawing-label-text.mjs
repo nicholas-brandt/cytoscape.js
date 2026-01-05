@@ -1,19 +1,19 @@
 import * as util from '../../../util/index.mjs';
 import * as math from '../../../math.mjs';
 
-let CRp = {};
+const CRp = {};
 
 CRp.eleTextBiggerThanMin = function( ele, scale ){
   if( !scale ){
-    let zoom = ele.cy().zoom();
-    let pxRatio = this.getPixelRatio();
-    let lvl = Math.ceil( math.log2( zoom * pxRatio ) ); // the effective texture level
+    const zoom = ele.cy().zoom();
+    const pxRatio = this.getPixelRatio();
+    const lvl = Math.ceil( math.log2( zoom * pxRatio ) ); // the effective texture level
 
     scale = Math.pow( 2, lvl );
   }
 
-  let computedSize = ele.pstyle( 'font-size' ).pfValue * scale;
-  let minSize = ele.pstyle( 'min-zoomed-font-size' ).pfValue;
+  const computedSize = ele.pstyle( 'font-size' ).pfValue * scale;
+  const minSize = ele.pstyle( 'min-zoomed-font-size' ).pfValue;
 
   if( computedSize < minSize ){
     return false;
@@ -23,7 +23,7 @@ CRp.eleTextBiggerThanMin = function( ele, scale ){
 };
 
 CRp.drawElementText = function( context, ele, shiftToOriginWithBb, force, prefix, useEleOpacity = true ){
-  let r = this;
+  const r = this;
 
   if( force == null ){
     if( useEleOpacity && !r.eleTextBiggerThanMin( ele ) ){ return; }
@@ -32,19 +32,19 @@ CRp.drawElementText = function( context, ele, shiftToOriginWithBb, force, prefix
   }
 
   if( ele.isNode() ){
-    let label = ele.pstyle( 'label' );
+    const label = ele.pstyle( 'label' );
 
     if( !label || !label.value ){ return; }
 
-    let justification = r.getLabelJustification(ele);
+    const justification = r.getLabelJustification(ele);
 
     context.textAlign = justification;
     context.textBaseline = 'bottom';
   } else {
-    let badLine = ele.element()._private.rscratch.badLine;
-    let label = ele.pstyle( 'label' );
-    let srcLabel = ele.pstyle( 'source-label' );
-    let tgtLabel = ele.pstyle( 'target-label' );
+    const badLine = ele.element()._private.rscratch.badLine;
+    const label = ele.pstyle( 'label' );
+    const srcLabel = ele.pstyle( 'source-label' );
+    const tgtLabel = ele.pstyle( 'target-label' );
 
     if(
       badLine || (
@@ -60,7 +60,7 @@ CRp.drawElementText = function( context, ele, shiftToOriginWithBb, force, prefix
     context.textBaseline = 'bottom';
   }
 
-  let applyRotation = !shiftToOriginWithBb;
+  const applyRotation = !shiftToOriginWithBb;
 
   let bb;
   if( shiftToOriginWithBb ){
@@ -91,7 +91,7 @@ CRp.getFontCache = function( context ){
 
   this.fontCaches = this.fontCaches || [];
 
-  for( let i = 0; i < this.fontCaches.length; i++ ){
+  for (let i = 0; i < this.fontCaches.length; i++ ){
     cache = this.fontCaches[ i ];
 
     if( cache.context === context ){
@@ -111,14 +111,14 @@ CRp.getFontCache = function( context ){
 // returns transformed text string
 CRp.setupTextStyle = function( context, ele, useEleOpacity = true ){
   // Font style
-  let labelStyle = ele.pstyle( 'font-style' ).strValue;
-  let labelSize = ele.pstyle( 'font-size' ).pfValue + 'px';
-  let labelFamily = ele.pstyle( 'font-family' ).strValue;
-  let labelWeight = ele.pstyle( 'font-weight' ).strValue;
-  let opacity = (useEleOpacity ? ele.effectiveOpacity() * ele.pstyle('text-opacity').value : 1);
-  let outlineOpacity = ele.pstyle( 'text-outline-opacity' ).value * opacity;
-  let color = ele.pstyle( 'color' ).value;
-  let outlineColor = ele.pstyle( 'text-outline-color' ).value;
+  const labelStyle = ele.pstyle( 'font-style' ).strValue;
+  const labelSize = ele.pstyle( 'font-size' ).pfValue + 'px';
+  const labelFamily = ele.pstyle( 'font-family' ).strValue;
+  const labelWeight = ele.pstyle( 'font-weight' ).strValue;
+  const opacity = (useEleOpacity ? ele.effectiveOpacity() * ele.pstyle('text-opacity').value : 1);
+  const outlineOpacity = ele.pstyle( 'text-outline-opacity' ).value * opacity;
+  const color = ele.pstyle( 'color' ).value;
+  const outlineColor = ele.pstyle( 'text-outline-color' ).value;
 
   context.font = labelStyle + ' ' + labelWeight + ' ' + labelSize + ' ' + labelFamily;
 
@@ -158,13 +158,13 @@ function roundRect(ctx, x, y, width, height, radius = 5) {
 
 CRp.getTextAngle = function( ele, prefix ){
   let theta;
-  let _p = ele._private;
-  let rscratch = _p.rscratch;
-  let pdash = prefix ? prefix + '-' : '';
-  let rotation = ele.pstyle( pdash + 'text-rotation' );
+  const _p = ele._private;
+  const rscratch = _p.rscratch;
+  const pdash = prefix ? prefix + '-' : '';
+  const rotation = ele.pstyle( pdash + 'text-rotation' );
   
   if( rotation.strValue === 'autorotate' ){
-    let textAngle = util.getPrefixedProperty( rscratch, 'labelAngle', prefix );
+    const textAngle = util.getPrefixedProperty( rscratch, 'labelAngle', prefix );
     theta = ele.isEdge() ? textAngle : 0;
   } else if( rotation.strValue === 'none' ){
     theta = 0;
@@ -176,9 +176,9 @@ CRp.getTextAngle = function( ele, prefix ){
 };
 
 CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpacity = true ){
-  let _p = ele._private;
-  let rscratch = _p.rscratch;
-  let parentOpacity = useEleOpacity ? ele.effectiveOpacity() : 1;
+  const _p = ele._private;
+  const rscratch = _p.rscratch;
+  const parentOpacity = useEleOpacity ? ele.effectiveOpacity() : 1;
 
   if( useEleOpacity && (parentOpacity === 0 || ele.pstyle( 'text-opacity' ).value === 0) ){
     return;
@@ -187,24 +187,24 @@ CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpaci
   // use 'main' as an alias for the main label (i.e. null prefix)
   if( prefix === 'main' ){ prefix = null; }
 
-  let textX = util.getPrefixedProperty( rscratch, 'labelX', prefix );
-  let textY = util.getPrefixedProperty( rscratch, 'labelY', prefix );
+  const textX = util.getPrefixedProperty( rscratch, 'labelX', prefix );
+  const textY = util.getPrefixedProperty( rscratch, 'labelY', prefix );
   let orgTextX, orgTextY; // used for rotation
-  let text = this.getLabelText( ele, prefix );
+  const text = this.getLabelText( ele, prefix );
 
   if( text != null && text !== '' && !isNaN( textX ) && !isNaN( textY ) ){
     this.setupTextStyle( context, ele, useEleOpacity );
 
-    let pdash = prefix ? prefix + '-' : '';
-    let textW = util.getPrefixedProperty( rscratch, 'labelWidth', prefix );
-    let textH = util.getPrefixedProperty( rscratch, 'labelHeight', prefix );
-    let marginX = ele.pstyle( pdash + 'text-margin-x' ).pfValue;
-    let marginY = ele.pstyle( pdash + 'text-margin-y' ).pfValue;
+    const pdash = prefix ? prefix + '-' : '';
+    const textW = util.getPrefixedProperty( rscratch, 'labelWidth', prefix );
+    const textH = util.getPrefixedProperty( rscratch, 'labelHeight', prefix );
+    const marginX = ele.pstyle( pdash + 'text-margin-x' ).pfValue;
+    const marginY = ele.pstyle( pdash + 'text-margin-y' ).pfValue;
 
-    let isEdge = ele.isEdge();
+    const isEdge = ele.isEdge();
 
-    let halign = ele.pstyle( 'text-halign' ).value;
-    let valign = ele.pstyle( 'text-valign' ).value;
+    const halign = ele.pstyle( 'text-halign' ).value;
+    const valign = ele.pstyle( 'text-valign' ).value;
 
     if( isEdge ){
       halign = 'center';
@@ -244,36 +244,36 @@ CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpaci
         break;
     }
 
-    let backgroundOpacity = ele.pstyle( 'text-background-opacity' ).value;
-    let borderOpacity = ele.pstyle( 'text-border-opacity' ).value;
-    let textBorderWidth = ele.pstyle( 'text-border-width' ).pfValue;
-    let backgroundPadding = ele.pstyle( 'text-background-padding' ).pfValue;
-    let styleShape = ele.pstyle( 'text-background-shape' ).strValue;
-    let rounded = styleShape === 'round-rectangle' || styleShape === 'roundrectangle';
-    let circled = styleShape === 'circle';
-    let roundRadius = 2;
+    const backgroundOpacity = ele.pstyle( 'text-background-opacity' ).value;
+    const borderOpacity = ele.pstyle( 'text-border-opacity' ).value;
+    const textBorderWidth = ele.pstyle( 'text-border-width' ).pfValue;
+    const backgroundPadding = ele.pstyle( 'text-background-padding' ).pfValue;
+    const styleShape = ele.pstyle( 'text-background-shape' ).strValue;
+    const rounded = styleShape === 'round-rectangle' || styleShape === 'roundrectangle';
+    const circled = styleShape === 'circle';
+    const roundRadius = 2;
 
     if( backgroundOpacity > 0 || ( textBorderWidth > 0 && borderOpacity > 0 ) ){
-      let textFill = context.fillStyle;
-      let textStroke = context.strokeStyle;
-      let textLineWidth = context.lineWidth;
+      const textFill = context.fillStyle;
+      const textStroke = context.strokeStyle;
+      const textLineWidth = context.lineWidth;
 
-      let textBackgroundColor = ele.pstyle( 'text-background-color' ).value;
-      let textBorderColor = ele.pstyle( 'text-border-color' ).value;
-      let textBorderStyle = ele.pstyle( 'text-border-style' ).value;
+      const textBackgroundColor = ele.pstyle( 'text-background-color' ).value;
+      const textBorderColor = ele.pstyle( 'text-border-color' ).value;
+      const textBorderStyle = ele.pstyle( 'text-border-style' ).value;
 
-      let doFill = backgroundOpacity > 0;
-      let doStroke = textBorderWidth > 0 && borderOpacity > 0;
+      const doFill = backgroundOpacity > 0;
+      const doStroke = textBorderWidth > 0 && borderOpacity > 0;
 
-      let bgX = textX - backgroundPadding;
+      const bgX = textX - backgroundPadding;
       switch( halign ){
         case 'left':   bgX -= textW; break;
         case 'center': bgX -= textW / 2; break;
       }
 
-      let bgY = textY - textH - backgroundPadding;
-      let bgW = textW + 2*backgroundPadding;
-      let bgH = textH + 2*backgroundPadding;
+      const bgY = textY - textH - backgroundPadding;
+      const bgW = textW + 2*backgroundPadding;
+      const bgH = textH + 2*backgroundPadding;
 
       if( doFill ){
         context.fillStyle = `rgba(${textBackgroundColor[0]},${textBackgroundColor[1]},${textBackgroundColor[2]},${backgroundOpacity * parentOpacity})`;
@@ -312,7 +312,7 @@ CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpaci
 
       // Double border pass for 'double' style
       if( doStroke && textBorderStyle === 'double' ){
-        let whiteWidth = textBorderWidth / 2;
+        const whiteWidth = textBorderWidth / 2;
         context.beginPath();
 
         if( rounded ){
@@ -330,17 +330,17 @@ CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpaci
       if( context.setLineDash ) context.setLineDash([]);
     }
 
-    let lineWidth = 2 * ele.pstyle( 'text-outline-width' ).pfValue; // *2 b/c the stroke is drawn centred on the middle
+    const lineWidth = 2 * ele.pstyle( 'text-outline-width' ).pfValue; // *2 b/c the stroke is drawn centred on the middle
 
     if( lineWidth > 0 ){
       context.lineWidth = lineWidth;
     }
 
     if( ele.pstyle( 'text-wrap' ).value === 'wrap' ){
-      let lines = util.getPrefixedProperty( rscratch, 'labelWrapCachedLines', prefix );
-      let lineHeight = util.getPrefixedProperty( rscratch, 'labelLineHeight', prefix );
-      let halfTextW = textW/2;
-      let justification = this.getLabelJustification(ele);
+      const lines = util.getPrefixedProperty( rscratch, 'labelWrapCachedLines', prefix );
+      const lineHeight = util.getPrefixedProperty( rscratch, 'labelLineHeight', prefix );
+      const halfTextW = textW/2;
+      const justification = this.getLabelJustification(ele);
 
       if( justification === 'auto' ){
         // then it's already ok, so skip all the other ifs
@@ -374,7 +374,7 @@ CRp.drawText = function( context, ele, prefix, applyRotation = true, useEleOpaci
           break;
       }
 
-      for( let l = 0; l < lines.length; l++ ){
+      for (let l = 0; l < lines.length; l++ ){
         if( lineWidth > 0 ){
           context.strokeText( lines[ l ], textX, textY );
         }

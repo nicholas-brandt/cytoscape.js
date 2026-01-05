@@ -3,9 +3,9 @@ function NullRenderer( options ){
   this.notifications = 0; // for testing
 }
 
-let noop = function(){};
+const noop = function(){};
 
-let throwImgErr = function(){
+const throwImgErr = function(){
   throw new Error('A headless instance can not render images');
 };
 

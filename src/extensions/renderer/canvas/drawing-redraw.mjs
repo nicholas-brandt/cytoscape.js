@@ -1,22 +1,22 @@
 import * as util from '../../../util/index.mjs';
 import * as math from '../../../math.mjs';
 
-var CRp = {};
+const CRp = {};
 
-var motionBlurDelay = 100;
+const motionBlurDelay = 100;
 
-// var isFirefox = typeof InstallTrigger !== 'undefined';
+// const isFirefox = typeof InstallTrigger !== 'undefined';
 
 CRp.getPixelRatio = function(){
-  var context = this.data.contexts[0];
+  const context = this.data.contexts[0];
 
   if( this.forcedPixelRatio != null ){
     return this.forcedPixelRatio;
   }
 
-  var containerWindow = this.cy.window();
+  const containerWindow = this.cy.window();
 
-  var backingStore = context.backingStorePixelRatio ||
+  const backingStore = context.backingStorePixelRatio ||
     context.webkitBackingStorePixelRatio ||
     context.mozBackingStorePixelRatio ||
     context.msBackingStorePixelRatio ||
@@ -27,11 +27,11 @@ CRp.getPixelRatio = function(){
 };
 
 CRp.paintCache = function( context ){
-  var caches = this.paintCaches = this.paintCaches || [];
-  var needToCreateCache = true;
-  var cache;
+  const caches = this.paintCaches = this.paintCaches || [];
+  const needToCreateCache = true;
+  let cache;
 
-  for( var i = 0; i < caches.length; i++ ){
+  for (let i = 0; i < caches.length; i++ ){
     cache = caches[ i ];
 
     if( cache.context === context ){
@@ -52,34 +52,34 @@ CRp.paintCache = function( context ){
 
 CRp.createGradientStyleFor = function( context, shapeStyleName, ele, fill, opacity ){
   let gradientStyle;
-  let usePaths = this.usePaths();
+  const usePaths = this.usePaths();
 
-  let colors = ele.pstyle(shapeStyleName + '-gradient-stop-colors').value,
+  const colors = ele.pstyle(shapeStyleName + '-gradient-stop-colors').value,
     positions = ele.pstyle(shapeStyleName + '-gradient-stop-positions').pfValue;
 
   if (fill === 'radial-gradient') {
     if (ele.isEdge()) {
-      let start = ele.sourceEndpoint(), end = ele.targetEndpoint(), mid = ele.midpoint();
+      const start = ele.sourceEndpoint(), end = ele.targetEndpoint(), mid = ele.midpoint();
 
-      let d1 = math.dist( start, mid );
-      let d2 = math.dist( end, mid );
+      const d1 = math.dist( start, mid );
+      const d2 = math.dist( end, mid );
 
       gradientStyle = context.createRadialGradient(mid.x, mid.y, 0, mid.x, mid.y, Math.max(d1, d2));
     } else {
-      let pos = usePaths ? {x: 0, y: 0 } : ele.position(),
+      const pos = usePaths ? {x: 0, y: 0 } : ele.position(),
         width = ele.paddedWidth(), height = ele.paddedHeight();
       gradientStyle = context.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, Math.max(width, height));
     }
   } else {
     if (ele.isEdge()) {
-      let start = ele.sourceEndpoint(), end = ele.targetEndpoint();
+      const start = ele.sourceEndpoint(), end = ele.targetEndpoint();
 
       gradientStyle = context.createLinearGradient(start.x, start.y, end.x, end.y);
     } else {
-      let pos = usePaths ? { x: 0, y: 0 } : ele.position(),
+      const pos = usePaths ? { x: 0, y: 0 } : ele.position(),
         width = ele.paddedWidth(), height = ele.paddedHeight(),
         halfWidth = width / 2, halfHeight = height / 2;
-      let direction = ele.pstyle('background-gradient-direction').value;
+      const direction = ele.pstyle('background-gradient-direction').value;
 
       switch (direction) {
         case 'to-bottom':
@@ -115,9 +115,9 @@ CRp.createGradientStyleFor = function( context, shapeStyleName, ele, fill, opaci
   }
   if (!gradientStyle) return null; // invalid gradient style
 
-  let hasPositions = positions.length === colors.length;
+  const hasPositions = positions.length === colors.length;
 
-  let length = colors.length;
+  const length = colors.length;
   for (let i = 0; i < length; i++) {
     gradientStyle.addColorStop(hasPositions ? positions[i] : i / (length - 1), 'rgba(' + colors[i][0] + ',' + colors[i][1] + ',' + colors[i][2] + ',' + opacity + ')');
   }
@@ -135,9 +135,9 @@ CRp.colorFillStyle = function( context, r, g, b, a ){
   context.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
   // turn off for now, seems context does its own caching
 
-  // var cache = this.paintCache(context);
+  // const cache = this.paintCache(context);
 
-  // var fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  // const fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 
   // if( cache.fillStyle !== fillStyle ){
   //   context.fillStyle = cache.fillStyle = fillStyle;
@@ -145,12 +145,12 @@ CRp.colorFillStyle = function( context, r, g, b, a ){
 };
 
 CRp.eleFillStyle = function( context, ele, opacity ){
-  let backgroundFill = ele.pstyle('background-fill').value;
+  const backgroundFill = ele.pstyle('background-fill').value;
 
   if (backgroundFill === 'linear-gradient' || backgroundFill === 'radial-gradient') {
     this.gradientFillStyle(context, ele, backgroundFill, opacity);
   } else {
-    let backgroundColor = ele.pstyle('background-color').value;
+    const backgroundColor = ele.pstyle('background-color').value;
     this.colorFillStyle( context, backgroundColor[0], backgroundColor[1], backgroundColor[2], opacity );
   }
 };
@@ -165,9 +165,9 @@ CRp.colorStrokeStyle = function( context, r, g, b, a ){
   context.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
   // turn off for now, seems context does its own caching
 
-  // var cache = this.paintCache(context);
+  // const cache = this.paintCache(context);
 
-  // var strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  // const strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 
   // if( cache.strokeStyle !== strokeStyle ){
   //   context.strokeStyle = cache.strokeStyle = strokeStyle;
@@ -175,25 +175,25 @@ CRp.colorStrokeStyle = function( context, r, g, b, a ){
 };
 
 CRp.eleStrokeStyle = function( context, ele, opacity ){
-  let lineFill = ele.pstyle('line-fill').value;
+  const lineFill = ele.pstyle('line-fill').value;
 
   if (lineFill === 'linear-gradient' || lineFill === 'radial-gradient') {
     this.gradientStrokeStyle(context, ele, lineFill, opacity);
   } else {
-    let lineColor = ele.pstyle('line-color').value;
+    const lineColor = ele.pstyle('line-color').value;
     this.colorStrokeStyle( context, lineColor[0], lineColor[1], lineColor[2], opacity );
   }
 };
 
 // Resize canvas
 CRp.matchCanvasSize = function( container ){
-  var r = this;
-  var data = r.data;
-  var bb = r.findContainerClientCoords();
-  var width = bb[2];
-  var height = bb[3];
-  var pixelRatio = r.getPixelRatio();
-  var mbPxRatio = r.motionBlurPxRatio;
+  const r = this;
+  const data = r.data;
+  const bb = r.findContainerClientCoords();
+  const width = bb[2];
+  const height = bb[3];
+  const pixelRatio = r.getPixelRatio();
+  const mbPxRatio = r.motionBlurPxRatio;
 
   if(
     container === r.data.bufferCanvases[ r.MOTIONBLUR_BUFFER_NODE ] ||
@@ -202,9 +202,9 @@ CRp.matchCanvasSize = function( container ){
     pixelRatio = mbPxRatio;
   }
 
-  var canvasWidth = width * pixelRatio;
-  var canvasHeight = height * pixelRatio;
-  var canvas;
+  const canvasWidth = width * pixelRatio;
+  const canvasHeight = height * pixelRatio;
+  let canvas;
 
   if( canvasWidth === r.canvasWidth && canvasHeight === r.canvasHeight ){
     return; // save cycles if same
@@ -212,11 +212,11 @@ CRp.matchCanvasSize = function( container ){
 
   r.fontCaches = null; // resizing resets the style
 
-  var canvasContainer = data.canvasContainer;
+  const canvasContainer = data.canvasContainer;
   canvasContainer.style.width = width + 'px';
   canvasContainer.style.height = height + 'px';
 
-  for( var i = 0; i < r.CANVAS_LAYERS; i++ ){
+  for (let i = 0; i < r.CANVAS_LAYERS; i++ ){
     canvas = data.canvases[ i ];
 
     canvas.width = canvasWidth;
@@ -226,7 +226,7 @@ CRp.matchCanvasSize = function( container ){
     canvas.style.height = height + 'px';
   }
 
-  for( var i = 0; i < r.BUFFER_COUNT; i++ ){
+  for (let i = 0; i < r.BUFFER_COUNT; i++ ){
     canvas = data.bufferCanvases[ i ];
 
     canvas.width = canvasWidth;
@@ -261,8 +261,8 @@ CRp.renderTo = function( cxt, zoom, pan, pxRatio ){
 };
 
 CRp.clearCanvas = function(){
-  var r = this;
-  var data = r.data;
+  const r = this;
+  const data = r.data;
   function clear(context) {
     context.clearRect(0, 0, r.canvasWidth, r.canvasHeight);
   }
@@ -272,27 +272,27 @@ CRp.clearCanvas = function(){
 
 
 CRp.render = function( options ){
-  var r = this;
+  const r = this;
   options = options || util.staticEmptyObject();
 
-  var cy = r.cy; 
+  const cy = r.cy; 
 
-  var forcedContext = options.forcedContext;
-  var drawAllLayers = options.drawAllLayers;
-  var drawOnlyNodeLayer = options.drawOnlyNodeLayer;
-  var forcedZoom = options.forcedZoom;
-  var forcedPan = options.forcedPan;
-  var pixelRatio = options.forcedPxRatio === undefined ? this.getPixelRatio() : options.forcedPxRatio;
-  var data = r.data;
-  var needDraw = data.canvasNeedsRedraw;
-  var textureDraw = r.textureOnViewport && !forcedContext && (r.pinching || r.hoverData.dragging || r.swipePanning || r.data.wheelZooming);
-  var motionBlur = options.motionBlur !== undefined ? options.motionBlur : r.motionBlur;
-  var mbPxRatio = r.motionBlurPxRatio;
-  var hasCompoundNodes = cy.hasCompoundNodes();
-  var inNodeDragGesture = r.hoverData.draggingEles;
-  var inBoxSelection = r.hoverData.selecting || r.touchData.selecting ? true : false;
+  const forcedContext = options.forcedContext;
+  const drawAllLayers = options.drawAllLayers;
+  const drawOnlyNodeLayer = options.drawOnlyNodeLayer;
+  const forcedZoom = options.forcedZoom;
+  const forcedPan = options.forcedPan;
+  const pixelRatio = options.forcedPxRatio === undefined ? this.getPixelRatio() : options.forcedPxRatio;
+  const data = r.data;
+  const needDraw = data.canvasNeedsRedraw;
+  const textureDraw = r.textureOnViewport && !forcedContext && (r.pinching || r.hoverData.dragging || r.swipePanning || r.data.wheelZooming);
+  let motionBlur = options.motionBlur !== undefined ? options.motionBlur : r.motionBlur;
+  const mbPxRatio = r.motionBlurPxRatio;
+  const hasCompoundNodes = cy.hasCompoundNodes();
+  const inNodeDragGesture = r.hoverData.draggingEles;
+  const inBoxSelection = r.hoverData.selecting || r.touchData.selecting ? true : false;
   motionBlur = motionBlur && !forcedContext && r.motionBlurEnabled && !inBoxSelection;
-  var motionBlurFadeEffect = motionBlur;
+  const motionBlurFadeEffect = motionBlur;
 
   if( !forcedContext ){
     if( r.prevPxRatio !== pixelRatio ){
@@ -339,25 +339,25 @@ CRp.render = function( options ){
     needDraw[ r.SELECT_BOX ] = true;
   }
 
-  var style = cy.style();
+  const style = cy.style();
 
-  var zoom = cy.zoom();
-  var effectiveZoom = forcedZoom !== undefined ? forcedZoom : zoom;
-  var pan = cy.pan();
-  var effectivePan = {
+  const zoom = cy.zoom();
+  let effectiveZoom = forcedZoom !== undefined ? forcedZoom : zoom;
+  const pan = cy.pan();
+  const effectivePan = {
     x: pan.x,
     y: pan.y
   };
 
-  var vp = {
+  const vp = {
     zoom: zoom,
     pan: {
       x: pan.x,
       y: pan.y
     }
   };
-  var prevVp = r.prevViewport;
-  var viewportIsDiff = prevVp === undefined || vp.zoom !== prevVp.zoom || vp.pan.x !== prevVp.pan.x || vp.pan.y !== prevVp.pan.y;
+  const prevVp = r.prevViewport;
+  const viewportIsDiff = prevVp === undefined || vp.zoom !== prevVp.zoom || vp.pan.x !== prevVp.pan.x || vp.pan.y !== prevVp.pan.y;
 
   // we want the low quality motionblur only when the viewport is being manipulated etc (where it's not noticed)
   if( !viewportIsDiff && !(inNodeDragGesture && !hasCompoundNodes) ){
@@ -374,10 +374,10 @@ CRp.render = function( options ){
   effectivePan.x *= pixelRatio;
   effectivePan.y *= pixelRatio;
 
-  var eles = r.getCachedZSortedEles();
+  const eles = r.getCachedZSortedEles();
 
   function mbclear( context, x, y, w, h ){
-    var gco = context.globalCompositeOperation;
+    const gco = context.globalCompositeOperation;
 
     context.globalCompositeOperation = 'destination-out';
     r.colorFillStyle( context, 255, 255, 255, r.motionBlurTransparency );
@@ -387,7 +387,7 @@ CRp.render = function( options ){
   }
 
   function setContextTransform( context, clear ){
-    var ePan, eZoom, w, h;
+    let ePan, eZoom, w, h;
 
     if( !r.clearingMotionBlur && (context === data.bufferContexts[ r.MOTIONBLUR_BUFFER_NODE ] || context === data.bufferContexts[ r.MOTIONBLUR_BUFFER_DRAG ]) ){
       ePan = {
@@ -441,7 +441,7 @@ CRp.render = function( options ){
 
       r.textureCache.texture = r.data.bufferCanvases[ r.TEXTURE_BUFFER ];
 
-      var cxt = r.data.bufferContexts[ r.TEXTURE_BUFFER ];
+      const cxt = r.data.bufferContexts[ r.TEXTURE_BUFFER ];
 
       cxt.setTransform( 1, 0, 0, 1, 0, 0 );
       cxt.clearRect( 0, 0, r.canvasWidth * r.textureMult, r.canvasHeight * r.textureMult );
@@ -452,7 +452,7 @@ CRp.render = function( options ){
         forcedPxRatio: pixelRatio * r.textureMult
       } );
 
-      var vp = r.textureCache.viewport = {
+      const vp = r.textureCache.viewport = {
         zoom: cy.zoom(),
         pan: cy.pan(),
         width: r.canvasWidth,
@@ -468,10 +468,10 @@ CRp.render = function( options ){
     needDraw[ r.DRAG ] = false;
     needDraw[ r.NODE ] = false;
 
-    var context = data.contexts[ r.NODE ];
+    const context = data.contexts[ r.NODE ];
 
-    var texture = r.textureCache.texture;
-    var vp = r.textureCache.viewport;
+    const texture = r.textureCache.texture;
+    const vp = r.textureCache.viewport;
 
     context.setTransform( 1, 0, 0, 1, 0, 0 );
 
@@ -481,12 +481,12 @@ CRp.render = function( options ){
       context.clearRect( 0, 0, vp.width, vp.height );
     }
 
-    var outsideBgColor = style.core( 'outside-texture-bg-color' ).value;
-    var outsideBgOpacity = style.core( 'outside-texture-bg-opacity' ).value;
+    const outsideBgColor = style.core( 'outside-texture-bg-color' ).value;
+    const outsideBgOpacity = style.core( 'outside-texture-bg-opacity' ).value;
     r.colorFillStyle( context, outsideBgColor[0], outsideBgColor[1], outsideBgColor[2], outsideBgOpacity );
     context.fillRect( 0, 0, vp.width, vp.height );
 
-    var zoom = cy.zoom();
+    const zoom = cy.zoom();
 
     setContextTransform( context, false );
 
@@ -497,11 +497,11 @@ CRp.render = function( options ){
     r.textureCache = null;
   }
 
-  var extent = cy.extent();
-  var vpManip = (r.pinching || r.hoverData.dragging || r.swipePanning || r.data.wheelZooming || r.hoverData.draggingEles || r.cy.animated());
-  var hideEdges = r.hideEdgesOnViewport && vpManip;
+  const extent = cy.extent();
+  const vpManip = (r.pinching || r.hoverData.dragging || r.swipePanning || r.data.wheelZooming || r.hoverData.draggingEles || r.cy.animated());
+  const hideEdges = r.hideEdgesOnViewport && vpManip;
 
-  var needMbClear = [];
+  const needMbClear = [];
 
   needMbClear[ r.NODE ] = !needDraw[ r.NODE ] && motionBlur && !r.clearedForMotionBlur[ r.NODE ] || r.clearingMotionBlur;
   if( needMbClear[ r.NODE ] ){ r.clearedForMotionBlur[ r.NODE ] = true; }
@@ -510,9 +510,9 @@ CRp.render = function( options ){
   if( needMbClear[ r.DRAG ] ){ r.clearedForMotionBlur[ r.DRAG ] = true; }
 
   if( needDraw[ r.NODE ] || drawAllLayers || drawOnlyNodeLayer || needMbClear[ r.NODE ] ){
-    var useBuffer = motionBlur && !needMbClear[ r.NODE ] && mbPxRatio !== 1;
-    var context = forcedContext || ( useBuffer ? r.data.bufferContexts[ r.MOTIONBLUR_BUFFER_NODE ] : data.contexts[ r.NODE ] );
-    var clear = motionBlur && !useBuffer ? 'motionBlur' : undefined;
+    const useBuffer = motionBlur && !needMbClear[ r.NODE ] && mbPxRatio !== 1;
+    const context = forcedContext || ( useBuffer ? r.data.bufferContexts[ r.MOTIONBLUR_BUFFER_NODE ] : data.contexts[ r.NODE ] );
+    const clear = motionBlur && !useBuffer ? 'motionBlur' : undefined;
 
     setContextTransform( context, clear );
 
@@ -532,8 +532,8 @@ CRp.render = function( options ){
   }
 
   if( !drawOnlyNodeLayer && (needDraw[ r.DRAG ] || drawAllLayers || needMbClear[ r.DRAG ]) ){
-    var useBuffer = motionBlur && !needMbClear[ r.DRAG ] && mbPxRatio !== 1;
-    var context = forcedContext || ( useBuffer ? r.data.bufferContexts[ r.MOTIONBLUR_BUFFER_DRAG ] : data.contexts[ r.DRAG ] );
+    const useBuffer = motionBlur && !needMbClear[ r.DRAG ] && mbPxRatio !== 1;
+    const context = forcedContext || ( useBuffer ? r.data.bufferContexts[ r.MOTIONBLUR_BUFFER_DRAG ] : data.contexts[ r.DRAG ] );
 
     setContextTransform( context, motionBlur && !useBuffer ? 'motionBlur' : undefined );
 
@@ -556,13 +556,13 @@ CRp.render = function( options ){
 
   // motionblur: blit rendered blurry frames
   if( motionBlur && mbPxRatio !== 1 ){
-    var cxtNode = data.contexts[ r.NODE ];
-    var txtNode = r.data.bufferCanvases[ r.MOTIONBLUR_BUFFER_NODE ];
+    const cxtNode = data.contexts[ r.NODE ];
+    const txtNode = r.data.bufferCanvases[ r.MOTIONBLUR_BUFFER_NODE ];
 
-    var cxtDrag = data.contexts[ r.DRAG ];
-    var txtDrag = r.data.bufferCanvases[ r.MOTIONBLUR_BUFFER_DRAG ];
+    const cxtDrag = data.contexts[ r.DRAG ];
+    const txtDrag = r.data.bufferCanvases[ r.MOTIONBLUR_BUFFER_DRAG ];
 
-    var drawMotionBlur = function( cxt, txt, needClear ){
+    const drawMotionBlur = function( cxt, txt, needClear ){
       cxt.setTransform( 1, 0, 0, 1, 0, 0 );
 
       if( needClear || !motionBlurFadeEffect ){
@@ -571,7 +571,7 @@ CRp.render = function( options ){
         mbclear( cxt, 0, 0, r.canvasWidth, r.canvasHeight );
       }
 
-      var pxr = mbPxRatio;
+      const pxr = mbPxRatio;
 
       cxt.drawImage(
         txt, // img
@@ -638,13 +638,13 @@ CRp.drawSelectionRectangle = function(options, setContextTransform) {
   const forcedContext = options.forcedContext;
 
   if( r.showFps || (!drawOnlyNodeLayer && (needDraw[ r.SELECT_BOX ] && !drawAllLayers)) ){
-    var context = forcedContext || data.contexts[ r.SELECT_BOX ];
+    const context = forcedContext || data.contexts[ r.SELECT_BOX ];
 
     setContextTransform( context );
 
     if( r.selection[4] == 1 && ( r.hoverData.selecting || r.touchData.selecting ) ){
-      var zoom = r.cy.zoom();
-      var borderWidth = style.core( 'selection-box-border-width' ).value / zoom;
+      const zoom = r.cy.zoom();
+      const borderWidth = style.core( 'selection-box-border-width' ).value / zoom;
 
       context.lineWidth = borderWidth;
       context.fillStyle = 'rgba('
@@ -675,8 +675,8 @@ CRp.drawSelectionRectangle = function(options, setContextTransform) {
     }
 
     if( data.bgActivePosistion && !r.hoverData.selecting ){
-      var zoom = r.cy.zoom();
-      var pos = data.bgActivePosistion;
+      const zoom = r.cy.zoom();
+      const pos = data.bgActivePosistion;
 
       context.fillStyle = 'rgba('
         + style.core( 'active-bg-color' ).value[0] + ','
@@ -689,10 +689,10 @@ CRp.drawSelectionRectangle = function(options, setContextTransform) {
       context.fill();
     }
 
-    var timeToRender = r.lastRedrawTime;
+    const timeToRender = r.lastRedrawTime;
     if( r.showFps && timeToRender ){
       timeToRender = Math.round( timeToRender );
-      var fps = Math.round( 1000 / timeToRender );
+      const fps = Math.round( 1000 / timeToRender );
       const text = '1 frame = ' + timeToRender + ' ms = ' + fps + ' fps';
 
       context.setTransform( 1, 0, 0, 1, 0, 0 );
@@ -707,7 +707,7 @@ CRp.drawSelectionRectangle = function(options, setContextTransform) {
       }
       context.fillText( text, 0, fpsHeight );
 
-      var maxFps = 60;
+      const maxFps = 60;
       context.strokeRect( 0, fpsHeight + 10, 250, 20 );
       context.fillRect( 0, fpsHeight + 10, 250 * Math.min( fps / maxFps, 1 ), 20 );
     }

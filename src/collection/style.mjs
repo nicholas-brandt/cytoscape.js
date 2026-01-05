@@ -2,9 +2,9 @@ import * as is from '../is.mjs';
 import * as util from '../util/index.mjs';
 
 function styleCache( key, fn, ele ){
-  var _p = ele._private;
-  var cache = _p.styleCache = _p.styleCache || [];
-  var val;
+  const _p = ele._private;
+  const cache = _p.styleCache = _p.styleCache || [];
+  let val;
 
   if( (val = cache[key]) != null ){
     return val;
@@ -26,10 +26,10 @@ function cacheStyleFunction( key, fn ){
 function cachePrototypeStyleFunction( key, fn ){
   key = util.hashString( key );
 
-  let selfFn = ele => fn.call( ele );
+  const selfFn = ele => fn.call( ele );
 
   return function cachedPrototypeStyleFunction(){
-    var ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return styleCache( key, selfFn, ele );
@@ -37,12 +37,12 @@ function cachePrototypeStyleFunction( key, fn ){
   };
 }
 
-let elesfn = ({
+const elesfn = ({
 
   recalculateRenderedStyle: function( useCache ){
-    let cy = this.cy();
-    let renderer = cy.renderer();
-    let styleEnabled = cy.styleEnabled();
+    const cy = this.cy();
+    const renderer = cy.renderer();
+    const styleEnabled = cy.styleEnabled();
 
     if( renderer && styleEnabled ){
       renderer.recalculateRenderedStyle( this, useCache );
@@ -52,8 +52,8 @@ let elesfn = ({
   },
 
   dirtyStyleCache: function(){
-    let cy = this.cy();
-    let dirty = ele => ele._private.styleCache = null;
+    const cy = this.cy();
+    const dirty = ele => ele._private.styleCache = null;
 
     if( cy.hasCompoundNodes() ){
       let eles;
@@ -79,20 +79,20 @@ let elesfn = ({
 
   // fully updates (recalculates) the style for the elements
   updateStyle: function( notifyRenderer ){
-    let cy = this._private.cy;
+    const cy = this._private.cy;
 
     if( !cy.styleEnabled() ){ return this; }
 
     if( cy.batching() ){
-      let bEles = cy._private.batchStyleEles;
+      const bEles = cy._private.batchStyleEles;
 
       bEles.merge( this );
 
       return this; // chaining and exit early when batching
     }
 
-    let hasCompounds = cy.hasCompoundNodes();
-    let updatedEles = this;
+    const hasCompounds = cy.hasCompoundNodes();
+    const updatedEles = this;
 
     notifyRenderer = notifyRenderer || notifyRenderer === undefined ? true : false;
 
@@ -100,8 +100,8 @@ let elesfn = ({
       updatedEles = this.spawnSelf().merge( this.descendants() ).merge( this.parents() );
     }
 
-    // let changedEles = style.apply( updatedEles );
-    let changedEles = updatedEles;
+    // const changedEles = style.apply( updatedEles );
+    const changedEles = updatedEles;
 
     if( notifyRenderer ){
       changedEles.emitAndNotify( 'style' ); // let renderer know we changed style
@@ -116,12 +116,12 @@ let elesfn = ({
 
   // private: clears dirty flag and recalculates style
   cleanStyle: function(){
-    let cy = this.cy();
+    const cy = this.cy();
 
     if( !cy.styleEnabled() ){ return; }
 
-    for( let i = 0; i < this.length; i++ ){
-      let ele = this[i];
+    for (let i = 0; i < this.length; i++ ){
+      const ele = this[i];
 
       if( ele._private.styleDirty ){
         // n.b. this flag should be set before apply() to avoid potential infinite recursion
@@ -134,8 +134,8 @@ let elesfn = ({
 
   // get the internal parsed style object for the specified property
   parsedStyle: function( property, includeNonDefault = true ){
-    let ele = this[0];
-    let cy = ele.cy();
+    const ele = this[0];
+    const cy = ele.cy();
 
     if( !cy.styleEnabled() ){ return; }
 
@@ -149,7 +149,7 @@ let elesfn = ({
         cy.style().apply(ele);
       }
 
-      let overriddenStyle = ele._private.style[ property ];
+      const overriddenStyle = ele._private.style[ property ];
 
       if( overriddenStyle != null ){
         return overriddenStyle;
@@ -162,19 +162,19 @@ let elesfn = ({
   },
 
   numericStyle: function( property ){
-    let ele = this[0];
+    const ele = this[0];
 
     if( !ele.cy().styleEnabled() ){ return; }
 
     if( ele ){
-      let pstyle = ele.pstyle( property );
+      const pstyle = ele.pstyle( property );
 
       return pstyle.pfValue !== undefined ? pstyle.pfValue : pstyle.value;
     }
   },
 
   numericStyleUnits: function( property ){
-    let ele = this[0];
+    const ele = this[0];
 
     if( !ele.cy().styleEnabled() ){ return; }
 
@@ -186,10 +186,10 @@ let elesfn = ({
   // get the specified css property as a rendered value (i.e. on-screen value)
   // or get the whole rendered style if no property specified (NB doesn't allow setting)
   renderedStyle: function( property ){
-    let cy = this.cy();
+    const cy = this.cy();
     if( !cy.styleEnabled() ){ return this; }
 
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return cy.style().getRenderedStyle( ele, property );
@@ -198,15 +198,15 @@ let elesfn = ({
 
   // read the calculated css style of the element or override the style (via a bypass)
   style: function( name, value ){
-    let cy = this.cy();
+    const cy = this.cy();
 
     if( !cy.styleEnabled() ){ return this; }
 
-    let updateTransitions = false;
-    let style = cy.style();
+    const updateTransitions = false;
+    const style = cy.style();
 
     if( is.plainObject( name ) ){ // then extend the bypass
-      let props = name;
+      const props = name;
       style.applyBypass( this, props, updateTransitions );
 
       this.emitAndNotify( 'style' ); // let the renderer know we've updated style
@@ -214,7 +214,7 @@ let elesfn = ({
     } else if( is.string( name ) ){
 
       if( value === undefined ){ // then get the property from the style
-        let ele = this[0];
+        const ele = this[0];
 
         if( ele ){
           return style.getStylePropertyValue( ele, name );
@@ -229,7 +229,7 @@ let elesfn = ({
       }
 
     } else if( name === undefined ){
-      let ele = this[0];
+      const ele = this[0];
 
       if( ele ){
         return style.getRawStyle( ele );
@@ -242,25 +242,25 @@ let elesfn = ({
   },
 
   removeStyle: function( names ){
-    let cy = this.cy();
+    const cy = this.cy();
 
     if( !cy.styleEnabled() ){ return this; }
 
-    let updateTransitions = false;
-    let style = cy.style();
-    let eles = this;
+    const updateTransitions = false;
+    const style = cy.style();
+    const eles = this;
 
     if( names === undefined ){
-      for( let i = 0; i < eles.length; i++ ){
-        let ele = eles[ i ];
+      for (let i = 0; i < eles.length; i++ ){
+        const ele = eles[ i ];
 
         style.removeAllBypasses( ele, updateTransitions );
       }
     } else {
       names = names.split( /\s+/ );
 
-      for( let i = 0; i < eles.length; i++ ){
-        let ele = eles[ i ];
+      for (let i = 0; i < eles.length; i++ ){
+        const ele = eles[ i ];
 
         style.removeBypasses( ele, names, updateTransitions );
       }
@@ -282,24 +282,24 @@ let elesfn = ({
   },
 
   effectiveOpacity: function(){
-    let cy = this.cy();
+    const cy = this.cy();
     if( !cy.styleEnabled() ){ return 1; }
 
-    let hasCompoundNodes = cy.hasCompoundNodes();
-    let ele = this[0];
+    const hasCompoundNodes = cy.hasCompoundNodes();
+    const ele = this[0];
 
     if( ele ){
-      let _p = ele._private;
-      let parentOpacity = ele.pstyle( 'opacity' ).value;
+      const _p = ele._private;
+      const parentOpacity = ele.pstyle( 'opacity' ).value;
 
       if( !hasCompoundNodes ){ return parentOpacity; }
 
-      let parents = !_p.data.parent ? null : ele.parents();
+      const parents = !_p.data.parent ? null : ele.parents();
 
       if( parents ){
-        for( let i = 0; i < parents.length; i++ ){
-          let parent = parents[ i ];
-          let opacity = parent.pstyle( 'opacity' ).value;
+        for (let i = 0; i < parents.length; i++ ){
+          const parent = parents[ i ];
+          const opacity = parent.pstyle( 'opacity' ).value;
 
           parentOpacity = opacity * parentOpacity;
         }
@@ -310,11 +310,11 @@ let elesfn = ({
   },
 
   transparent: function(){
-    let cy = this.cy();
+    const cy = this.cy();
     if( !cy.styleEnabled() ){ return false; }
 
-    let ele = this[0];
-    let hasCompoundNodes = ele.cy().hasCompoundNodes();
+    const ele = this[0];
+    const hasCompoundNodes = ele.cy().hasCompoundNodes();
 
     if( ele ){
       if( !hasCompoundNodes ){
@@ -326,10 +326,10 @@ let elesfn = ({
   },
 
   backgrounding: function(){
-    let cy = this.cy();
+    const cy = this.cy();
     if( !cy.styleEnabled() ){ return false; }
 
-    let ele = this[0];
+    const ele = this[0];
 
     return ele._private.backgrounding ? true : false;
   }
@@ -337,11 +337,11 @@ let elesfn = ({
 });
 
 function checkCompound( ele, parentOk ){
-  let _p = ele._private;
-  let parents = _p.data.parent ? ele.parents() : null;
+  const _p = ele._private;
+  const parents = _p.data.parent ? ele.parents() : null;
 
-  if( parents ){ for( let i = 0; i < parents.length; i++ ){
-    let parent = parents[ i ];
+  if( parents ){ for (let i = 0; i < parents.length; i++ ){
+    const parent = parents[ i ];
 
     if( !parentOk( parent ) ){ return false; }
   } }
@@ -350,27 +350,27 @@ function checkCompound( ele, parentOk ){
 }
 
 function defineDerivedStateFunction( specs ){
-  let ok = specs.ok;
-  let edgeOkViaNode = specs.edgeOkViaNode || specs.ok;
-  let parentOk = specs.parentOk || specs.ok;
+  const ok = specs.ok;
+  const edgeOkViaNode = specs.edgeOkViaNode || specs.ok;
+  const parentOk = specs.parentOk || specs.ok;
 
   return function(){
-    let cy = this.cy();
+    const cy = this.cy();
     if( !cy.styleEnabled() ){ return true; }
 
-    let ele = this[0];
-    let hasCompoundNodes = cy.hasCompoundNodes();
+    const ele = this[0];
+    const hasCompoundNodes = cy.hasCompoundNodes();
 
     if( ele ){
-      let _p = ele._private;
+      const _p = ele._private;
 
       if( !ok( ele ) ){ return false; }
 
       if( ele.isNode() ){
         return !hasCompoundNodes || checkCompound( ele, parentOk );
       } else {
-        let src = _p.source;
-        let tgt = _p.target;
+        const src = _p.source;
+        const tgt = _p.target;
 
         return ( edgeOkViaNode(src) && (!hasCompoundNodes || checkCompound(src, edgeOkViaNode)) ) &&
           ( src === tgt || ( edgeOkViaNode(tgt) && (!hasCompoundNodes || checkCompound(tgt, edgeOkViaNode)) ) );
@@ -379,7 +379,7 @@ function defineDerivedStateFunction( specs ){
   };
 }
 
-let eleTakesUpSpace = cacheStyleFunction( 'eleTakesUpSpace', function( ele ){
+const eleTakesUpSpace = cacheStyleFunction( 'eleTakesUpSpace', function( ele ){
   return (
     ele.pstyle( 'display' ).value === 'element'
     && ele.width() !== 0
@@ -391,7 +391,7 @@ elesfn.takesUpSpace = cachePrototypeStyleFunction( 'takesUpSpace', defineDerived
   ok: eleTakesUpSpace
 }) );
 
-let eleInteractive = cacheStyleFunction( 'eleInteractive', function( ele ){
+const eleInteractive = cacheStyleFunction( 'eleInteractive', function( ele ){
   return (
     ele.pstyle('events').value === 'yes'
     && ele.pstyle('visibility').value === 'visible'
@@ -399,7 +399,7 @@ let eleInteractive = cacheStyleFunction( 'eleInteractive', function( ele ){
   );
 } );
 
-let parentInteractive = cacheStyleFunction( 'parentInteractive', function( parent ){
+const parentInteractive = cacheStyleFunction( 'parentInteractive', function( parent ){
   return (
     parent.pstyle('visibility').value === 'visible'
     && eleTakesUpSpace( parent )
@@ -413,14 +413,14 @@ elesfn.interactive = cachePrototypeStyleFunction( 'interactive', defineDerivedSt
 }) );
 
 elesfn.noninteractive = function(){
-  let ele = this[0];
+  const ele = this[0];
 
   if( ele ){
     return !ele.interactive();
   }
 };
 
-let eleVisible = cacheStyleFunction( 'eleVisible', function( ele ){
+const eleVisible = cacheStyleFunction( 'eleVisible', function( ele ){
   return (
     ele.pstyle( 'visibility' ).value === 'visible'
     && ele.pstyle( 'opacity' ).pfValue !== 0
@@ -428,7 +428,7 @@ let eleVisible = cacheStyleFunction( 'eleVisible', function( ele ){
   );
 } );
 
-let edgeVisibleViaNode = eleTakesUpSpace;
+const edgeVisibleViaNode = eleTakesUpSpace;
 
 elesfn.visible = cachePrototypeStyleFunction( 'visible', defineDerivedStateFunction({
   ok: eleVisible,
@@ -436,7 +436,7 @@ elesfn.visible = cachePrototypeStyleFunction( 'visible', defineDerivedStateFunct
 }) );
 
 elesfn.hidden = function(){
-  let ele = this[0];
+  const ele = this[0];
 
   if( ele ){
     return !ele.visible();

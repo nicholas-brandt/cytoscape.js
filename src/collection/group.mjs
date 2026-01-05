@@ -1,4 +1,4 @@
-let elesfn = ({
+const elesfn = ({
   isNode: function(){
     return this.group() === 'nodes';
   },
@@ -16,7 +16,7 @@ let elesfn = ({
   },
 
   group: function(){
-    let ele = this[0];
+    const ele = this[0];
 
     if( ele ){
       return ele._private.group;

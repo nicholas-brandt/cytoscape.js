@@ -466,7 +466,7 @@ export class ElementDrawingWebGL {
     program.uZoom          = gl.getUniformLocation(program, 'uZoom');
 
     program.uTextures = [];
-    for(let i = 0; i < this.batchManager.getMaxAtlasesPerBatch(); i++) {
+    for (let i = 0; i < this.batchManager.getMaxAtlasesPerBatch(); i++) {
       program.uTextures.push(gl.getUniformLocation(program, `uTexture${i}`));
     }
 
@@ -623,7 +623,7 @@ export class ElementDrawingWebGL {
    * this function follows same pattern as CRp.drawCachedElementPortion(...)
    */
   setTransformMatrix(ele, matrix, opts, atlasInfo, first=true) {
-    let padding = 0;
+    const padding = 0;
     if(opts.shapeProps && opts.shapeProps.padding) {
       padding = ele.pstyle(opts.shapeProps.padding).pfValue;
     }
@@ -631,7 +631,7 @@ export class ElementDrawingWebGL {
     if(atlasInfo) { // we've already computed the bb and tex bounds for a texture
       const { bb, tex1, tex2 } = atlasInfo;
       // wrapped textures need separate matrix for each part
-      let ratio = tex1.w / (tex1.w + tex2.w);
+      const ratio = tex1.w / (tex1.w + tex2.w);
       if(!first) { // first = true means its the first part of the wrapped texture
         ratio = 1 - ratio;
       }
@@ -685,7 +685,7 @@ export class ElementDrawingWebGL {
       h += 2 * padding;
     }
 
-    let xOffset = 0;
+    const xOffset = 0;
     const adjW = w * ratio;
 
     if(first && ratio < 1) {
@@ -948,7 +948,7 @@ export class ElementDrawingWebGL {
       }
 
     } else { // curved line
-      for(let i = 0; i < points.length-2; i += 2) {
+      for (let i = 0; i < points.length-2; i += 2) {
         const instance = this.instanceCount;
 
         this.vertTypeBuffer.getView(instance)[0] = EDGE_CURVE_SEGMENT;
@@ -960,10 +960,10 @@ export class ElementDrawingWebGL {
         const lineWidthBuffer = this.lineWidthBuffer.getView(instance);
         lineWidthBuffer[0] = width;
 
-        let pAx = points[i-2], pAy = points[i-1];
-        let pBx = points[i  ], pBy = points[i+1];
-        let pCx = points[i+2], pCy = points[i+3];
-        let pDx = points[i+4], pDy = points[i+5];
+        const pAx = points[i-2], pAy = points[i-1];
+        const pBx = points[i  ], pBy = points[i+1];
+        const pCx = points[i+2], pCy = points[i+3];
+        const pDx = points[i+4], pDy = points[i+5];
 
         // make phantom points for the first and last segments
         // TODO adding 0.001 to avoid division by zero in the shader (I think), need a better solution
@@ -1040,7 +1040,7 @@ export class ElementDrawingWebGL {
       return controlPoints; // straight line
     }
     const curvePoints = Array((segments + 1) * 2);
-    for(let i = 0; i <= segments; i++) {
+    for (let i = 0; i <= segments; i++) {
       // the first and last points are the same as the first and last control points
       if(i == 0) {
         curvePoints[0] = controlPoints[0];
@@ -1063,7 +1063,7 @@ export class ElementDrawingWebGL {
       curvePoints[cpi+1] = points[1];
     } else {
       const newpoints = Array(points.length-2);
-      for(let i = 0; i < newpoints.length; i+=2) {
+      for (let i = 0; i < newpoints.length; i+=2) {
         const x = (1-t) * points[i  ] + t * points[i+2];
         const y = (1-t) * points[i+1] + t * points[i+3];
         newpoints[i  ] = x;
@@ -1093,11 +1093,11 @@ export class ElementDrawingWebGL {
 
     const atlases = this.batchManager.getAtlases();
     // must buffer before activating texture units
-    for(let i = 0; i < atlases.length; i++) {
+    for (let i = 0; i < atlases.length; i++) {
       atlases[i].bufferIfNeeded(gl);
     }
     // Activate all the texture units that we need
-    for(let i = 0; i < atlases.length; i++) {
+    for (let i = 0; i < atlases.length; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, atlases[i].texture);
       gl.uniform1i(program.uTextures[i], i);

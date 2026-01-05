@@ -1,9 +1,9 @@
 import zIndexSort from '../../../../collection/zsort.mjs';
 
-var BRp = {};
+const BRp = {};
 
 BRp.updateCachedGrabbedEles = function(){
-  var eles = this.cachedZSortedEles;
+  const eles = this.cachedZSortedEles;
 
   if( !eles ){
     // just let this be recalculated on the next z sort tick
@@ -13,11 +13,11 @@ BRp.updateCachedGrabbedEles = function(){
   eles.drag = [];
   eles.nondrag = [];
 
-  var grabTargets = [];
+  const grabTargets = [];
 
-  for( var i = 0; i < eles.length; i++ ){
-    var ele = eles[i];
-    var rs = ele._private.rscratch;
+  for (let i = 0; i < eles.length; i++ ){
+    const ele = eles[i];
+    const rs = ele._private.rscratch;
 
     if( ele.grabbed() && !ele.isParent() ){
       grabTargets.push( ele );
@@ -29,8 +29,8 @@ BRp.updateCachedGrabbedEles = function(){
   }
 
   // put the grab target nodes last so it's on top of its neighbourhood
-  for( var i = 0; i < grabTargets.length; i++ ){
-    var ele = grabTargets[i];
+  for (let i = 0; i < grabTargets.length; i++ ){
+    const ele = grabTargets[i];
 
     eles.drag.push( ele );
   }
@@ -42,7 +42,7 @@ BRp.invalidateCachedZSortedEles = function(){
 
 BRp.getCachedZSortedEles = function( forceRecalc ){
   if( forceRecalc || !this.cachedZSortedEles ){
-    var eles = this.cy.mutableElements().toArray();
+    const eles = this.cy.mutableElements().toArray();
 
     eles.sort( zIndexSort );
 

@@ -1,13 +1,13 @@
 /*! Runge-Kutta spring physics function generator. Adapted from Framer.js, copyright Koen Bok. MIT License: http://en.wikipedia.org/wiki/MIT_License */
 /* Given a tension, friction, and duration, a simulation at 60FPS will first run without a defined duration in order to calculate the full path. A second pass
    then adjusts the time delta -- using the relation between actual time and duration -- to calculate the path for the duration-constrained animation. */
-let generateSpringRK4 = (function(){
+const generateSpringRK4 = (function(){
   function springAccelerationForState( state ){
     return (-state.tension * state.x) - (state.friction * state.v);
   }
 
   function springEvaluateStateWithDerivative( initialState, dt, derivative ){
-    let state = {
+    const state = {
       x: initialState.x + derivative.dx * dt,
       v: initialState.v + derivative.dv * dt,
       tension: initialState.tension,
@@ -18,7 +18,7 @@ let generateSpringRK4 = (function(){
   }
 
   function springIntegrateState( state, dt ){
-    let a = {
+    const a = {
       dx: state.v,
       dv: springAccelerationForState( state )
     },
@@ -36,7 +36,7 @@ let generateSpringRK4 = (function(){
 
   return function springRK4Factory( tension, friction, duration ){
 
-    let initState = {
+    const initState = {
       x: -1,
       v: 0,
       tension: null,
@@ -45,8 +45,8 @@ let generateSpringRK4 = (function(){
     path = [0],
     time_lapsed = 0,
     tolerance = 1 / 10000,
-    DT = 16 / 1000,
-    have_duration, dt, last_state;
+    DT = 16 / 1000;
+    let have_duration, dt, last_state;
 
     tension = parseFloat( tension ) || 500;
     friction = parseFloat( friction ) || 20;

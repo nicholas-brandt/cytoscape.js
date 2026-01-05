@@ -10,41 +10,41 @@ const aStarDefaults = defaults({
   directed: false
 });
 
-let elesfn = ({
+const elesfn = ({
 
   // Implemented from pseudocode from wikipedia
   aStar: function( options ){
-    let cy = this.cy();
+    const cy = this.cy();
     let { root, goal, heuristic, directed, weight } = aStarDefaults(options);
 
     root = cy.collection(root)[0];
     goal = cy.collection(goal)[0];
 
-    let sid = root.id();
-    let tid = goal.id();
+    const sid = root.id();
+    const tid = goal.id();
 
-    let gScore = {};
-    let fScore = {};
-    let closedSetIds = {};
-    let openSet = new Heap( (a, b) => fScore[a.id()] - fScore[b.id()] );
-    let openSetIds = new Set();
-    let cameFrom = {};
-    let cameFromEdge = {};
+    const gScore = {};
+    const fScore = {};
+    const closedSetIds = {};
+    const openSet = new Heap( (a, b) => fScore[a.id()] - fScore[b.id()] );
+    const openSetIds = new Set();
+    const cameFrom = {};
+    const cameFromEdge = {};
 
-    let addToOpenSet = (ele, id) => {
+    const addToOpenSet = (ele, id) => {
       openSet.push(ele);
       openSetIds.add(id);
     };
 
     let cMin, cMinId;
 
-    let popFromOpenSet = () => {
+    const popFromOpenSet = () => {
       cMin = openSet.pop();
       cMinId = cMin.id();
       openSetIds.delete(cMinId);
     };
 
-    let isInOpenSet = id => openSetIds.has(id);
+    const isInOpenSet = id => openSetIds.has(id);
 
     addToOpenSet(root, sid);
 
@@ -52,7 +52,7 @@ let elesfn = ({
     fScore[ sid ] = heuristic( root );
 
     // Counter
-    let steps = 0;
+    const steps = 0;
 
     // Main loop
     while( openSet.size() > 0 ){
@@ -61,10 +61,10 @@ let elesfn = ({
 
       // If we've found our goal, then we are done
       if( cMinId === tid ){
-        let path = [];
-        let pathNode = goal;
-        let pathNodeId = tid;
-        let pathEdge = cameFromEdge[pathNodeId];
+        const path = [];
+        const pathNode = goal;
+        const pathNodeId = tid;
+        const pathEdge = cameFromEdge[pathNodeId];
 
         for( ;; ){
           path.unshift(pathNode);
@@ -94,10 +94,10 @@ let elesfn = ({
 
       // Update scores for neighbors of cMin
       // Take into account if graph is directed or not
-      let vwEdges = cMin._private.edges;
+      const vwEdges = cMin._private.edges;
 
-      for( let i = 0; i < vwEdges.length; i++ ){
-        let e = vwEdges[ i ];
+      for (let i = 0; i < vwEdges.length; i++ ){
+        const e = vwEdges[ i ];
 
         // edge must be in set of calling eles
         if( !this.hasElementWithId( e.id() ) ){ continue; }
@@ -105,11 +105,11 @@ let elesfn = ({
         // cMin must be the source of edge if directed
         if( directed && e.data('source') !== cMinId ){ continue; }
 
-        let wSrc = e.source();
-        let wTgt = e.target();
+        const wSrc = e.source();
+        const wTgt = e.target();
 
-        let w = wSrc.id() !== cMinId ? wSrc : wTgt;
-        let wid = w.id();
+        const w = wSrc.id() !== cMinId ? wSrc : wTgt;
+        const wid = w.id();
 
         // node must be in set of calling eles
         if( !this.hasElementWithId( wid ) ){ continue; }
@@ -120,7 +120,7 @@ let elesfn = ({
         }
 
         // New tentative score for node w
-        let tempScore = gScore[ cMinId ] + weight( e );
+        const tempScore = gScore[ cMinId ] + weight( e );
 
         // Update gScore for node w if:
         //   w not present in openSet

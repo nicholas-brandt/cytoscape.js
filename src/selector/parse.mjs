@@ -14,18 +14,18 @@ const consumeExpr = ( remaining ) => {
   let match;
   let name;
 
-  for( let j = 0; j < exprs.length; j++ ){
-    let e = exprs[ j ];
-    let n = e.name;
+  for (let j = 0; j < exprs.length; j++ ){
+    const e = exprs[ j ];
+    const n = e.name;
 
-    let m = remaining.match( e.regexObj );
+    const m = remaining.match( e.regexObj );
 
     if( m != null ){
       match = m;
       expr = e;
       name = n;
 
-      let consumed = m[0];
+      const consumed = m[0];
       remaining = remaining.substring( consumed.length );
 
       break; // we've consumed one expr, so we can return now
@@ -47,10 +47,10 @@ const consumeExpr = ( remaining ) => {
  * @returns The text with the leading whitespace removed
  */
 const consumeWhitespace = ( remaining ) => {
-  let match = remaining.match( /^\s+/ );
+  const match = remaining.match( /^\s+/ );
 
   if( match ){
-    let consumed = match[0];
+    const consumed = match[0];
     remaining = remaining.substring( consumed.length );
   }
 
@@ -63,26 +63,26 @@ const consumeWhitespace = ( remaining ) => {
  * @returns `true` if the selector was successfully parsed, `false` otherwise
  */
 const parse = function( selector ){
-  let self = this;
+  const self = this;
 
   let remaining = self.inputText = selector;
 
-  let currentQuery = self[0] = newQuery();
+  const currentQuery = self[0] = newQuery();
   self.length = 1;
 
   remaining = consumeWhitespace( remaining ); // get rid of leading whitespace
 
   for( ;; ){
-    let exprInfo = consumeExpr( remaining );
+    const exprInfo = consumeExpr( remaining );
 
     if( exprInfo.expr == null ){
       warn( 'The selector `' + selector + '`is invalid' );
       return false;
     } else {
-      let args = exprInfo.match.slice( 1 );
+      const args = exprInfo.match.slice( 1 );
 
       // let the token populate the selector object in currentQuery
-      let ret = exprInfo.expr.populate( self, currentQuery, args );
+      const ret = exprInfo.expr.populate( self, currentQuery, args );
 
       if( ret === false ){
         return false; // exit if population failed
@@ -99,7 +99,7 @@ const parse = function( selector ){
     }
   }
 
-  let lastQ = self[self.length - 1];
+  const lastQ = self[self.length - 1];
 
   if( self.currentSubject != null ){
     lastQ.subject = self.currentSubject;
@@ -108,8 +108,8 @@ const parse = function( selector ){
   lastQ.edgeCount = self.edgeCount;
   lastQ.compoundCount = self.compoundCount;
 
-  for( let i = 0; i < self.length; i++ ){
-    let q = self[i];
+  for (let i = 0; i < self.length; i++ ){
+    const q = self[i];
 
     // in future, this could potentially be allowed if there were operator precedence and detection of invalid combinations
     if( q.compoundCount > 0 && q.edgeCount > 0 ){
@@ -138,7 +138,7 @@ export const toString = function(){
     return this.toStringCache;
   }
 
-  let clean = function( obj ){
+  const clean = function( obj ){
     if( obj == null ){
       return '';
     } else {
@@ -146,7 +146,7 @@ export const toString = function(){
     }
   };
 
-  let cleanVal = function( val ){
+  const cleanVal = function( val ){
     if( is.string( val ) ){
       return '"' + val + '"';
     } else {
@@ -154,16 +154,16 @@ export const toString = function(){
     }
   };
 
-  let space = ( val ) => {
+  const space = ( val ) => {
     return ' ' + val + ' ';
   };
 
-  let checkToString = ( check, subject ) => {
+  const checkToString = ( check, subject ) => {
     let { type, value } = check;
 
     switch( type ){
       case Type.GROUP: {
-        let group = clean( value );
+        const group = clean( value );
 
         return group.substring( 0, group.length - 1 );
       }
@@ -181,7 +181,7 @@ export const toString = function(){
       }
 
       case Type.DATA_EXIST: {
-        let { field } = check;
+        const { field } = check;
 
         return '[' + field + ']';
       }
@@ -215,9 +215,9 @@ export const toString = function(){
       }
 
       case Type.COMPOUND_SPLIT: {
-        let lhs = queryToString(check.left, subject);
-        let sub = queryToString(check.subject, subject);
-        let rhs = queryToString(check.right, subject);
+        const lhs = queryToString(check.left, subject);
+        const sub = queryToString(check.subject, subject);
+        const rhs = queryToString(check.right, subject);
 
         return lhs + (lhs.length > 0 ? ' ' : '') + sub + rhs;
       }
@@ -228,16 +228,16 @@ export const toString = function(){
     }
   };
 
-  let queryToString = ( query, subject ) => {
+  const queryToString = ( query, subject ) => {
     return query.checks.reduce((str, chk, i) => {
       return str + (subject === query && i === 0 ? '$' : '') + checkToString(chk, subject);
     }, '');
   };
 
-  let str = '';
+  const str = '';
 
-  for( let i = 0; i < this.length; i++ ){
-    let query = this[ i ];
+  for (let i = 0; i < this.length; i++ ){
+    const query = this[ i ];
 
     str += queryToString( query, query.subject );
 

@@ -1,11 +1,11 @@
-let tarjanStronglyConnected = function() {
+const tarjanStronglyConnected = function() {
 
-  let eles = this;
-  let nodes = {};
-  let index = 0;
-  let components = [];
-  let stack = [];
-  let cut = eles.spawn(eles);
+  const eles = this;
+  const nodes = {};
+  const index = 0;
+  const components = [];
+  const stack = [];
+  const cut = eles.spawn(eles);
 
   const stronglyConnectedSearch = sourceNodeId => {
     stack.push(sourceNodeId);
@@ -15,12 +15,12 @@ let tarjanStronglyConnected = function() {
       explored : false
     };
 
-    let connectedEdges = eles.getElementById(sourceNodeId)
+    const connectedEdges = eles.getElementById(sourceNodeId)
                              .connectedEdges()
                              .intersection(eles);
 
     connectedEdges.forEach(edge => {
-      let targetNodeId = edge.target().id();
+      const targetNodeId = edge.target().id();
       if (targetNodeId !== sourceNodeId) {
         if (!(targetNodeId in nodes)) {
           stronglyConnectedSearch(targetNodeId);
@@ -33,7 +33,7 @@ let tarjanStronglyConnected = function() {
     });
 
     if (nodes[sourceNodeId].index === nodes[sourceNodeId].low) {
-      let componentNodes = eles.spawn();
+      const componentNodes = eles.spawn();
       for (;;) {
         const nodeId = stack.pop();
         componentNodes.merge(eles.getElementById(nodeId));
@@ -44,8 +44,8 @@ let tarjanStronglyConnected = function() {
         }
       }
 
-      let componentEdges = componentNodes.edgesWith(componentNodes);
-      let component = componentNodes.merge(componentEdges);
+      const componentEdges = componentNodes.edgesWith(componentNodes);
+      const component = componentNodes.merge(componentEdges);
       components.push(component);
       cut = cut.difference(component);
     }
@@ -53,7 +53,7 @@ let tarjanStronglyConnected = function() {
 
   eles.forEach(ele => {
     if (ele.isNode()) {
-      let nodeId = ele.id();
+      const nodeId = ele.id();
       if (!(nodeId in nodes)) {
         stronglyConnectedSearch(nodeId);
       }
