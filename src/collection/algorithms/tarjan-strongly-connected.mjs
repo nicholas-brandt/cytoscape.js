@@ -1,10 +1,10 @@
 const tarjanStronglyConnected = function () {
   const eles = this;
   const nodes = {};
-  const index = 0;
+  let index = 0;
   const components = [];
   const stack = [];
-  const cut = eles.spawn(eles);
+  let cut = eles.spawn(eles);
 
   const stronglyConnectedSearch = (sourceNodeId) => {
     stack.push(sourceNodeId);

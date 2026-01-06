@@ -83,7 +83,7 @@ styfn.getPropertiesDiff = function (oldCxtKey, newCxtKey) {
         // if a later context overrides this property, then the fact that this context has switched/diffed doesn't matter
         // (semi expensive check since it makes this function O(n^2) on context length, but worth it since overall result
         // is cached)
-        const laterCxtOverrides = false;
+        let laterCxtOverrides = false;
         for (let k = i + 1; k < self.length; k++) {
           const laterCxt = self[k];
           const hasLaterCxt = newCxtKey[k] === TRUE;
@@ -113,7 +113,7 @@ styfn.getPropertiesDiff = function (oldCxtKey, newCxtKey) {
 
 styfn.getContextMeta = function (ele) {
   const self = this;
-  const cxtKey = "";
+  let cxtKey = "";
   let diffProps;
   const prevKey = ele._private.styleCxtKey || "";
 
@@ -186,7 +186,7 @@ styfn.applyContextStyle = function (cxtMeta, cxtStyle, ele) {
 
   for (let i = 0; i < diffProps.length; i++) {
     const diffPropName = diffProps[i];
-    const cxtProp = cxtStyle[diffPropName];
+    let cxtProp = cxtStyle[diffPropName];
     const eleProp = ele.pstyle(diffPropName);
 
     if (!cxtProp) {
@@ -462,7 +462,7 @@ styfn.clearStyleHints = function (ele) {
 // the generated flattenedProp:{ bypassed: parsedProp }
 styfn.applyParsedProperty = function (ele, parsedProp) {
   const self = this;
-  const prop = parsedProp;
+  let prop = parsedProp;
   const style = ele._private.style;
   let flatProp;
   const types = self.types;
@@ -493,9 +493,8 @@ styfn.applyParsedProperty = function (ele, parsedProp) {
   // edge sanity checks to prevent the client from making serious mistakes
   if (
     parsedProp.name === "curve-style" &&
-    ele.isEdge() &&
-    (// loops must be bundled beziers
-    (parsedProp.value !== "bezier" && ele.isLoop()) || // edges connected to compound nodes can not be haystacks
+    ele.isEdge() && // loops must be bundled beziers
+    ((parsedProp.value !== "bezier" && ele.isLoop()) || // edges connected to compound nodes can not be haystacks
       (parsedProp.value === "haystack" &&
         (ele.source().isParent() || ele.target().isParent())))
   ) {
@@ -572,7 +571,7 @@ styfn.applyParsedProperty = function (ele, parsedProp) {
     case types.mapData: {
       // flatten the field (e.g. data.foo.bar)
       const fields = prop.field.split(".");
-      const fieldVal = _p.data;
+      let fieldVal = _p.data;
 
       for (let i = 0; i < fields.length && fieldVal; i++) {
         const field = fields[i];
@@ -668,7 +667,7 @@ styfn.applyParsedProperty = function (ele, parsedProp) {
     case types.data: {
       // flatten the field (e.g. data.foo.bar)
       const fields = prop.field.split(".");
-      const fieldVal = _p.data;
+      let fieldVal = _p.data;
 
       for (let i = 0; i < fields.length && fieldVal; i++) {
         const field = fields[i];
@@ -817,7 +816,7 @@ styfn.updateTransitions = function (ele, diffProps) {
     const style = {};
 
     // build up the style to animate towards
-    const anyPrev = false;
+    let anyPrev = false;
     for (let i = 0; i < props.length; i++) {
       const prop = props[i];
       const styProp = ele.pstyle(prop);
@@ -830,7 +829,7 @@ styfn.updateTransitions = function (ele, diffProps) {
       const prevProp = diffProp.prev;
       const fromProp = prevProp;
       const toProp = diffProp.next != null ? diffProp.next : styProp;
-      const diff = false;
+      let diff = false;
       let initVal;
       const initDt = 0.000001; // delta time % value for initVal (allows animating out of init zero opacity)
 

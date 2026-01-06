@@ -3,7 +3,7 @@ import { extend } from "./extend.mjs";
 
 // has anything been set in the map
 export const mapEmpty = (map) => {
-  const empty = true;
+  let empty = true;
 
   if (map != null) {
     return Object.keys(map).length === 0;
@@ -30,7 +30,7 @@ export const pushMap = (options) => {
 
 // sets the value in a map (map may not be built)
 export const setMap = (options) => {
-  const obj = options.map;
+  let obj = options.map;
   const keys = options.keys;
   const l = keys.length;
 
@@ -57,7 +57,7 @@ export const setMap = (options) => {
 
 // gets the value in a map even if it's not built in places
 export const getMap = (options) => {
-  const obj = options.map;
+  let obj = options.map;
   const keys = options.keys;
   const l = keys.length;
 
@@ -80,7 +80,7 @@ export const getMap = (options) => {
 
 // deletes the entry in the map
 export const deleteMap = (options) => {
-  const obj = options.map;
+  let obj = options.map;
   const keys = options.keys;
   const l = keys.length;
   const keepChildren = options.keepChildren;

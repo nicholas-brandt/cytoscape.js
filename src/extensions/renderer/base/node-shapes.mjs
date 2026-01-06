@@ -187,7 +187,7 @@ BRp.generateRoundPolygon = function (name, points) {
           : cornerRadius;
       const p = new Array(points.length / 2);
 
-      for (const i = 0; i < points.length / 2; i++) {
+      for (let i = 0; i < points.length / 2; i++) {
         p[i] = {
           x: centerX + halfW * points[i * 2],
           y: centerY + halfH * points[i * 2 + 1],

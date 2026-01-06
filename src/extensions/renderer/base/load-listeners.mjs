@@ -38,7 +38,7 @@ BRp.binder = function (tgt) {
 
   if (r.supportsPassiveEvents == null) {
     // from https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
-    const supportsPassive = false;
+    let supportsPassive = false;
     try {
       const opts = Object.defineProperty({}, "passive", {
         get: function () {
@@ -128,7 +128,7 @@ BRp.load = function () {
   };
 
   const allowPanningPassthrough = function (down, downs) {
-    const allowPassthrough = true;
+    let allowPassthrough = true;
 
     if (r.cy.hasCompoundNodes() && down && down.pannable()) {
       // a grabbable compound node below the ele => no passthrough panning
@@ -389,7 +389,7 @@ BRp.load = function () {
     const height = containerPageCoords[3];
 
     const positions = e.touches ? e.touches : [e];
-    const atLeastOnePosInside = false;
+    let atLeastOnePosInside = false;
 
     for (let i = 0; i < positions.length; i++) {
       const p = positions[i];
@@ -411,8 +411,8 @@ BRp.load = function () {
 
     const container = r.container;
     const target = e.target;
-    const tParent = target.parentNode;
-    const containerIsTarget = false;
+    let tParent = target.parentNode;
+    let containerIsTarget = false;
 
     while (tParent) {
       if (tParent === container) {
@@ -1141,7 +1141,7 @@ BRp.load = function () {
   };
 
   const wheelHandler = function (e) {
-    const clamp = false;
+    let clamp = false;
     const delta = e.deltaY;
 
     if (delta == null) {

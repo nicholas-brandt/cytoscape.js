@@ -9,7 +9,7 @@ function getEasedValue(type, start, end, percent, easingFn) {
     return end;
   }
 
-  const val = easingFn(start, end, percent);
+  let val = easingFn(start, end, percent);
 
   if (type == null) {
     return val;

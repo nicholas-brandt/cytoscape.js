@@ -4,25 +4,25 @@ import Heap from "../../../heap.mjs";
 import * as is from "../../../is.mjs";
 import defs from "./texture-cache-defs.mjs";
 
-const defNumLayers = 1; // default number of layers to use
+let defNumLayers = 1; // default number of layers to use
 const minLvl = -4; // when scaling smaller than that we don't need to re-render
 const maxLvl = 2; // when larger than this scale just render directly (caching is not helpful)
 const maxZoom = 3.99; // beyond this zoom level, layered textures are not used
 const deqRedrawThreshold = 50; // time to batch redraws together from dequeueing to allow more dequeueing calcs to happen in the meanwhile
 const refineEleDebounceTime = 50; // time to debounce sharper ele texture updates
-const disableEleImgSmoothing = true; // when drawing eles on layers from an ele cache ; crisper and more performant when true
+let disableEleImgSmoothing = true; // when drawing eles on layers from an ele cache ; crisper and more performant when true
 const deqCost = 0.15; // % of add'l rendering cost allowed for dequeuing ele caches each frame
 const deqAvgCost = 0.1; // % of add'l rendering cost compared to average overall redraw time
 const deqNoDrawCost = 0.9; // % of avg frame time that can be used for dequeueing when not drawing
 const deqFastCost = 0.9; // % of frame time to be used when >60fps
-const maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
+let maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
 const invalidThreshold = 250; // time threshold for disabling b/c of invalidations
 const maxLayerArea = 4000 * 4000; // layers can't be bigger than this
 const maxLayerDim = 32767; // maximum size for the width/height of layer canvases
-const alwaysQueue = true; // never draw all the layers in a level on a frame; draw directly until all dequeued
-const useHighQualityEleTxrReqs = true; // whether to use high quality ele txr requests (generally faster and cheaper in the longterm)
+let alwaysQueue = true; // never draw all the layers in a level on a frame; draw directly until all dequeued
+let useHighQualityEleTxrReqs = true; // whether to use high quality ele txr requests (generally faster and cheaper in the longterm)
 
-const useEleTxrCaching = true; // whether to use individual ele texture caching underneath this cache
+let useEleTxrCaching = true; // whether to use individual ele texture caching underneath this cache
 
 // const log = function(){ console.log.apply( console, arguments ); };
 
@@ -66,7 +66,7 @@ const LayeredTextureCache = function (renderer) {
 
 const LTCp = LayeredTextureCache.prototype;
 
-const layerIdPool = 0;
+let layerIdPool = 0;
 const MAX_INT = Math.pow(2, 53) - 1;
 
 LTCp.makeLayer = function (bb, lvl) {
@@ -351,7 +351,7 @@ LTCp.levelIsComplete = function (lvl, eles) {
     return false;
   }
 
-  const numElesInLayers = 0;
+  let numElesInLayers = 0;
 
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i];
@@ -389,7 +389,7 @@ LTCp.validateLayersElesOrdering = function (lvl, eles) {
 
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i];
-    const offset = -1;
+    let offset = -1;
 
     // find the offset
     for (let j = 0; j < eles.length; j++) {
@@ -452,7 +452,7 @@ LTCp.updateElementsInLayers = function (eles, update) {
 
 LTCp.haveLayers = function () {
   const self = this;
-  const haveLayers = false;
+  let haveLayers = false;
 
   for (let l = minLvl; l <= maxLvl; l++) {
     const layers = self.layersByLevel[l];
@@ -527,7 +527,7 @@ LTCp.refineElementTextures = function (eles) {
   // log('refine', eles.length);
 
   self.updateElementsInLayers(eles, function refineEachEle(layer, ele, req) {
-    const rLyr = layer.replacement;
+    let rLyr = layer.replacement;
 
     if (!rLyr) {
       rLyr = layer.replacement = self.makeLayer(layer.bb, layer.level);
@@ -591,7 +591,7 @@ LTCp.dequeue = function (pxRatio) {
   const self = this;
   const q = self.layersQueue;
   const deqd = [];
-  const eleDeqs = 0;
+  let eleDeqs = 0;
 
   while (eleDeqs < maxDeqSize) {
     if (q.size() === 0) {

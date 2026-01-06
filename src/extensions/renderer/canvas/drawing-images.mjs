@@ -190,7 +190,7 @@ CRp.drawInscribedImage = function (context, img, node, index, nodeOpacity) {
   context.globalAlpha = imgOpacity;
 
   const smoothingEnabled = r.getImgSmoothing(context);
-  const isSmoothingSwitched = false;
+  let isSmoothingSwitched = false;
 
   if (smooth === "no" && smoothingEnabled) {
     r.setImgSmoothing(context, false);

@@ -4,7 +4,7 @@ export const DEFAULT_HASH_SEED_ALT = 5381;
 
 export const hashIterableInts = function (iterator, seed = DEFAULT_HASH_SEED) {
   // sdbm/string-hash
-  const hash = seed;
+  let hash = seed;
   let entry;
 
   for (;;) {
@@ -44,7 +44,7 @@ export const hashArrays = function (hashes1, hashes2) {
 
 export const hashIntsArray = function (ints, seed) {
   const entry = { value: 0, done: false };
-  const i = 0;
+  let i = 0;
   const length = ints.length;
 
   const iterator = {
@@ -64,7 +64,7 @@ export const hashIntsArray = function (ints, seed) {
 
 export const hashString = function (str, seed) {
   const entry = { value: 0, done: false };
-  const i = 0;
+  let i = 0;
   const length = str.length;
 
   const iterator = {

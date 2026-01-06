@@ -34,7 +34,7 @@ CRp.drawNode = function (
 
   const usePaths = r.usePaths();
   let path;
-  const pathCacheHit = false;
+  let pathCacheHit = false;
 
   const padding = node.padding();
 
@@ -58,7 +58,7 @@ CRp.drawNode = function (
   const urls = bgImgProp.value;
   const urlDefined = new Array(urls.length);
   const image = new Array(urls.length);
-  const numImages = 0;
+  let numImages = 0;
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
     const defd = (urlDefined[i] = url != null && url !== "none");
@@ -142,7 +142,7 @@ CRp.drawNode = function (
 
     const cachedPath = pathCache[key];
     let path;
-    const cacheHit = false;
+    let cacheHit = false;
 
     if (cachedPath != null) {
       path = cachedPath;
@@ -201,7 +201,7 @@ CRp.drawNode = function (
 
   const drawImages = (nodeOpacity = eleOpacity, inside = true) => {
     const prevBging = _p.backgrounding;
-    const totalCompleted = 0;
+    let totalCompleted = 0;
 
     for (let i = 0; i < image.length; i++) {
       const bgContainment = node
@@ -444,9 +444,9 @@ CRp.drawNode = function (
           "round-tag",
         ].includes(shape)
       ) {
-        const sMult = 0;
-        const offsetX = 0;
-        const offsetY = 0;
+        let sMult = 0;
+        let offsetX = 0;
+        let offsetY = 0;
 
         if (shape === "round-diamond") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.4;
@@ -487,7 +487,7 @@ CRp.drawNode = function (
         const p = new Array(points.length / 2);
         const corners = new Array(points.length / 2);
 
-        for (const i = 0; i < points.length / 2; i++) {
+        for (let i = 0; i < points.length / 2; i++) {
           p[i] = {
             x: npos.x + offsetX + halfW * points[i * 2],
             y: npos.y + offsetY + halfH * points[i * 2 + 1],
@@ -774,7 +774,7 @@ CRp.drawPie = function (context, node, nodeOpacity, pos) {
   const nodeH = node.height();
   const radius = Math.min(nodeW, nodeH) / 2; // must fit in node
   let holeRadius;
-  const lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
+  let lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
   const usePaths = this.usePaths();
 
   if (usePaths) {
@@ -855,7 +855,7 @@ CRp.drawStripe = function (context, node, nodeOpacity, pos) {
   let y = pos.y;
   const nodeW = node.width();
   const nodeH = node.height();
-  const lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
+  let lastPercent = 0; // what % to continue drawing pie slices from on [0, 1]
   const usePaths = this.usePaths();
 
   context.save();
@@ -871,7 +871,7 @@ CRp.drawStripe = function (context, node, nodeOpacity, pos) {
       break;
   }
 
-  const stripeW = nodeW;
+  let stripeW = nodeW;
   const stripeH = nodeH;
 
   if (stripeSize.units === "%") {
@@ -897,7 +897,7 @@ CRp.drawStripe = function (context, node, nodeOpacity, pos) {
     const color = node.pstyle("stripe-" + i + "-background-color").value;
     const opacity =
       node.pstyle("stripe-" + i + "-background-opacity").value * nodeOpacity;
-    const percent = size / 100; // map integer range [0, 100] to [0, 1]
+    let percent = size / 100; // map integer range [0, 100] to [0, 1]
 
     // percent can't push beyond 1
     if (percent + lastPercent > 1) {

@@ -58,7 +58,7 @@ BRp.recalculateNodeLabelProjection = function (node) {
 };
 
 const lineAngleFromDelta = function (dx, dy) {
-  const angle = Math.atan(dy / dx);
+  let angle = Math.atan(dy / dx);
 
   if (dx === 0 && angle < 0) {
     angle = angle * -1;
@@ -212,8 +212,8 @@ BRp.recalculateEdgeLabelProjections = function (edge) {
       case "multibezier": {
         const cps = createControlPointInfo();
         let selected;
-        const startDist = 0;
-        const totalDist = 0;
+        let startDist = 0;
+        let totalDist = 0;
 
         // find the segment we're on
         for (let i = 0; i < cps.length; i++) {
@@ -253,7 +253,7 @@ BRp.recalculateEdgeLabelProjections = function (edge) {
       case "straight":
       case "segments":
       case "haystack": {
-        const d = 0;
+        let d = 0;
         let di, d0;
         let p0, p1;
         const l = rs.allpts.length;
@@ -419,7 +419,7 @@ BRp.getLabelText = function (ele, prefix) {
         const separatorMatches = line.matchAll(separatorRegex);
         const subline = "";
 
-        const previousIndex = 0;
+        let previousIndex = 0;
         // Add fake match
         for (let separatorMatch of separatorMatches) {
           const wordSeparator = separatorMatch[0];
@@ -460,7 +460,7 @@ BRp.getLabelText = function (ele, prefix) {
     const maxW = ele.pstyle("text-max-width").pfValue;
     const ellipsized = "";
     const ellipsis = "\u2026";
-    const incLastCh = false;
+    let incLastCh = false;
 
     if (this.calculateLabelDimensions(ele, text).width < maxW) {
       // the label already fits
@@ -523,13 +523,13 @@ BRp.calculateLabelDimensions = function (ele, text) {
 
   const document = containerWindow.document;
 
-  const padding = 0; // add padding around text dims, as the measurement isn't that accurate
+  let padding = 0; // add padding around text dims, as the measurement isn't that accurate
   const fStyle = ele.pstyle("font-style").strValue;
   const size = ele.pstyle("font-size").pfValue;
   const family = ele.pstyle("font-family").strValue;
   const weight = ele.pstyle("font-weight").strValue;
 
-  const canvas = this.labelCalcCanvas;
+  let canvas = this.labelCalcCanvas;
   const c2d = this.labelCalcCanvasContext;
 
   if (!canvas) {

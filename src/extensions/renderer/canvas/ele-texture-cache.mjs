@@ -29,7 +29,7 @@ const deqAvgCost = 0.1; // % of add'l rendering cost compared to average overall
 const deqNoDrawCost = 0.9; // % of avg frame time that can be used for dequeueing when not drawing
 const deqFastCost = 0.9; // % of frame time to be used when >60fps
 const deqRedrawThreshold = 100; // time to batch redraws together from dequeueing to allow more dequeueing calcs to happen in the meanwhile
-const maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
+let maxDeqSize = 1; // number of eles to dequeue and render at higher texture in each batch
 
 const getTxrReasons = {
   dequeue: "dequeue",
@@ -184,7 +184,7 @@ ETCp.getElement = function (ele, bb, pxRatio, lvl, reason) {
   const txrQ = self.getTextureQueue(txrH);
 
   // first try the second last one in case it has space at the end
-  const txr = txrQ[txrQ.length - 2];
+  let txr = txrQ[txrQ.length - 2];
 
   const addNewTxr = function () {
     return (

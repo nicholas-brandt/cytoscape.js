@@ -35,7 +35,7 @@ const generateSpringRK4 = (function () {
   }
 
   return function springRK4Factory(tension, friction, duration) {
-    const initState = {
+    let initState = {
         x: -1,
         v: 0,
         tension: null,

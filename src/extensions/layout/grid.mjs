@@ -37,7 +37,7 @@ GridLayout.prototype.run = function () {
 
   const cy = params.cy;
   const eles = options.eles;
-  const nodes = eles.nodes().not(":parent");
+  let nodes = eles.nodes().not(":parent");
 
   if (options.sort) {
     nodes = nodes.sort(options.sort);
@@ -62,8 +62,8 @@ GridLayout.prototype.run = function () {
     // width/height * splits^2 = cells where splits is number of times to split width
     const cells = nodes.size();
     const splits = Math.sqrt((cells * bb.h) / bb.w);
-    const rows = Math.round(splits);
-    const cols = Math.round((bb.w / bb.h) * splits);
+    let rows = Math.round(splits);
+    let cols = Math.round((bb.w / bb.h) * splits);
 
     const small = function (val) {
       if (val == null) {
@@ -134,8 +134,8 @@ GridLayout.prototype.run = function () {
       }
     }
 
-    const cellWidth = bb.w / cols;
-    const cellHeight = bb.h / rows;
+    let cellWidth = bb.w / cols;
+    let cellHeight = bb.h / rows;
 
     if (options.condense) {
       cellWidth = 0;
@@ -175,8 +175,8 @@ GridLayout.prototype.run = function () {
     };
 
     // to keep track of current cell position
-    const row = 0;
-    const col = 0;
+    let row = 0;
+    let col = 0;
     const moveToNextCell = function () {
       col++;
       if (col >= cols) {

@@ -174,7 +174,7 @@ CRp.initWebgl = function (opts, fns) {
 
   // Event listener checks if style keys are no longer in use.
   r.onUpdateEleCalcs((willDraw, eles) => {
-    const gcNeeded = false;
+    let gcNeeded = false;
     if (eles && eles.length > 0) {
       gcNeeded |= r.drawing.invalidate(eles);
     }
@@ -407,7 +407,7 @@ function drawAtlases(r) {
       }
     }
   };
-  const i = 0;
+  let i = 0;
   draw(r.drawing, "node", i++);
   draw(r.drawing, "label", i++);
 }
@@ -526,7 +526,7 @@ function renderWebgl(r, options, renderTarget) {
   }
 
   const { drawing } = r;
-  const eleCount = 0;
+  let eleCount = 0;
 
   if (renderTarget.screen) {
     if (r.data.canvasNeedsRedraw[r.SELECT_BOX]) {
@@ -582,7 +582,7 @@ function renderWebgl(r, options, renderTarget) {
   if (r.webglDebug) {
     // eslint-disable-next-line no-undef
     const end = performance.now();
-    const compact = false;
+    let compact = false;
 
     const time = Math.ceil(end - start);
     const debugInfo = drawing.getDebugInfo();

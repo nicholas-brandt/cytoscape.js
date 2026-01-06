@@ -173,7 +173,7 @@ fn = elesfn = {
     const cy = this.cy();
     const zoom = cy.zoom();
     const pan = cy.pan();
-    const rpos = is.plainObject(dim) ? dim : undefined;
+    let rpos = is.plainObject(dim) ? dim : undefined;
     const setting = rpos !== undefined || (val !== undefined && is.string(dim));
 
     if (ele && ele.isNode()) {
@@ -214,7 +214,7 @@ fn = elesfn = {
   relativePosition: function (dim, val) {
     const ele = this[0];
     const cy = this.cy();
-    const ppos = is.plainObject(dim) ? dim : undefined;
+    let ppos = is.plainObject(dim) ? dim : undefined;
     const setting = ppos !== undefined || (val !== undefined && is.string(dim));
     const hasCompoundNodes = cy.hasCompoundNodes();
 
@@ -223,7 +223,7 @@ fn = elesfn = {
       if (setting) {
         for (let i = 0; i < this.length; i++) {
           const ele = this[i];
-          const parent = hasCompoundNodes ? ele.parent() : null;
+          let parent = hasCompoundNodes ? ele.parent() : null;
           const hasParent = parent && parent.length > 0;
           const relativeToParent = hasParent;
 

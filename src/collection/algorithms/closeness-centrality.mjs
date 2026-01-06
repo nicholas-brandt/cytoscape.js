@@ -14,13 +14,13 @@ const elesfn = {
 
     const cy = this.cy();
     const closenesses = {};
-    const maxCloseness = 0;
+    let maxCloseness = 0;
     const nodes = this.nodes();
     const fw = this.floydWarshall({ weight, directed });
 
     // Compute closeness for every node and find the maximum closeness
     for (let i = 0; i < nodes.length; i++) {
-      const currCloseness = 0;
+      let currCloseness = 0;
       const node_i = nodes[i];
 
       for (let j = 0; j < nodes.length; j++) {
@@ -73,7 +73,7 @@ const elesfn = {
 
     // we need distance from this node to every other node
     const dijkstra = this.dijkstra({ root, weight, directed });
-    const totalDistance = 0;
+    let totalDistance = 0;
     const nodes = this.nodes();
 
     for (let i = 0; i < nodes.length; i++) {

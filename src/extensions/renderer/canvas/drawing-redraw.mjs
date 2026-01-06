@@ -30,7 +30,7 @@ CRp.getPixelRatio = function () {
 
 CRp.paintCache = function (context) {
   const caches = (this.paintCaches = this.paintCaches || []);
-  const needToCreateCache = true;
+  let needToCreateCache = true;
   let cache;
 
   for (let i = 0; i < caches.length; i++) {
@@ -303,7 +303,7 @@ CRp.matchCanvasSize = function (container) {
   const bb = r.findContainerClientCoords();
   const width = bb[2];
   const height = bb[3];
-  const pixelRatio = r.getPixelRatio();
+  let pixelRatio = r.getPixelRatio();
   const mbPxRatio = r.motionBlurPxRatio;
 
   if (
@@ -414,7 +414,7 @@ CRp.render = function (options) {
     r.hoverData.selecting || r.touchData.selecting ? true : false;
   motionBlur =
     motionBlur && !forcedContext && r.motionBlurEnabled && !inBoxSelection;
-  const motionBlurFadeEffect = motionBlur;
+  let motionBlurFadeEffect = motionBlur;
 
   if (!forcedContext) {
     if (r.prevPxRatio !== pixelRatio) {
@@ -467,7 +467,7 @@ CRp.render = function (options) {
   const zoom = cy.zoom();
   let effectiveZoom = forcedZoom !== undefined ? forcedZoom : zoom;
   const pan = cy.pan();
-  const effectivePan = {
+  let effectivePan = {
     x: pan.x,
     y: pan.y,
   };
@@ -907,7 +907,7 @@ CRp.drawSelectionRectangle = function (options, setContextTransform) {
       context.fill();
     }
 
-    const timeToRender = r.lastRedrawTime;
+    let timeToRender = r.lastRedrawTime;
     if (r.showFps && timeToRender) {
       timeToRender = Math.round(timeToRender);
       const fps = Math.round(1000 / timeToRender);

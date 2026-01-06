@@ -1,14 +1,14 @@
 const hopcroftTarjanBiconnected = function () {
   const eles = this;
   const nodes = {};
-  const id = 0;
-  const edgeCount = 0;
+  let id = 0;
+  let edgeCount = 0;
   const components = [];
   const stack = [];
   const visitedEdges = {};
 
   const buildComponent = (x, y) => {
-    const i = stack.length - 1;
+    let i = stack.length - 1;
     const cutset = [];
     const component = eles.spawn();
 

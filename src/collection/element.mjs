@@ -9,7 +9,7 @@ const Element = function (cy, params, restore = true) {
     return;
   }
 
-  const group = params.group;
+  let group = params.group;
 
   // try to automatically infer the group if unspecified
   if (group == null) {
@@ -123,7 +123,7 @@ const Element = function (cy, params, restore = true) {
     };
   }
 
-  const classes = [];
+  let classes = [];
   if (is.array(params.classes)) {
     classes = params.classes;
   } else if (is.string(params.classes)) {

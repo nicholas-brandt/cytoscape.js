@@ -43,7 +43,7 @@ CircleLayout.prototype.run = function () {
       ? !options.counterclockwise
       : options.clockwise;
 
-  const nodes = eles.nodes().not(":parent");
+  let nodes = eles.nodes().not(":parent");
 
   if (options.sort) {
     nodes = nodes.sort(options.sort);
@@ -72,7 +72,7 @@ CircleLayout.prototype.run = function () {
   const dTheta = sweep / Math.max(1, nodes.length - 1);
   let r;
 
-  const minDistance = 0;
+  let minDistance = 0;
   for (let i = 0; i < nodes.length; i++) {
     const n = nodes[i];
     const nbb = n.layoutDimensions(options);

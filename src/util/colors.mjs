@@ -121,7 +121,7 @@ export const rgb2tuple = (rgb) => {
       return;
     } // must all be percent values if one is
 
-    const alpha = m[4];
+    let alpha = m[4];
     if (alpha !== undefined) {
       alpha = parseFloat(alpha);
 

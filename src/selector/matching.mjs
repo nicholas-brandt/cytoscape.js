@@ -14,7 +14,7 @@ const filter = function (collection) {
     return collection.getElementById(self[0].checks[0].value).collection();
   }
 
-  const selectorFunction = function (element) {
+  let selectorFunction = function (element) {
     for (let j = 0; j < self.length; j++) {
       const query = self[j];
 

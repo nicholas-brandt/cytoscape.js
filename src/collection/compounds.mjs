@@ -29,7 +29,7 @@ const elesfn = {
   parents: function (selector) {
     const parents = [];
 
-    const eles = this.parent();
+    let eles = this.parent();
     while (eles.nonempty()) {
       for (let i = 0; i < eles.length; i++) {
         const ele = eles[i];

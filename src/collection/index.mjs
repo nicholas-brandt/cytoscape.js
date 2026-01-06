@@ -29,7 +29,7 @@ const Collection = function (cy, elements, unique = false, removed = false) {
   }
 
   const map = new Map();
-  const createdElements = false;
+  let createdElements = false;
 
   if (!elements) {
     elements = [];
@@ -60,7 +60,7 @@ const Collection = function (cy, elements, unique = false, removed = false) {
         continue; // can't create element if prior id already exists
       }
 
-      const ele = new Element(cy, json, false);
+      let ele = new Element(cy, json, false);
       eles.push(ele);
       elesIds.add(data.id);
     }
@@ -211,7 +211,7 @@ elesfn.indexOfId = function (id) {
 };
 
 elesfn.json = function (obj) {
-  const ele = this.element();
+  let ele = this.element();
   const cy = this.cy();
 
   if (ele == null && obj) {
@@ -236,7 +236,7 @@ elesfn.json = function (obj) {
 
       if (ele.isEdge()) {
         // source and target are immutable via data()
-        const move = false;
+        let move = false;
         const spec = {};
         const src = obj.data.source;
         const tgt = obj.data.target;
@@ -257,7 +257,7 @@ elesfn.json = function (obj) {
       } else {
         // parent is immutable via data()
         const newParentValSpecd = "parent" in obj.data;
-        const parent = obj.data.parent;
+        let parent = obj.data.parent;
 
         if (
           newParentValSpecd &&
@@ -333,7 +333,7 @@ elesfn.json = function (obj) {
 
     json.classes = "";
 
-    const i = 0;
+    let i = 0;
     p.classes.forEach((cls) => (json.classes += i++ === 0 ? cls : " " + cls));
 
     return json;
@@ -461,10 +461,10 @@ elesfn.restore = function (notifyRenderer = true, addToPool = true) {
       const edge = ele;
       const fields = ["source", "target"];
       const fieldsLength = fields.length;
-      const badSourceOrTarget = false;
+      let badSourceOrTarget = false;
       for (let j = 0; j < fieldsLength; j++) {
         const field = fields[j];
-        const val = data[field];
+        let val = data[field];
 
         if (is.number(val)) {
           val = data[field] = "" + data[field]; // now string
@@ -552,8 +552,8 @@ elesfn.restore = function (notifyRenderer = true, addToPool = true) {
         data.parent = undefined;
         node._private.parent = null;
       } else {
-        const selfAsParent = false;
-        const ancestor = parent;
+        let selfAsParent = false;
+        let ancestor = parent;
         while (!ancestor.empty()) {
           if (node.same(ancestor)) {
             // mark self as parent and remove from data
@@ -804,8 +804,8 @@ elesfn.move = function (struct) {
 
   // just clean up refs, caches, etc. in the same way as when removing and then restoring
   // (our calls to remove/restore do not remove from the graph or make events)
-  const notifyRenderer = false;
-  const modifyPool = false;
+  let notifyRenderer = false;
+  let modifyPool = false;
 
   const toString = (id) => (id == null ? id : "" + id); // id must be string
 

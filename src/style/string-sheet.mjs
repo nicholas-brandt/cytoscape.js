@@ -68,7 +68,7 @@ styfn.appendFromString = function (string) {
 
     // parse the block of properties and values
     const blockStr = selAndBlock[2];
-    const invalidBlock = false;
+    let invalidBlock = false;
     blockRem = blockStr;
     const props = [];
 

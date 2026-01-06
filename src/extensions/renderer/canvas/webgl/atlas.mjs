@@ -43,9 +43,9 @@ export class Atlas {
   getScale({ w, h }) {
     const { texHeight, texSize: maxTexWidth } = this;
     // try to fit to the height of a row
-    const scale = texHeight / h; // TODO what about pixelRatio?
-    const texW = w * scale;
-    const texH = h * scale;
+    let scale = texHeight / h; // TODO what about pixelRatio?
+    let texW = w * scale;
+    let texH = h * scale;
     // if the scaled width is too wide then scale to fit max width instead
     if (texW > maxTexWidth) {
       scale = maxTexWidth / w;
@@ -266,7 +266,7 @@ export class AtlasCollection {
   }
 
   draw(key, bb, doDrawing) {
-    const atlas = this.styleKeyToAtlas.get(key);
+    let atlas = this.styleKeyToAtlas.get(key);
     if (!atlas) {
       // check for space at the end of the last atlas
       atlas = this.atlases[this.atlases.length - 1];
@@ -306,7 +306,7 @@ export class AtlasCollection {
     const newAtlases = [];
     const newStyleKeyToAtlas = new Map();
 
-    const newAtlas = null;
+    let newAtlas = null;
 
     for (const atlas of this.atlases) {
       const keys = atlas.getKeys();
@@ -485,9 +485,9 @@ export class AtlasManager {
   _cacheScratchCanvas(createTextureCanvas) {
     // all scratch canvases for the same render type will have the same width and height (ie webglTexRows option)
     // but we'll keep track of the width and height just to be safe
-    const prevW = -1;
-    const prevH = -1;
-    const scratchCanvas = null;
+    let prevW = -1;
+    let prevH = -1;
+    let scratchCanvas = null;
 
     return (r, w, h, scratch) => {
       if (scratch) {
@@ -516,8 +516,8 @@ export class AtlasManager {
       filterType = () => true,
     } = {},
   ) {
-    const needGC = false;
-    const runGCNow = false;
+    let needGC = false;
+    let runGCNow = false;
 
     for (const ele of eles) {
       if (filterEle(ele)) {
@@ -575,7 +575,7 @@ export class AtlasManager {
     const atlasCollection = this.collections.get(opts.collection);
 
     // draws the texture only if needed
-    const drawn = false;
+    let drawn = false;
     const atlas = atlasCollection.draw(styleKey, bb, (context) => {
       if (opts.drawClipped) {
         context.save();
@@ -665,7 +665,7 @@ export class AtlasBatchManager {
   }
 
   getAtlasIndexForBatch(atlas) {
-    const atlasID = this.batchAtlases.indexOf(atlas);
+    let atlasID = this.batchAtlases.indexOf(atlas);
     if (atlasID < 0) {
       if (this.batchAtlases.length === this.maxAtlasesPerBatch) {
         throw new Error("cannot add more atlases to batch");

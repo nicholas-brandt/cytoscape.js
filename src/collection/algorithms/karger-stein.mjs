@@ -101,8 +101,8 @@ const elesfn = {
     }
 
     // We will store the best cut found here
-    const minCutSize = Infinity;
-    const minCutEdgeIndexes = [];
+    let minCutSize = Infinity;
+    let minCutEdgeIndexes = [];
     const minCutNodeMap = new Array(numNodes);
 
     // Initial meta node partition

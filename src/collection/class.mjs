@@ -24,7 +24,7 @@ const elesfn = {
       const ele = self[j];
       const _p = ele._private;
       const eleClasses = _p.classes;
-      const changedEle = false;
+      let changedEle = false;
 
       // check if ele has all of the passed classes
       for (let i = 0; i < classes.length; i++) {
@@ -78,12 +78,12 @@ const elesfn = {
     for (let i = 0, il = self.length; i < il; i++) {
       const ele = self[i];
       const eleClasses = ele._private.classes;
-      const changedEle = false;
+      let changedEle = false;
 
       for (let j = 0; j < classes.length; j++) {
         const cls = classes[j];
         const hasClass = eleClasses.has(cls);
-        const changedNow = false;
+        let changedNow = false;
 
         if (toggle || (toggleUndefd && !hasClass)) {
           eleClasses.add(cls);

@@ -272,7 +272,7 @@ const elesfn = {
       return this; // no need to remove
     }
 
-    const i = entry.index;
+    let i = entry.index;
 
     this.unmergeAt(i);
 
@@ -328,7 +328,7 @@ const elesfn = {
   },
 
   reduce: function (fn, initialValue) {
-    const val = initialValue;
+    let val = initialValue;
     const eles = this;
 
     for (let i = 0; i < eles.length; i++) {
@@ -339,7 +339,7 @@ const elesfn = {
   },
 
   max: function (valFn, thisArg) {
-    const max = -Infinity;
+    let max = -Infinity;
     let maxEle;
     const eles = this;
 
@@ -362,7 +362,7 @@ const elesfn = {
   },
 
   min: function (valFn, thisArg) {
-    const min = Infinity;
+    let min = Infinity;
     let minEle;
     const eles = this;
 

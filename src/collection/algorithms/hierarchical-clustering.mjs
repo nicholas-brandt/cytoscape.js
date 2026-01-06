@@ -37,8 +37,8 @@ const setOptions = (options) => {
 
 const mergeClosest = function (clusters, index, dists, mins, opts) {
   // Find two closest clusters from cached mins
-  const minKey = 0;
-  const min = Infinity;
+  let minKey = 0;
+  let min = Infinity;
   let dist;
   const attrs = opts.attributes;
 
@@ -52,7 +52,7 @@ const mergeClosest = function (clusters, index, dists, mins, opts) {
       n2,
     );
 
-  for (const i = 0; i < clusters.length; i++) {
+  for (let i = 0; i < clusters.length; i++) {
     const key = clusters[i].key;
     const dist = dists[key][mins[key]];
     if (dist < min) {
@@ -91,7 +91,7 @@ const mergeClosest = function (clusters, index, dists, mins, opts) {
   index[c1.key] = merged;
 
   // Update distances with new merged cluster
-  for (const i = 0; i < clusters.length; i++) {
+  for (let i = 0; i < clusters.length; i++) {
     const cur = clusters[i];
 
     if (c1.key === cur.key) {
@@ -119,11 +119,11 @@ const mergeClosest = function (clusters, index, dists, mins, opts) {
   }
 
   // Update cached mins
-  for (const i = 0; i < clusters.length; i++) {
+  for (let i = 0; i < clusters.length; i++) {
     const key1 = clusters[i].key;
     if (mins[key1] === c1.key || mins[key1] === c2.key) {
-      const min = key1;
-      for (const j = 0; j < clusters.length; j++) {
+      let min = key1;
+      for (let j = 0; j < clusters.length; j++) {
         const key2 = clusters[j].key;
         if (dists[key1][key2] < dists[key1][min]) {
           min = key2;
@@ -175,7 +175,7 @@ const buildDendrogram = function (root, cy) {
 const buildClustersFromTree = function (root, k, cy) {
   if (!root) return [];
 
-  const left = [],
+  let left= [],
     right = [],
     leaves = [];
 
@@ -217,7 +217,7 @@ if (process.env.NODE_ENV !== "production") {
     const n = M.length;
     for (let i = 0; i < n; i++) {
       const row = "";
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         row += Math.round(M[i][j] * 100) / 100 + " ";
       }
       console.log(row);
@@ -251,7 +251,7 @@ const hierarchicalClustering = function (options) {
   const index = []; // hash of all clusters by key
 
   // In agglomerative (bottom-up) clustering, each node starts as its own cluster
-  for (const n = 0; n < nodes.length; n++) {
+  for (let n = 0; n < nodes.length; n++) {
     const cluster = {
       value: opts.mode === "dendrogram" ? nodes[n] : [nodes[n]],
       key: n,
@@ -264,8 +264,8 @@ const hierarchicalClustering = function (options) {
   }
 
   // Calculate the distance between each pair of clusters
-  for (const i = 0; i < clusters.length; i++) {
-    for (const j = 0; j <= i; j++) {
+  for (let i = 0; i < clusters.length; i++) {
+    for (let j = 0; j <= i; j++) {
       let dist;
 
       if (opts.mode === "dendrogram") {
@@ -290,7 +290,7 @@ const hierarchicalClustering = function (options) {
 
   // Find the closest pair of clusters and merge them into a single cluster.
   // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
-  const merged = mergeClosest(clusters, index, dists, mins, opts);
+  let merged = mergeClosest(clusters, index, dists, mins, opts);
   while (merged) {
     merged = mergeClosest(clusters, index, dists, mins, opts);
   }

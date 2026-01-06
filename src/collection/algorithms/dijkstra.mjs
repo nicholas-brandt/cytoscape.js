@@ -47,7 +47,7 @@ const elesfn = {
 
     const distBetween = (u, v) => {
       const uvs = (directed ? u.edgesTo(v) : u.edgesWith(v)).intersect(edges);
-      const smallestDistance = Infinity;
+      let smallestDistance = Infinity;
       let smallestEdge;
 
       for (let i = 0; i < uvs.length; i++) {
@@ -106,8 +106,8 @@ const elesfn = {
       pathTo: function (node) {
         const target = is.string(node) ? nodes.filter(node)[0] : node[0];
         const S = [];
-        const u = target;
-        const uid = u.id();
+        let u = target;
+        let uid = u.id();
 
         if (target.length > 0) {
           S.unshift(target);

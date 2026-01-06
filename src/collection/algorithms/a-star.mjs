@@ -51,7 +51,7 @@ const elesfn = {
     fScore[sid] = heuristic(root);
 
     // Counter
-    const steps = 0;
+    let steps = 0;
 
     // Main loop
     while (openSet.size() > 0) {
@@ -61,9 +61,9 @@ const elesfn = {
       // If we've found our goal, then we are done
       if (cMinId === tid) {
         const path = [];
-        const pathNode = goal;
-        const pathNodeId = tid;
-        const pathEdge = cameFromEdge[pathNodeId];
+        let pathNode = goal;
+        let pathNodeId = tid;
+        let pathEdge = cameFromEdge[pathNodeId];
 
         for (;;) {
           path.unshift(pathNode);

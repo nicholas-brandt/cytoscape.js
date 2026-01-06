@@ -25,8 +25,8 @@ const elesfn = {
     // Initialize distance matrix
     const dist = new Array(Nsq);
     for (let n = 0; n < Nsq; n++) {
-      const j = n % N;
-      const i = (n - j) / N;
+      let j = n % N;
+      let i = (n - j) / N;
 
       if (i === j) {
         dist[n] = 0;
@@ -96,15 +96,15 @@ const elesfn = {
 
     const res = {
       distance: function (from, to) {
-        const i = indexOfArgEle(from);
-        const j = indexOfArgEle(to);
+        let i = indexOfArgEle(from);
+        let j = indexOfArgEle(to);
 
         return dist[i * N + j];
       },
 
       path: function (from, to) {
-        const i = indexOfArgEle(from);
-        const j = indexOfArgEle(to);
+        let i = indexOfArgEle(from);
+        let j = indexOfArgEle(to);
 
         const fromNode = atIndex(i);
 
@@ -117,7 +117,7 @@ const elesfn = {
         }
 
         const path = cy.collection();
-        const prev = i;
+        let prev = i;
         let edge;
 
         path.merge(fromNode);

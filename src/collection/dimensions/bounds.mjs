@@ -101,7 +101,7 @@ elesfn.updateCompoundBounds = function (force = false) {
       },
     };
 
-    const bb = children.boundingBox({
+    let bb= children.boundingBox({
       includeLabels: includeLabels,
       includeOverlays: false,
 
@@ -125,8 +125,8 @@ elesfn.updateCompoundBounds = function (force = false) {
     }
 
     function computeBiasValues(propDiff, propBias, propBiasComplement) {
-      const biasDiff = 0;
-      const biasComplementDiff = 0;
+      let biasDiff = 0;
+      let biasComplementDiff = 0;
       const biasTotal = propBias + propBiasComplement;
 
       if (propDiff > 0 && biasTotal > 0) {
@@ -173,21 +173,21 @@ elesfn.updateCompoundBounds = function (force = false) {
       }
     }
 
-    const leftVal = min.width.left.value;
+    let leftVal= min.width.left.value;
     if (min.width.left.units === "px" && min.width.val > 0) {
       leftVal = (leftVal * 100) / min.width.val;
     }
-    const rightVal = min.width.right.value;
+    let rightVal= min.width.right.value;
     if (min.width.right.units === "px" && min.width.val > 0) {
       rightVal = (rightVal * 100) / min.width.val;
     }
 
-    const topVal = min.height.top.value;
+    let topVal= min.height.top.value;
     if (min.height.top.units === "px" && min.height.val > 0) {
       topVal = (topVal * 100) / min.height.val;
     }
 
-    const bottomVal = min.height.bottom.value;
+    let bottomVal= min.height.bottom.value;
     if (min.height.bottom.units === "px" && min.height.val > 0) {
       bottomVal = (bottomVal * 100) / min.height.val;
     }
@@ -450,8 +450,8 @@ const updateBoundsFromLabel = function (bounds, ele, prefix) {
       const sin = Math.sin(theta);
 
       // rotation point (default value for center-center)
-      const xo = (lx1 + lx2) / 2;
-      const yo = (ly1 + ly2) / 2;
+      let xo= (lx1 + lx2) / 2;
+      let yo= (ly1 + ly2) / 2;
 
       if (!isEdge) {
         switch (halign.value) {
@@ -616,8 +616,8 @@ const boundingBoxImpl = function (ele, options) {
 
   if (displayed) {
     // displayed suffices, since we will find zero area eles anyway
-    const overlayOpacity = 0;
-    const overlayPadding = 0;
+    let overlayOpacity = 0;
+    let overlayPadding = 0;
 
     if (styleEnabled && options.includeOverlays) {
       overlayOpacity = ele.pstyle("overlay-opacity").value;
@@ -627,8 +627,8 @@ const boundingBoxImpl = function (ele, options) {
       }
     }
 
-    const underlayOpacity = 0;
-    const underlayPadding = 0;
+    let underlayOpacity = 0;
+    let underlayPadding = 0;
 
     if (styleEnabled && options.includeUnderlays) {
       underlayOpacity = ele.pstyle("underlay-opacity").value;
@@ -640,8 +640,8 @@ const boundingBoxImpl = function (ele, options) {
 
     const padding = Math.max(overlayPadding, underlayPadding);
 
-    const w = 0;
-    const wHalf = 0;
+    let w = 0;
+    let wHalf = 0;
 
     if (styleEnabled) {
       w = ele.pstyle("width").pfValue;
@@ -1120,10 +1120,10 @@ elesfn.dirtyBoundingBoxCache = function () {
 // - would be better to not modify the nodes but the nodes are read directly everywhere in the renderer...
 // - try to use for only things like discrete layouts where the node position would change anyway
 elesfn.boundingBoxAt = function (fn) {
-  const nodes = this.nodes();
+  let nodes = this.nodes();
   const cy = this.cy();
   const hasCompoundNodes = cy.hasCompoundNodes();
-  const parents = cy.collection();
+  let parents = cy.collection();
 
   if (hasCompoundNodes) {
     parents = nodes.filter((node) => node.isParent());

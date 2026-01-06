@@ -3,7 +3,7 @@ const BRp = {};
 BRp.getCachedImage = function (url, crossOrigin, onLoad) {
   const r = this;
   const imageCache = (r.imageCache = r.imageCache || {});
-  const cache = imageCache[url];
+  let cache = imageCache[url];
 
   if (cache) {
     if (!cache.image.complete) {

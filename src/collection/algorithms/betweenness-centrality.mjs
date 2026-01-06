@@ -17,7 +17,7 @@ const elesfn = {
     const V = this.nodes();
     const A = {};
     const _C = {};
-    const max = 0;
+    let max = 0;
     const C = {
       set: function (key, val) {
         _C[key] = val;

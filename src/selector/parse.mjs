@@ -66,7 +66,7 @@ const parse = function (selector) {
 
   let remaining = (self.inputText = selector);
 
-  const currentQuery = (self[0] = newQuery());
+  let currentQuery = (self[0] = newQuery());
   self.length = 1;
 
   remaining = consumeWhitespace(remaining); // get rid of leading whitespace
@@ -257,7 +257,7 @@ export const toString = function () {
     }, "");
   };
 
-  const str = "";
+  let str= "";
 
   for (let i = 0; i < this.length; i++) {
     const query = this[i];

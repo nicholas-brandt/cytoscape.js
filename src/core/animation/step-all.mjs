@@ -9,7 +9,7 @@ function stepAll(now, cy) {
     const _p = ele._private;
     const current = _p.animation.current;
     const queue = _p.animation.queue;
-    const ranAnis = false;
+    let ranAnis = false;
 
     // if nothing currently animating, get something from the queue
     if (current.length === 0) {
@@ -93,7 +93,7 @@ function stepAll(now, cy) {
   } // stepElement
 
   // handle all eles
-  const ranEleAni = false;
+  let ranEleAni = false;
   for (let e = 0; e < eles.length; e++) {
     const ele = eles[e];
     const handledThisEle = stepOne(ele);

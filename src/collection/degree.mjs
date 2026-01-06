@@ -15,7 +15,7 @@ function defineDegreeFunction(callback) {
     }
 
     if (self.isNode() && !self.removed()) {
-      const degree = 0;
+      let degree = 0;
       const node = self[0];
       const connectedEdges = node._private.edges;
 
@@ -110,7 +110,7 @@ util.extend(elesfn, {
 
 util.extend(elesfn, {
   totalDegree: function (includeLoops) {
-    const total = 0;
+    let total = 0;
     const nodes = this.nodes();
 
     for (let i = 0; i < nodes.length; i++) {

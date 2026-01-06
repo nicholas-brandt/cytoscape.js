@@ -6,9 +6,9 @@ export const valCmp = (fieldVal, operator, value) => {
   const isFieldNum = is.number(fieldVal);
   const isValStr = is.string(value);
   let fieldStr, valStr;
-  const caseInsensitive = false;
-  const notExpr = false;
-  const isIneqCmp = false;
+  let caseInsensitive = false;
+  let notExpr = false;
+  let isIneqCmp = false;
 
   if (operator.indexOf("!") >= 0) {
     operator = operator.replace("!", "");

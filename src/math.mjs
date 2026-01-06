@@ -18,7 +18,7 @@ export const array2point = (arr) => ({
 });
 
 export const min = (arr, begin = 0, end = arr.length) => {
-  const min = Infinity;
+  let min = Infinity;
 
   for (let i = begin; i < end; i++) {
     const val = arr[i];
@@ -32,7 +32,7 @@ export const min = (arr, begin = 0, end = arr.length) => {
 };
 
 export const max = (arr, begin = 0, end = arr.length) => {
-  const max = -Infinity;
+  let max = -Infinity;
 
   for (let i = begin; i < end; i++) {
     const val = arr[i];
@@ -46,8 +46,8 @@ export const max = (arr, begin = 0, end = arr.length) => {
 };
 
 export const mean = (arr, begin = 0, end = arr.length) => {
-  const total = 0;
-  const n = 0;
+  let total = 0;
+  let n = 0;
 
   for (let i = begin; i < end; i++) {
     const val = arr[i];
@@ -82,7 +82,7 @@ export const median = (
   }
 
   // all non finite (e.g. Infinity, NaN) elements must be -Infinity so they go to the start
-  const off = 0; // offset from non-finite values
+  let off = 0; // offset from non-finite values
   for (let i = arr.length - 1; i >= 0; i--) {
     const v = arr[i];
 
@@ -141,7 +141,7 @@ export const inPlaceSumNormalize = (v) => {
   const length = v.length;
 
   // First, get sum of all elements
-  const total = 0;
+  let total = 0;
   for (let i = 0; i < length; i++) {
     total += v[i];
   }
@@ -403,7 +403,7 @@ function inflatePolygon(polygon, d) {
   };
   // Signed area (positive = CCW)
   const signedArea = (pts) => {
-    const A = 0;
+    let A = 0;
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i],
         q = pts[(i + 1) % pts.length];
@@ -887,7 +887,7 @@ export const sqdistToQuadraticBezier = (x, y, x1, y1, x2, y2, x3, y3) => {
   params.push(1.0);
   params.push(0.0);
 
-  const minDistanceSquared = -1;
+  let minDistanceSquared = -1;
 
   let curX, curY, distSquared;
   for (let i = 0; i < params.length; i++) {
@@ -941,8 +941,8 @@ export const pointInsidePolygonPoints = (x, y, points) => {
   let y3;
 
   // Intersect with vertical line through (x, y)
-  const up = 0;
-  // const down = 0;
+  let up = 0;
+  // let down = 0;
   for (let i = 0; i < points.length / 2; i++) {
     x1 = points[i * 2];
     y1 = points[i * 2 + 1];
@@ -1409,7 +1409,7 @@ export const polygonIntersectLine = (
 
   const transformedPoints = new Array(basePoints.length);
 
-  const doTransform = true;
+  let doTransform = true;
   if (width == null) {
     doTransform = false;
   }
@@ -1528,10 +1528,10 @@ export const roundPolygonIntersectLine = (
 
   if (intersections.length > 2) {
     const lowestIntersection = [intersections[0], intersections[1]];
-    const lowestSquaredDistance =
+    let lowestSquaredDistance =
       Math.pow(lowestIntersection[0] - x, 2) +
       Math.pow(lowestIntersection[1] - y, 2);
-    for (const i = 1; i < intersections.length / 2; i++) {
+    for (let i = 1; i < intersections.length / 2; i++) {
       const squaredDistance =
         Math.pow(intersections[i * 2] - x, 2) +
         Math.pow(intersections[i * 2 + 1] - y, 2);
@@ -1552,7 +1552,7 @@ export const shortenIntersection = (intersection, offset, amount) => {
 
   const length = Math.sqrt(disp[0] * disp[0] + disp[1] * disp[1]);
 
-  const lenRatio = (length - amount) / length;
+  let lenRatio = (length - amount) / length;
 
   if (lenRatio < 0) {
     lenRatio = 0.00001;
@@ -1571,7 +1571,7 @@ export const generateUnitNgonPointsFitToSquare = (sides, rotationRadians) => {
 export const fitPolygonToSquare = (points) => {
   let x, y;
   const sides = points.length / 2;
-  const minX = Infinity,
+  let minX = Infinity,
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
@@ -1670,8 +1670,8 @@ export function satPolygonIntersection(poly1, poly2) {
   }
 
   function project(polygon, axis) {
-    const min = Infinity;
-    const max = -Infinity;
+    let min = Infinity;
+    let max = -Infinity;
     for (const point of polygon) {
       const projection = point.x * axis.x + point.y * axis.y;
       min = Math.min(min, projection);

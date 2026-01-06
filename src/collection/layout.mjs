@@ -90,7 +90,7 @@ const elesfn = {
     const bb = spacingBb();
 
     const getFinalPos = util.memoize(function (node, i) {
-      const newPos = fnMem(node, i);
+      let newPos = fnMem(node, i);
 
       if (useSpacingFactor) {
         const spacing = Math.abs(options.spacingFactor);

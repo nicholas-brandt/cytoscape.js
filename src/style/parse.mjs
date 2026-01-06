@@ -80,7 +80,7 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
 
   name = util.camel2dash(name); // make sure the property name is in dash form (e.g. 'property-name' not 'propertyName')
 
-  const property = self.properties[name];
+  let property = self.properties[name];
   const passedValue = value;
   const types = self.types;
 
@@ -248,8 +248,8 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
     const valArr = [];
     const unitsArr = [];
     const pfValArr = [];
-    const strVal = "";
-    const hasEnum = false;
+    let strVal = "";
+    let hasEnum = false;
 
     for (let i = 0; i < vals.length; i++) {
       const p = self.parse(name, vals[i], propIsBypass, "multiple");
@@ -310,7 +310,7 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
   // check the type and return the appropriate object
   if (type.number) {
     let units;
-    const implicitUnits = "px"; // not set => px
+    let implicitUnits = "px"; // not set => px
 
     if (type.units) {
       // use specified units if set
@@ -323,7 +323,7 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
 
     if (!type.unitless) {
       if (valueIsString) {
-        const unitsRegex = "px|em" + (type.allowPercent ? "|\\%" : "");
+        let unitsRegex = "px|em" + (type.allowPercent ? "|\\%" : "");
         if (units) {
           unitsRegex = units;
         } // only allow explicit units if so set

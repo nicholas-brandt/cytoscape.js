@@ -99,7 +99,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
   }
 
   function getTForX(aX) {
-    const intervalStart = 0.0,
+    let intervalStart = 0.0,
       currentSample = 1,
       lastSample = kSplineTableSize - 1;
 
@@ -132,7 +132,7 @@ function generateCubicBezier(mX1, mY1, mX2, mY2) {
     }
   }
 
-  const _precomputed = false;
+  let _precomputed = false;
 
   function precompute() {
     _precomputed = true;

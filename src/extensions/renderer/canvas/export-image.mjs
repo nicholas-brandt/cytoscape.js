@@ -23,7 +23,7 @@ CRp.bufferCanvasImage = function (options) {
   const specdMaxDims =
     is.number(options.maxWidth) || is.number(options.maxHeight);
   const pxRatio = this.getPixelRatio();
-  const scale = 1;
+  let scale = 1;
 
   if (options.scale !== undefined) {
     width *= options.scale;
@@ -31,8 +31,8 @@ CRp.bufferCanvasImage = function (options) {
 
     scale = options.scale;
   } else if (specdMaxDims) {
-    const maxScaleW = Infinity;
-    const maxScaleH = Infinity;
+    let maxScaleW = Infinity;
+    let maxScaleH = Infinity;
 
     if (is.number(options.maxWidth)) {
       maxScaleW = (scale * options.maxWidth) / width;
@@ -127,7 +127,7 @@ function b64ToBlob(b64, mimeType) {
 }
 
 function b64UriToB64(b64uri) {
-  const i = b64uri.indexOf(",");
+  let i = b64uri.indexOf(",");
 
   return b64uri.substr(i + 1);
 }

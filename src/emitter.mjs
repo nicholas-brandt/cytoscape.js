@@ -216,8 +216,8 @@ p.removeAllListeners = function () {
 };
 
 p.emit = p.trigger = function (events, extraParams, manualCallback) {
-  const listeners = this.listeners;
-  const numListenersBeforeEmit = listeners.length;
+  let listeners= this.listeners;
+  let numListenersBeforeEmit= listeners.length;
 
   this.emitting++;
 

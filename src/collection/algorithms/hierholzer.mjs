@@ -14,7 +14,7 @@ const elesfn = {
     }
     let { root, directed } = hierholzerDefaults(options);
     const eles = this;
-    const dflag = false;
+    let dflag = false;
     let oddIn;
     let oddOut;
     let startVertex;
@@ -90,7 +90,7 @@ const elesfn = {
     }
 
     const walk = (v) => {
-      const currentNode = v;
+      let currentNode = v;
       const subtour = [v];
       let adj, adjTail, adjHead;
       while (nodes[currentNode].length) {

@@ -43,12 +43,12 @@ if (process.env.NODE_ENV !== "production") {
   /* eslint-disable no-console, no-unused-vars */
   const printMatrix = function (M) {
     // used for debugging purposes only
-    const str = "";
+    let str= "";
     const log = (s) => (str = str + s + "\n");
     const n = Math.sqrt(M.length);
-    for (const i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       const row = "";
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         row += M[i * n + j] + " ";
       }
       log(row);
@@ -94,7 +94,7 @@ const getPreference = function (S, preference) {
 
 const findExemplars = function (n, R, A) {
   const indices = [];
-  for (const i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     if (R[i * n + i] + A[i * n + i] > 0) {
       indices.push(i);
     }
@@ -105,11 +105,11 @@ const findExemplars = function (n, R, A) {
 const assignClusters = function (n, S, exemplars) {
   const clusters = [];
 
-  for (const i = 0; i < n; i++) {
-    const index = -1;
-    const max = -Infinity;
+  for (let i = 0; i < n; i++) {
+    let index = -1;
+    let max = -Infinity;
 
-    for (const ei = 0; ei < exemplars.length; ei++) {
+    for (let ei = 0; ei < exemplars.length; ei++) {
       const e = exemplars[ei];
       if (S[i * n + e] > max) {
         index = e;
@@ -132,19 +132,19 @@ const assignClusters = function (n, S, exemplars) {
 const assign = function (n, S, exemplars) {
   let clusters = assignClusters(n, S, exemplars);
 
-  for (const ei = 0; ei < exemplars.length; ei++) {
+  for (let ei = 0; ei < exemplars.length; ei++) {
     const ii = [];
-    for (const c = 0; c < clusters.length; c++) {
+    for (let c = 0; c < clusters.length; c++) {
       if (clusters[c] === exemplars[ei]) {
         ii.push(c);
       }
     }
 
     const maxI = -1;
-    const maxSum = -Infinity;
-    for (const i = 0; i < ii.length; i++) {
-      const sum = 0;
-      for (const j = 0; j < ii.length; j++) {
+    let maxSum = -Infinity;
+    for (let i = 0; i < ii.length; i++) {
+      let sum = 0;
+      for (let j = 0; j < ii.length; j++) {
         sum += S[ii[j] * n + ii[i]];
       }
       if (sum > maxSum) {
@@ -186,12 +186,12 @@ const affinityPropagation = function (options) {
 
   // Initialize and build S similarity matrix
   S = new Array(n2);
-  for (const i = 0; i < n2; i++) {
+  for (let i = 0; i < n2; i++) {
     S[i] = -Infinity; // for cases where two data points shouldn't be linked together
   }
 
-  for (const i = 0; i < n; i++) {
-    for (const j = 0; j < n; j++) {
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       if (i !== j) {
         S[i * n + j] = getSimilarity(
           opts.distance,
@@ -205,19 +205,19 @@ const affinityPropagation = function (options) {
 
   // Place preferences on the diagonal of S
   p = getPreference(S, opts.preference);
-  for (const i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     S[i * n + i] = p;
   }
 
   // Initialize R responsibility matrix
   R = new Array(n2);
-  for (const i = 0; i < n2; i++) {
+  for (let i = 0; i < n2; i++) {
     R[i] = 0.0;
   }
 
   // Initialize A availability matrix
   A = new Array(n2);
-  for (const i = 0; i < n2; i++) {
+  for (let i = 0; i < n2; i++) {
     A[i] = 0.0;
   }
 
@@ -225,14 +225,14 @@ const affinityPropagation = function (options) {
   const Rp = new Array(n);
   const se = new Array(n);
 
-  for (const i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     old[i] = 0.0;
     Rp[i] = 0.0;
     se[i] = 0;
   }
 
   const e = new Array(n * opts.minIterations);
-  for (const i = 0; i < e.length; i++) {
+  for (let i = 0; i < e.length; i++) {
     e[i] = 0;
   }
 
@@ -241,13 +241,13 @@ const affinityPropagation = function (options) {
     // main algorithmic loop
 
     // Update R responsibility matrix
-    for (const i = 0; i < n; i++) {
-      const max = -Infinity,
+    for (let i = 0; i < n; i++) {
+      let max = -Infinity,
         max2 = -Infinity,
         maxI = -1,
         AS = 0.0;
 
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         old[j] = R[i * n + j];
 
         AS = A[i * n + j] + S[i * n + j];
@@ -260,7 +260,7 @@ const affinityPropagation = function (options) {
         }
       }
 
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         R[i * n + j] =
           (1 - opts.damping) * (S[i * n + j] - max) + opts.damping * old[j];
       }
@@ -271,10 +271,10 @@ const affinityPropagation = function (options) {
     }
 
     // Update A availability matrix
-    for (const i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       let sum = 0;
 
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         old[j] = A[j * n + i];
         Rp[j] = Math.max(0, R[j * n + i]);
         sum += Rp[j];
@@ -284,7 +284,7 @@ const affinityPropagation = function (options) {
       Rp[i] = R[i * n + i];
       sum += Rp[i];
 
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         A[j * n + i] =
           (1 - opts.damping) * Math.min(0, sum - Rp[j]) + opts.damping * old[j];
       }
@@ -292,8 +292,8 @@ const affinityPropagation = function (options) {
     }
 
     // Check for convergence
-    const K = 0;
-    for (const i = 0; i < n; i++) {
+    let K = 0;
+    for (let i = 0; i < n; i++) {
       const E = A[i * n + i] + R[i * n + i] > 0 ? 1 : 0;
       e[(iter % opts.minIterations) * n + i] = E;
       K += E;
@@ -303,10 +303,10 @@ const affinityPropagation = function (options) {
       K > 0 &&
       (iter >= opts.minIterations - 1 || iter == opts.maxIterations - 1)
     ) {
-      const sum = 0;
-      for (const i = 0; i < n; i++) {
+      let sum = 0;
+      for (let i = 0; i < n; i++) {
         se[i] = 0;
-        for (const j = 0; j < opts.minIterations; j++) {
+        for (let j = 0; j < opts.minIterations; j++) {
           se[i] += e[j * n + i];
         }
         if (se[i] === 0 || se[i] === opts.minIterations) {
@@ -328,7 +328,7 @@ const affinityPropagation = function (options) {
   const clusterIndices = assign(n, S, exemplarsIndices, nodes, id2position);
 
   const clusters = {};
-  for (const c = 0; c < exemplarsIndices.length; c++) {
+  for (let c = 0; c < exemplarsIndices.length; c++) {
     clusters[exemplarsIndices[c]] = [];
   }
 
@@ -342,7 +342,7 @@ const affinityPropagation = function (options) {
     }
   }
   const retClusters = new Array(exemplarsIndices.length);
-  for (const c = 0; c < exemplarsIndices.length; c++) {
+  for (let c = 0; c < exemplarsIndices.length; c++) {
     retClusters[c] = cy.collection(clusters[exemplarsIndices[c]]);
   }
 

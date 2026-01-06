@@ -18,7 +18,7 @@ const defineDagExtremity = function (params) {
         continue;
       }
 
-      const disqualified = false;
+      let disqualified = false;
       const edges = ele.connectedEdges();
 
       for (let j = 0; j < edges.length; j++) {
@@ -78,7 +78,7 @@ const defineDagOneHop = function (params) {
 
 const defineDagAllHops = function (params) {
   return function (selector) {
-    const eles = this;
+    let eles = this;
     const sEles = [];
     const sElesIds = {};
 
@@ -89,7 +89,7 @@ const defineDagAllHops = function (params) {
         break;
       } // done if none left
 
-      const newNext = false;
+      let newNext = false;
       for (let i = 0; i < next.length; i++) {
         const n = next[i];
         const nid = n.id();
@@ -398,7 +398,7 @@ util.extend(elesfn, {
     const self = this;
     const cy = self.cy();
     const visited = cy.collection();
-    const unvisited = root == null ? self.nodes() : root.nodes();
+    let unvisited = root == null ? self.nodes() : root.nodes();
     const components = [];
 
     if (root != null && unvisited.empty()) {

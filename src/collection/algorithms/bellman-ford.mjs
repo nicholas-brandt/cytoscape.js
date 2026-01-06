@@ -18,7 +18,7 @@ const elesfn = {
     let { edges, nodes } = this.byGroup();
     const numNodes = nodes.length;
     const infoMap = new Map();
-    const hasNegativeWeightCycle = false;
+    let hasNegativeWeightCycle = false;
     const negativeWeightCycles = [];
 
     root = cy.collection(root)[0]; // in case selector passed
@@ -28,7 +28,7 @@ const elesfn = {
     const numEdges = edges.length;
 
     const getInfo = (node) => {
-      const obj = infoMap.get(node.id());
+      let obj = infoMap.get(node.id());
 
       if (!obj) {
         obj = {};
@@ -46,7 +46,7 @@ const elesfn = {
     const pathTo = (to, thisStart = root) => {
       const end = getNodeFromTo(to);
       const path = [];
-      const node = end;
+      let node = end;
 
       for (;;) {
         if (node == null) {
@@ -87,7 +87,7 @@ const elesfn = {
     }
 
     // Edges relaxation
-    const replacedEdge = false;
+    let replacedEdge = false;
 
     const checkForEdgeReplacement = (
       node1,
@@ -170,7 +170,7 @@ const elesfn = {
 
               cycle.push(getInfo(start).edge);
 
-              const node = getInfo(start).pred;
+              let node = getInfo(start).pred;
               while (cycle.indexOf(node) === -1) {
                 cycle.push(node);
                 cycle.push(getInfo(node).edge);
@@ -178,8 +178,8 @@ const elesfn = {
               }
               cycle = cycle.slice(cycle.indexOf(node));
 
-              const smallestId = cycle[0].id();
-              const smallestIndex = 0;
+              let smallestId = cycle[0].id();
+              let smallestIndex = 0;
               for (let c = 2; c < cycle.length; c += 2) {
                 if (cycle[c].id() < smallestId) {
                   smallestId = cycle[c].id();

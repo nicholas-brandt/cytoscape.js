@@ -20,7 +20,7 @@ class ElementTextureCacheLookup {
     }
 
     const { idsByKey } = this;
-    const ids = this.idsByKey.get(key);
+    let ids = this.idsByKey.get(key);
 
     if (!ids) {
       ids = new Set();
@@ -86,7 +86,7 @@ class ElementTextureCacheLookup {
 
   getCachesAt(lvl) {
     let { cachesByLvl, lvls } = this;
-    const caches = cachesByLvl.get(lvl);
+    let caches = cachesByLvl.get(lvl);
 
     if (!caches) {
       caches = new Map();

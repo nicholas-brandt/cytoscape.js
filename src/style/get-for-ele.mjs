@@ -48,14 +48,14 @@ styfn.getStylePropertyValue = function (ele, propName, isRenderedVal) {
   ele = ele[0]; // insure it's an element
 
   if (ele) {
-    const prop = self.properties[propName];
+    let prop = self.properties[propName];
 
     if (prop.alias) {
       prop = prop.pointsTo;
     }
 
     const type = prop.type;
-    const styleProp = ele.pstyle(prop.name);
+    let styleProp = ele.pstyle(prop.name);
 
     if (styleProp) {
       let { value, units, strValue } = styleProp;
@@ -103,7 +103,7 @@ styfn.getAnimationStartStyle = function (ele, aniProps) {
     const aniProp = aniProps[i];
     const name = aniProp.name;
 
-    const styleProp = ele.pstyle(name);
+    let styleProp = ele.pstyle(name);
 
     if (styleProp !== undefined) {
       // then make a prop of it

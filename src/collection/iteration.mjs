@@ -136,7 +136,7 @@ const defineSymbolIterator = () => {
   if (isIteratorSupported) {
     elesfn[Symbol.iterator] = function () {
       const entry = { value: undefined, done: false };
-      const i = 0;
+      let i = 0;
       const length = this.length;
 
       return {

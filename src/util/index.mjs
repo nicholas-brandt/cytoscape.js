@@ -14,7 +14,7 @@ export * from "./position.mjs";
 
 export { strings, extend, extend as assign, memoize, regex, sort };
 
-const warningsEnabled = true;
+let warningsEnabled = true;
 const warnSupported = console.warn != null;
 const traceSupported = console.trace != null;
 

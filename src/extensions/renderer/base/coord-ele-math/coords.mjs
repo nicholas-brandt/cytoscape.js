@@ -82,7 +82,7 @@ BRp.findNearestElements = function (x, y, interactiveElementsOnly, isTouch) {
   const edgeThreshold = (isTouch ? 24 : 8) / zoom;
   const nodeThreshold = (isTouch ? 8 : 2) / zoom;
   const labelThreshold = (isTouch ? 8 : 2) / zoom;
-  const minSqDist = Infinity;
+  let minSqDist = Infinity;
   let nearEdge;
   let nearNode;
 
@@ -538,7 +538,7 @@ BRp.getAllInBox = function (x1, y1, x2, y2) {
       });
 
       if (nodeBoxSelectMode === "contain") {
-        const selected = false;
+        let selected = false;
 
         if (labelBoxSelectEnabled && textEvents) {
           const rotatedLabelBox = getRotatedLabelBox(node);
@@ -623,7 +623,7 @@ BRp.getAllInBox = function (x1, y1, x2, y2) {
         ) {
           const pts =
             _p.rstyle.bezierPts || _p.rstyle.linePts || _p.rstyle.haystackPts;
-          const allInside = true;
+          let allInside = true;
 
           for (let i = 0; i < pts.length; i++) {
             if (!math.pointInBoundingBox(boxBb, pts[i])) {
@@ -639,7 +639,7 @@ BRp.getAllInBox = function (x1, y1, x2, y2) {
           box.push(edge);
         }
       } else if (edgeBoxSelectMode === "overlap") {
-        const selected = false;
+        let selected = false;
 
         // Check: either endpoint inside box
         if (

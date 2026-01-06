@@ -90,7 +90,7 @@ const elesfn = {
     }
 
     const hasCompounds = cy.hasCompoundNodes();
-    const updatedEles = this;
+    let updatedEles = this;
 
     notifyRenderer =
       notifyRenderer || notifyRenderer === undefined ? true : false;
@@ -216,7 +216,7 @@ const elesfn = {
       return this;
     }
 
-    const updateTransitions = false;
+    let updateTransitions = false;
     const style = cy.style();
 
     if (is.plainObject(name)) {
@@ -263,7 +263,7 @@ const elesfn = {
       return this;
     }
 
-    const updateTransitions = false;
+    let updateTransitions = false;
     const style = cy.style();
     const eles = this;
 
@@ -309,7 +309,7 @@ const elesfn = {
 
     if (ele) {
       const _p = ele._private;
-      const parentOpacity = ele.pstyle("opacity").value;
+      let parentOpacity = ele.pstyle("opacity").value;
 
       if (!hasCompoundNodes) {
         return parentOpacity;

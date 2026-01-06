@@ -18,10 +18,10 @@ const getDistance = function (
   visit,
   post = identity,
 ) {
-  const ret = init;
+  let ret = init;
   let p, q;
 
-  for (const dim = 0; dim < length; dim++) {
+  for (let dim = 0; dim < length; dim++) {
     p = getP(dim);
     q = getQ(dim);
 

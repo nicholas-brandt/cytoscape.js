@@ -667,7 +667,7 @@ export class ElementDrawingWebGL {
    * this function follows same pattern as CRp.drawCachedElementPortion(...)
    */
   setTransformMatrix(ele, matrix, opts, atlasInfo, first = true) {
-    const padding = 0;
+    let padding = 0;
     if (opts.shapeProps && opts.shapeProps.padding) {
       padding = ele.pstyle(opts.shapeProps.padding).pfValue;
     }
@@ -676,7 +676,7 @@ export class ElementDrawingWebGL {
       // we've already computed the bb and tex bounds for a texture
       const { bb, tex1, tex2 } = atlasInfo;
       // wrapped textures need separate matrix for each part
-      const ratio = tex1.w / (tex1.w + tex2.w);
+      let ratio = tex1.w / (tex1.w + tex2.w);
       if (!first) {
         // first = true means its the first part of the wrapped texture
         ratio = 1 - ratio;
@@ -730,7 +730,7 @@ export class ElementDrawingWebGL {
       h += 2 * padding;
     }
 
-    const xOffset = 0;
+    let xOffset = 0;
     const adjW = w * ratio;
 
     if (first && ratio < 1) {
@@ -1013,13 +1013,13 @@ export class ElementDrawingWebGL {
         const lineWidthBuffer = this.lineWidthBuffer.getView(instance);
         lineWidthBuffer[0] = width;
 
-        const pAx = points[i - 2],
+        let pAx = points[i - 2],
           pAy = points[i - 1];
         const pBx = points[i],
           pBy = points[i + 1];
         const pCx = points[i + 2],
           pCy = points[i + 3];
-        const pDx = points[i + 4],
+        let pDx = points[i + 4],
           pDy = points[i + 5];
 
         // make phantom points for the first and last segments

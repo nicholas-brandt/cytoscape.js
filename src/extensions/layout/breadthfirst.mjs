@@ -100,7 +100,7 @@ BreadthFirstLayout.prototype.run = function () {
       depths[d] = [];
     }
 
-    const i = depths[d].length;
+    let i = depths[d].length;
 
     depths[d].push(ele);
 
@@ -168,7 +168,7 @@ BreadthFirstLayout.prototype.run = function () {
   const adjustMaximally = function (ele, shifted) {
     const eInfo = getInfo(ele);
     const incomers = ele.incomers().filter((el) => el.isNode() && eles.has(el));
-    const maxDepth = -1;
+    let maxDepth = -1;
     const id = ele.id();
 
     for (let k = 0; k < incomers.length; k++) {
@@ -225,7 +225,7 @@ BreadthFirstLayout.prototype.run = function () {
   }
 
   // find min distance we need to leave between nodes
-  const minDistance = 0;
+  let minDistance = 0;
   if (options.avoidOverlap) {
     for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i];
@@ -292,7 +292,7 @@ BreadthFirstLayout.prototype.run = function () {
   };
 
   // rearrange the indices in each depth level based on connectivity
-  const sortFn = function (a, b) {
+  let sortFn = function (a, b) {
     const apct = getWeightedPercent(a);
     const bpct = getWeightedPercent(b);
 
@@ -309,7 +309,7 @@ BreadthFirstLayout.prototype.run = function () {
     sortFn = options.depthSort;
   }
 
-  const depthsLen = depths.length;
+  let depthsLen = depths.length;
 
   // sort each level to make connected nodes closer
   for (let i = 0; i < depthsLen; i++) {
@@ -336,7 +336,7 @@ BreadthFirstLayout.prototype.run = function () {
     assignDepths();
   }
 
-  const biggestDepthSize = 0;
+  let biggestDepthSize = 0;
   for (let i = 0; i < depthsLen; i++) {
     biggestDepthSize = Math.max(depths[i].length, biggestDepthSize);
   }

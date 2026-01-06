@@ -27,7 +27,7 @@ function defineSwitchFunction(params) {
 
       for (let i = 0; i < this.length; i++) {
         const ele = this[i];
-        const able = !params.ableField || ele._private[params.ableField];
+        let able = !params.ableField || ele._private[params.ableField];
         const changed = ele._private[params.field] != params.value;
 
         if (params.overrideAble) {

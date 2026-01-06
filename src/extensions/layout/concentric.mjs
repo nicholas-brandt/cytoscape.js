@@ -71,7 +71,7 @@ ConcentricLayout.prototype.run = function () {
   };
 
   const nodeValues = []; // { node, value }
-  const maxNodeSize = 0;
+  let maxNodeSize = 0;
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
@@ -108,7 +108,7 @@ ConcentricLayout.prototype.run = function () {
 
   // put the values into levels
   const levels = [[]];
-  const currentLevel = levels[0];
+  let currentLevel = levels[0];
   for (let i = 0; i < nodeValues.length; i++) {
     const val = nodeValues[i];
 
@@ -126,7 +126,7 @@ ConcentricLayout.prototype.run = function () {
 
   // create positions from levels
 
-  const minDist = maxNodeSize + options.minNodeSpacing; // min dist between nodes
+  let minDist = maxNodeSize + options.minNodeSpacing; // min dist between nodes
 
   if (!options.avoidOverlap) {
     // then strictly constrain to bb
@@ -138,7 +138,7 @@ ConcentricLayout.prototype.run = function () {
   }
 
   // find the metrics for each level
-  const r = 0;
+  let r = 0;
   for (let i = 0; i < levels.length; i++) {
     const level = levels[i];
     const sweep =
@@ -163,7 +163,7 @@ ConcentricLayout.prototype.run = function () {
   }
 
   if (options.equidistant) {
-    const rDeltaMax = 0;
+    let rDeltaMax = 0;
     let r = 0;
 
     for (let i = 0; i < levels.length; i++) {

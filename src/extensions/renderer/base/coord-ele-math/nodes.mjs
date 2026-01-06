@@ -4,7 +4,7 @@ import { warn } from "../../../../util/index.mjs";
 
 const TOO_SMALL_CUT_RECT = 28;
 
-const warnedCutRect = false;
+let warnedCutRect = false;
 
 BRp.getNodeShape = function (node) {
   const r = this;

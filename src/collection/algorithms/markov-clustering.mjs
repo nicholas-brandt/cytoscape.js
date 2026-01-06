@@ -28,9 +28,9 @@ if (process.env.NODE_ENV !== "production") {
   const printMatrix = function (M) {
     // used for debugging purposes only
     const n = Math.sqrt(M.length);
-    for (const i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       const row = "";
-      for (const j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++) {
         row += Number(M[i * n + j]).toFixed(3) + " ";
       }
       console.log(row);
@@ -41,8 +41,8 @@ if (process.env.NODE_ENV !== "production") {
 /* eslint-enable */
 
 const getSimilarity = function (edge, attributes) {
-  const total = 0;
-  for (const i = 0; i < attributes.length; i++) {
+  let total = 0;
+  for (let i = 0; i < attributes.length; i++) {
     total += attributes[i](edge);
   }
   return total;
@@ -56,12 +56,12 @@ const addLoops = function (M, n, val) {
 
 const normalize = function (M, n) {
   let sum;
-  for (const col = 0; col < n; col++) {
+  for (let col = 0; col < n; col++) {
     sum = 0;
-    for (const row = 0; row < n; row++) {
+    for (let row = 0; row < n; row++) {
       sum += M[row * n + col];
     }
-    for (const row = 0; row < n; row++) {
+    for (let row = 0; row < n; row++) {
       M[row * n + col] = M[row * n + col] / sum;
     }
   }
@@ -71,13 +71,13 @@ const normalize = function (M, n) {
 const mmult = function (A, B, n) {
   const C = new Array(n * n);
 
-  for (const i = 0; i < n; i++) {
-    for (const j = 0; j < n; j++) {
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       C[i * n + j] = 0;
     }
 
-    for (const k = 0; k < n; k++) {
-      for (const j = 0; j < n; j++) {
+    for (let k = 0; k < n; k++) {
+      for (let j = 0; j < n; j++) {
         C[i * n + j] += A[i * n + k] * B[k * n + j];
       }
     }
@@ -88,7 +88,7 @@ const mmult = function (A, B, n) {
 const expand = function (M, n, expandFactor /** power **/) {
   const _M = M.slice(0);
 
-  for (const p = 1; p < expandFactor; p++) {
+  for (let p = 1; p < expandFactor; p++) {
     M = mmult(M, _M, n);
   }
   return M;
@@ -98,7 +98,7 @@ const inflate = function (M, n, inflateFactor /** r **/) {
   const _M = new Array(n * n);
 
   // M(i,j) ^ inflatePower
-  for (const i = 0; i < n * n; i++) {
+  for (let i = 0; i < n * n; i++) {
     _M[i] = Math.pow(M[i], inflateFactor);
   }
 
@@ -109,7 +109,7 @@ const inflate = function (M, n, inflateFactor /** r **/) {
 
 const hasConverged = function (M, _M, n2, roundFactor) {
   // Check that both matrices have the same elements (i,j)
-  for (const i = 0; i < n2; i++) {
+  for (let i = 0; i < n2; i++) {
     const v1 =
       Math.round(M[i] * Math.pow(10, roundFactor)) / Math.pow(10, roundFactor); // truncate to 'roundFactor' decimal places
     const v2 =
@@ -125,9 +125,9 @@ const hasConverged = function (M, _M, n2, roundFactor) {
 const assign = function (M, n, nodes, cy) {
   const clusters = [];
 
-  for (const i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     const cluster = [];
-    for (const j = 0; j < n; j++) {
+    for (let j = 0; j < n; j++) {
       // Row-wise attractors and elements that they attract belong in same cluster
       if (Math.round(M[i * n + j] * 1000) / 1000 > 0) {
         cluster.push(nodes[j]);
@@ -177,16 +177,16 @@ const markovClustering = function (options) {
   // Generate stochastic matrix M from input graph G (should be symmetric/undirected)
   const n = nodes.length,
     n2 = n * n;
-  const M = new Array(n2);
+  let M = new Array(n2);
   let _M;
-  for (const i = 0; i < n2; i++) {
+  for (let i = 0; i < n2; i++) {
     M[i] = 0;
   }
 
-  for (const e = 0; e < edges.length; e++) {
+  for (let e = 0; e < edges.length; e++) {
     const edge = edges[e];
-    const i = id2position[edge.source().id()];
-    const j = id2position[edge.target().id()];
+    let i = id2position[edge.source().id()];
+    let j = id2position[edge.target().id()];
 
     const sim = getSimilarity(edge, opts.attributes);
 
@@ -202,8 +202,8 @@ const markovClustering = function (options) {
   // Step 2: M = normalize( M );
   normalize(M, n);
 
-  const isStillMoving = true;
-  const iterations = 0;
+  let isStillMoving = true;
+  let iterations = 0;
   while (isStillMoving && iterations < opts.maxIterations) {
     isStillMoving = false;
 

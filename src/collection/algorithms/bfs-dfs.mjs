@@ -26,7 +26,7 @@ const defineSearch = function (params) {
     const connectedBy = {};
     const id2depth = {};
     const V = {};
-    const j = 0;
+    let j = 0;
     let found;
     let { nodes, edges } = this.byGroup();
 
@@ -86,7 +86,7 @@ const defineSearch = function (params) {
         .filter((e) => (!directed || e.source().same(v)) && edges.has(e));
       for (let i = 0; i < vwEdges.length; i++) {
         const e = vwEdges[i];
-        const w = e.connectedNodes().filter((n) => !n.same(v) && nodes.has(n));
+        let w = e.connectedNodes().filter((n) => !n.same(v) && nodes.has(n));
         const wId = w.id();
 
         if (w.length !== 0 && !V[wId]) {

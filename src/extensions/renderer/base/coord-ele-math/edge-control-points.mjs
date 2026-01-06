@@ -185,7 +185,7 @@ BRp.findLoopPoints = function (edge, pairInfo, i, edgeIsUnbundled) {
   rs.edgeType = "self";
 
   let j = i;
-  const loopDist = stepSize;
+  let loopDist = stepSize;
 
   if (edgeIsUnbundled) {
     j = 0;
@@ -220,8 +220,8 @@ BRp.findCompoundLoopPoints = function (edge, pairInfo, i, edgeIsUnbundled) {
   const ctrlptDists = edge.pstyle("control-point-distances");
   const ctrlptDist = ctrlptDists ? ctrlptDists.pfValue[0] : undefined;
 
-  const j = i;
-  const loopDist = stepSize;
+  let j = i;
+  let loopDist = stepSize;
 
   if (edgeIsUnbundled) {
     j = 0;
@@ -387,7 +387,7 @@ BRp.findTaxiPoints = function (edge, pairInfo) {
   const dx = subDWH(pdx, dw);
   const dy = subDWH(pdy, dh);
 
-  const isExplicitDir = false;
+  let isExplicitDir = false;
 
   if (rawTaxiDir === AUTO) {
     taxiDir = Math.abs(dx) > Math.abs(dy) ? HORIZONTAL : VERTICAL;
@@ -404,7 +404,7 @@ BRp.findTaxiPoints = function (edge, pairInfo) {
   const pl = isVert ? pdy : pdx;
   const sgnL = math.signum(pl);
 
-  const forcedDir = false;
+  let forcedDir = false;
   if (
     !(isExplicitDir && (turnIsPercent || turnIsNegative)) && // forcing in this case would cause weird growing in the opposite direction
     ((rawTaxiDir === DOWNWARD && pl < 0) ||
@@ -548,7 +548,7 @@ BRp.tryToCorrectInvalidPoints = function (edge, pairInfo) {
     );
     const closeEndACp = endACpDist < minCpADist;
 
-    const overlapping = false;
+    let overlapping = false;
 
     if (badStart || badAStart || closeStartACp) {
       overlapping = true;

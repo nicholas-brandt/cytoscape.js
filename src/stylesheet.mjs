@@ -20,7 +20,7 @@ sheetfn.instanceString = function () {
 
 // just store the selector to be parsed later
 sheetfn.selector = function (selector) {
-  const i = this.length++;
+  let i = this.length++;
 
   this[i] = {
     selector: selector,
@@ -32,7 +32,7 @@ sheetfn.selector = function (selector) {
 
 // just store the property to be parsed later
 sheetfn.css = function (name, value) {
-  const i = this.length - 1;
+  let i = this.length - 1;
 
   if (is.string(name)) {
     this[i].properties.push({

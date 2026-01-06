@@ -82,8 +82,8 @@ const elesfn = {
     }
 
     // Compute dominant eigenvector using power method
-    const eigenvector = new Array(numNodes);
-    const temp = new Array(numNodes);
+    let eigenvector = new Array(numNodes);
+    let temp = new Array(numNodes);
     let previous;
 
     // Start with a vector of all 1's
@@ -112,7 +112,7 @@ const elesfn = {
       eigenvector = temp;
       temp = previous;
 
-      const diff = 0;
+      let diff = 0;
       // Compute difference (squared module) of both vectors
       for (let i = 0; i < numNodes; i++) {
         const delta = previous[i] - eigenvector[i];

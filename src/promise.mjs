@@ -142,7 +142,7 @@ const resolve = function (promise, x) {
   /*  handle own Thenables    [Promises/A+ 2.3.2]
     and similar "thenables" [Promises/A+ 2.3.3]  */
   if (typeof then === "function") {
-    const resolved = false;
+    let resolved = false;
     try {
       /*  call retrieved "then" method */ /*  [Promises/A+ 2.3.3.3]  */
       then.call(
@@ -180,7 +180,7 @@ const resolve = function (promise, x) {
 api.all = function (ps) {
   return new api(function (resolveAll, rejectAll) {
     const vals = new Array(ps.length);
-    const doneCount = 0;
+    let doneCount = 0;
 
     const fulfill = function (i, val) {
       vals[i] = val;

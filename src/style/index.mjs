@@ -80,7 +80,7 @@ styfn.selector = function (selectorStr) {
   // 'core' is a special case and does not need a selector
   const selector = selectorStr === "core" ? null : new Selector(selectorStr);
 
-  const i = this.length++; // new context means new index
+  let i = this.length++; // new context means new index
   this[i] = {
     selector: selector,
     properties: [],
@@ -101,7 +101,7 @@ styfn.css = function () {
 
     for (let i = 0; i < self.properties.length; i++) {
       const prop = self.properties[i];
-      const mapVal = map[prop.name];
+      let mapVal = map[prop.name];
 
       if (mapVal === undefined) {
         mapVal = map[util.dash2camel(prop.name)];
@@ -128,7 +128,7 @@ styfn.cssRule = function (name, value) {
 
   // add property to current context if valid
   if (property) {
-    const i = this.length - 1;
+    let i = this.length - 1;
     this[i].properties.push(property);
     this[i].properties[property.name] = property; // allow access by name as well
 

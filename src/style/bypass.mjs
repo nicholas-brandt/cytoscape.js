@@ -8,7 +8,7 @@ const styfn = {};
 styfn.applyBypass = function (eles, name, value, updateTransitions) {
   const self = this;
   const props = [];
-  const isBypass = true;
+  let isBypass = true;
 
   // put all the properties (can specify one or many) in an array after parsing them
   if (name === "*" || name === "**") {
@@ -42,7 +42,7 @@ styfn.applyBypass = function (eles, name, value, updateTransitions) {
 
     for (let i = 0; i < names.length; i++) {
       const name = names[i];
-      const value = specifiedProps[name];
+      let value = specifiedProps[name];
 
       if (value === undefined) {
         // try camel case name too
@@ -68,7 +68,7 @@ styfn.applyBypass = function (eles, name, value, updateTransitions) {
   }
 
   // now, apply the bypass properties on the elements
-  const ret = false; // return true if at least one succesful bypass applied
+  let ret = false; // return true if at least one succesful bypass applied
   for (let i = 0; i < eles.length; i++) {
     // for each ele
     const ele = eles[i];
@@ -149,7 +149,7 @@ styfn.removeAllBypasses = function (eles, updateTransitions) {
 };
 
 styfn.removeBypasses = function (eles, props, updateTransitions) {
-  const isBypass = true;
+  let isBypass = true;
 
   for (let j = 0; j < eles.length; j++) {
     const ele = eles[j];

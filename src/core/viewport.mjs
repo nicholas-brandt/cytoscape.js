@@ -349,7 +349,7 @@ const corefn = {
     const currentZoom = _p.zoom;
     let pos; // in rendered px
     let zoom;
-    const bail = false;
+    let bail = false;
 
     if (!_p.zoomingEnabled) {
       // zooming disabled
@@ -451,11 +451,11 @@ const corefn = {
 
   viewport: function (opts) {
     const _p = this._private;
-    const zoomDefd = true;
-    const panDefd = true;
+    let zoomDefd = true;
+    let panDefd = true;
     const events = []; // to trigger
-    const zoomFailed = false;
-    const panFailed = false;
+    let zoomFailed = false;
+    let panFailed = false;
 
     if (!opts) {
       return this;

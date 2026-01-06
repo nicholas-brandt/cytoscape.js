@@ -21,7 +21,7 @@ const Core = function (opts) {
 
   opts = util.extend({}, opts);
 
-  const container = opts.container;
+  let container = opts.container;
 
   // allow for passing a wrapped jquery object
   // e.g. cytoscape({ container: $('#cy') })

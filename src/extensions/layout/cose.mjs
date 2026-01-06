@@ -207,12 +207,12 @@ CoseLayout.prototype.run = function () {
     }
   };
 
-  const i = 0;
-  const loopRet = true;
+  let i = 0;
+  let loopRet = true;
 
   if (options.animate === true) {
     const frame = function () {
-      const f = 0;
+      let f = 0;
 
       while (loopRet && f < options.refresh) {
         loopRet = mainLoop(i);
@@ -362,7 +362,7 @@ const createLayoutInfo = function (cy, layout, options) {
 
   // Inline implementation of a queue, used for traversing the graph in BFS order
   const queue = [];
-  const start = 0; // Points to the start the queue
+  let start = 0; // Points to the start the queue
   const end = -1; // Points to the end of the queue
 
   const tempGraph = [];
@@ -421,7 +421,7 @@ const createLayoutInfo = function (cy, layout, options) {
     tempEdge.targetId = e.data("target");
 
     // Compute ideal length
-    const idealLength = is.fn(options.idealEdgeLength)
+    let idealLength = is.fn(options.idealEdgeLength)
       ? options.idealEdgeLength(e)
       : options.idealEdgeLength;
     const elasticity = is.fn(options.edgeElasticity)
@@ -440,7 +440,7 @@ const createLayoutInfo = function (cy, layout, options) {
 
       // Compute sum of node depths, relative to lca graph
       const lcaGraph = layoutInfo.graphSet[lca];
-      const depth = 0;
+      let depth = 0;
 
       // Source depth
       let tempNode = layoutInfo.layoutNodes[sourceIx];
@@ -521,7 +521,7 @@ const findLCA_aux = function (node1, node2, graphIx, layoutInfo) {
   }
 
   // Make recursive calls for all subgraphs
-  const c = 0;
+  let c = 0;
   for (let i = 0; i < graph.length; i++) {
     const nodeId = graph[i];
     const nodeIx = layoutInfo.idToIndex[nodeId];
@@ -809,9 +809,9 @@ const nodeRepulsion = function (node1, node2, layoutInfo, options) {
   }
 
   // Get direction of line connecting both node centers
-  const directionX = node2.positionX - node1.positionX;
-  const directionY = node2.positionY - node1.positionY;
-  const maxRandDist = 1;
+  let directionX = node2.positionX - node1.positionX;
+  let directionY = node2.positionY - node1.positionY;
+  let maxRandDist = 1;
   // s += "\ndirectionX: " + directionX + ", directionY: " + directionY;
 
   // If both centers are the same, apply a random force
@@ -1015,8 +1015,8 @@ const calculateEdgeForces = function (layoutInfo, options) {
       const forceX = (force * lx) / l;
       const forceY = (force * ly) / l;
     } else {
-      const forceX = 0;
-      const forceY = 0;
+      let forceX = 0;
+      let forceY = 0;
     }
 
     // Add this force to target and source nodes
@@ -1044,7 +1044,7 @@ const calculateGravityForces = function (layoutInfo, options) {
     return;
   }
 
-  const distThreshold = 1;
+  let distThreshold = 1;
 
   // const s = 'calculateGravityForces';
   // logDebug(s);
@@ -1256,7 +1256,7 @@ const updateAncestryBoundaries = function (node, layoutInfo) {
 
   // Get Parent Node
   const p = layoutInfo.layoutNodes[layoutInfo.idToIndex[parentId]];
-  const flag = false;
+  let flag = false;
 
   // MaxX
   if (null == p.maxX || node.maxX + p.padRight > p.maxX) {
@@ -1309,7 +1309,7 @@ const separateComponents = function (layoutInfo, options) {
     component.push(node);
   }
 
-  const totalA = 0;
+  let totalA = 0;
 
   for (let i = 0; i < components.length; i++) {
     const c = components[i];
@@ -1342,10 +1342,10 @@ const separateComponents = function (layoutInfo, options) {
     return c2.w * c2.h - c1.w * c1.h;
   });
 
-  const x = 0;
-  const y = 0;
-  const usedW = 0;
-  const rowH = 0;
+  let x = 0;
+  let y = 0;
+  let usedW = 0;
+  let rowH = 0;
   const maxRowW =
     (Math.sqrt(totalA) * layoutInfo.clientWidth) / layoutInfo.clientHeight;
 

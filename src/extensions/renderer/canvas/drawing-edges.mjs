@@ -190,7 +190,7 @@ CRp.drawEdgePath = function (edge, context, pts, type) {
   const rs = edge._private.rscratch;
   const canvasCxt = context;
   let path;
-  const pathCacheHit = false;
+  let pathCacheHit = false;
   const usePaths = this.usePaths();
   const lineDashPattern = edge.pstyle("line-dash-pattern").pfValue;
   const lineDashOffset = edge.pstyle("line-dash-offset").pfValue;
@@ -439,7 +439,7 @@ CRp.drawArrowShape = function (
 ) {
   const r = this;
   const usePaths = this.usePaths() && shape !== "triangle-cross";
-  const pathCacheHit = false;
+  let pathCacheHit = false;
   let path;
   const canvasContext = context;
   const translation = { x, y };

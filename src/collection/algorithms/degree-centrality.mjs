@@ -18,7 +18,7 @@ const elesfn = {
 
     if (!options.directed) {
       const degrees = {};
-      const maxDegree = 0;
+      let maxDegree = 0;
 
       for (let i = 0; i < numNodes; i++) {
         const node = nodes[i];
@@ -52,8 +52,8 @@ const elesfn = {
     } else {
       const indegrees = {};
       const outdegrees = {};
-      const maxIndegree = 0;
-      const maxOutdegree = 0;
+      let maxIndegree = 0;
+      let maxOutdegree = 0;
 
       for (let i = 0; i < numNodes; i++) {
         const node = nodes[i];
@@ -118,7 +118,7 @@ const elesfn = {
     if (!directed) {
       const connEdges = root.connectedEdges().intersection(callingEles);
       const k = connEdges.length;
-      const s = 0;
+      let s = 0;
 
       // Now, sum edge weights
       for (let i = 0; i < connEdges.length; i++) {
@@ -138,8 +138,8 @@ const elesfn = {
       );
       const k_in = incoming.length;
       const k_out = outgoing.length;
-      const s_in = 0;
-      const s_out = 0;
+      let s_in = 0;
+      let s_out = 0;
 
       // Now, sum incoming edge weights
       for (let i = 0; i < incoming.length; i++) {
